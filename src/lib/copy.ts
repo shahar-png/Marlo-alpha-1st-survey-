@@ -46,7 +46,7 @@ export const SUPPLEMENTS = [
   { id: "collagen", label: "Collagen" },
   { id: "electrolytes", label: "Electrolytes" },
   { id: "ashwagandha", label: "Ashwagandha" },
-  { id: "turmeric", label: "Turmeric" },
+  { id: "turmeric", label: "Turmeric / curcumin" },
   { id: "coq10", label: "CoQ10" },
   { id: "melatonin", label: "Melatonin" },
   { id: "nac", label: "NAC" },
