@@ -1,9 +1,16 @@
 /**
- * Marlo alpha — Email 1 trigger.
- * Runs inside the Google Sheet "survey-1-answers" as jenny@saymarlo.com.
- * Install: Extensions → Apps Script → paste → Triggers → add "onChange" (from spreadsheet, On change), authorize as Jenny.
- * On every new row on "Survey 1" with an empty email1_sent_at, sends Email 1 from Jenny's inbox and stamps the time.
- * On every new row on "Later round" with an empty email_sent_at, sends the "Done" note.
+ * Marlo alpha — Survey 1 log + Email 1 sender.
+ * Lives inside the Google Sheet "survey-1-answers" (Extensions → Apps Script), owned by jenny@saymarlo.com.
+ *
+ * Install (as Jenny):
+ *   1. Extensions → Apps Script → replace Code.gs with this file → Save.
+ *   2. Project Settings → Script Properties → add SECRET = <long random string>. Same value goes to Vercel as APPS_SCRIPT_SECRET.
+ *   3. Deploy → New deployment → type "Web app" → Execute as: Me (jenny@) → Who has access: Anyone → Deploy.
+ *      Authorize when asked. Copy the Web app URL → Vercel APPS_SCRIPT_URL.
+ *   4. Re-deploy (Manage deployments → edit → new version) after any code change; the URL stays the same.
+ *
+ * Flow: Vercel /api/apply POSTs {secret, tab, columns, row, dupCols}. The script appends the row (header on first use),
+ * sends the email for that tab from Jenny's inbox, and stamps the sent time in the row. One call, no trigger.
  * Text = 02_Acceptance/email-1-we-got-it.md, verbatim. Change it there first, then here.
  */
 var FROM_NAME = "The Marlo team";
@@ -24,30 +31,63 @@ function laterBody() {
     "— The Marlo team";
 }
 
-function onChange(e) {
-  processTab_("Survey 1", "email", "first_name", "email1_sent_at", EMAIL1_SUBJECT, function(row) { return email1Body(row.first_name || "there"); });
-  processTab_("Later round", "email", null, "email_sent_at", LATER_SUBJECT, function() { return laterBody(); });
+// tab → { sentCol, subject, body(row) }
+var MAIL = {
+  "Survey 1":    { sentCol: "email1_sent_at", subject: EMAIL1_SUBJECT, body: function (r) { return email1Body(r.first_name || "there"); } },
+  "Later round": { sentCol: "email_sent_at",  subject: LATER_SUBJECT,  body: function () { return laterBody(); } }
+};
+
+function doPost(e) {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    var p = JSON.parse(e.postData.contents || "{}");
+    var secret = PropertiesService.getScriptProperties().getProperty("SECRET");
+    if (!secret || p.secret !== secret) return out_({ error: "unauthorized" });
+    if (!p.tab || !p.columns || !p.row) return out_({ error: "bad_request" });
+
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sh = ss.getSheetByName(p.tab) || ss.insertSheet(p.tab);
+    var values = sh.getDataRange().getValues();
+    if (values.length === 0 || !values[0][0]) { sh.getRange(1, 1, 1, p.columns.length).setValues([p.columns]); values = [p.columns]; }
+    var header = values[0];
+
+    // Duplicate guard (email / phone) for callers that have no database of their own.
+    var dupCols = p.dupCols || [];
+    for (var r = 1; r < values.length && dupCols.length; r++) {
+      for (var d = 0; d < dupCols.length; d++) {
+        var i = header.indexOf(dupCols[d]);
+        var want = String(p.row[dupCols[d]] || "").toLowerCase();
+        if (i >= 0 && want && String(values[r][i] || "").toLowerCase() === want) return out_({ ok: true, duplicate: true });
+      }
+    }
+
+    var line = header.map(function (h) { return p.row[h] != null ? p.row[h] : ""; });
+    sh.appendRow(line);
+    var rowIndex = sh.getLastRow();
+
+    var m = MAIL[p.tab];
+    var to = String(p.row.email || "").trim();
+    if (m && to) {
+      try {
+        GmailApp.sendEmail(to, m.subject, m.body(p.row), { name: FROM_NAME });
+        var iSent = header.indexOf(m.sentCol);
+        if (iSent >= 0) sh.getRange(rowIndex, iSent + 1).setValue(new Date().toISOString());
+      } catch (err) {
+        Logger.log("send failed row " + rowIndex + ": " + err);
+        return out_({ ok: true, duplicate: false, emailed: false, warn: String(err) });
+      }
+    }
+    return out_({ ok: true, duplicate: false, emailed: Boolean(m && to) });
+  } catch (err) {
+    return out_({ error: String(err) });
+  } finally {
+    lock.releaseLock();
+  }
 }
 
-function processTab_(tabName, emailCol, nameCol, sentCol, subject, bodyFn) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sh = ss.getSheetByName(tabName);
-  if (!sh) return;
-  var values = sh.getDataRange().getValues();
-  if (values.length < 2) return;
-  var header = values[0];
-  var iEmail = header.indexOf(emailCol), iSent = header.indexOf(sentCol), iName = nameCol ? header.indexOf(nameCol) : -1;
-  if (iEmail < 0 || iSent < 0) return;
-  for (var r = 1; r < values.length; r++) {
-    var row = values[r];
-    var to = String(row[iEmail] || "").trim();
-    if (!to || row[iSent]) continue;
-    var rec = {}; header.forEach(function(h, i) { rec[h] = row[i]; });
-    try {
-      GmailApp.sendEmail(to, subject, bodyFn(rec), { name: FROM_NAME });
-      sh.getRange(r + 1, iSent + 1).setValue(new Date().toISOString());
-    } catch (err) {
-      Logger.log("send failed row " + (r + 1) + ": " + err);
-    }
-  }
+function doGet() { return out_({ ok: true, service: "marlo-survey-1" }); }
+
+function out_(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }

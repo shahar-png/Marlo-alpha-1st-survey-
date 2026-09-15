@@ -1,37 +1,24 @@
-// Google Sheet: raw log of every submission (backup + Jenny's export). One tab per form.
-import { google } from "googleapis";
-
-function api() {
-  const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const key = (process.env.GOOGLE_PRIVATE_KEY || "").replace(/\\n/g, "\n");
-  if (!email || !key) throw new Error("missing_google_credentials");
-  const auth = new google.auth.JWT({ email, key, scopes: ["https://www.googleapis.com/auth/spreadsheets"] });
-  return google.sheets({ version: "v4", auth });
-}
+// Google Sheet: raw log of every submission + Email 1 sender.
+// Reached through the Apps Script web app that lives in the sheet (runs as jenny@saymarlo.com).
+// No service account: the org policy iam.disableServiceAccountKeyCreation blocks JSON keys, and the
+// script sends the email from Jenny's inbox anyway — so one POST does both the row and the email.
 
 export function sheetEnabled() {
-  return Boolean(process.env.SHEET_ID && process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_PRIVATE_KEY);
+  return Boolean(process.env.APPS_SCRIPT_URL && process.env.APPS_SCRIPT_SECRET);
 }
 
-/** Append a row; write the header first if the tab is empty. Returns true if a duplicate (by any of `dupCols`) already exists. */
+/** Append a row to `tab` (header written on first use) and send the matching email. Returns duplicate=true if `dupCols` already match a row. */
 export async function sheetAppend(tab: string, columns: readonly string[], row: Record<string, string>, dupCols: string[] = []): Promise<{ duplicate: boolean }> {
-  const s = api();
-  const sheetId = process.env.SHEET_ID!;
-  const existing = await s.spreadsheets.values.get({ spreadsheetId: sheetId, range: `'${tab}'!A:Z` });
-  const rows = existing.data.values || [];
-  if (rows.length === 0) {
-    await s.spreadsheets.values.append({ spreadsheetId: sheetId, range: `'${tab}'!A1`, valueInputOption: "RAW", requestBody: { values: [[...columns]] } });
-  } else if (dupCols.length) {
-    const idx = dupCols.map((c) => columns.indexOf(c)).filter((i) => i >= 0);
-    const dup = rows.slice(1).some((r) => idx.some((i) => String(r[i] || "").toLowerCase() === String(row[columns[i]] || "").toLowerCase() && row[columns[i]]));
-    if (dup) return { duplicate: true };
-  }
-  await s.spreadsheets.values.append({
-    spreadsheetId: sheetId,
-    range: `'${tab}'!A1`,
-    valueInputOption: "RAW",
-    insertDataOption: "INSERT_ROWS",
-    requestBody: { values: [columns.map((c) => row[c] ?? "")] },
+  const res = await fetch(process.env.APPS_SCRIPT_URL!, {
+    method: "POST",
+    // text/plain avoids the CORS preflight that Apps Script cannot answer; redirect: follow is required (script.google.com → script.googleusercontent.com).
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({ secret: process.env.APPS_SCRIPT_SECRET, tab, columns, row, dupCols }),
+    redirect: "follow",
   });
-  return { duplicate: false };
+  const text = await res.text();
+  let data: { ok?: boolean; duplicate?: boolean; error?: string } = {};
+  try { data = JSON.parse(text); } catch { throw new Error(`apps_script_bad_response ${res.status}: ${text.slice(0, 200)}`); }
+  if (!res.ok || data.error) throw new Error(`apps_script_failed: ${data.error || res.status}`);
+  return { duplicate: Boolean(data.duplicate) };
 }

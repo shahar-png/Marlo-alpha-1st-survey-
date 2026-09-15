@@ -67,7 +67,7 @@ export async function POST(req: Request) {
     }
   }
 
-  // 2. Raw log (Google Sheet). Also the trigger for email 1 (Apps Script on the sheet) when Notion's automation isn't used.
+  // 2. Raw log (Google Sheet) + Email 1, in one call to the Apps Script web app running as Jenny.
   if (sheetEnabled()) {
     try {
       const row: Record<string, string> = {
@@ -90,7 +90,7 @@ export async function POST(req: Request) {
         email1_sent_at: "",
         user_agent: clean(req.headers.get("user-agent"), 200),
       };
-      const { duplicate } = await sheetAppend(process.env.SHEET_TAB || "Survey 1", COLUMNS, row, pageId ? [] : ["email", "phone_e164"]);
+      const { duplicate } = await sheetAppend("Survey 1", COLUMNS, row, pageId ? [] : ["email", "phone_e164"]);
       if (duplicate) return NextResponse.json({ error: "duplicate" }, { status: 409 });
     } catch (e) {
       console.error("sheet_failed", e);

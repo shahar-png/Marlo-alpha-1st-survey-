@@ -10,19 +10,19 @@ applicant ──▶ survey (Vercel) ──▶ POST /api/apply
                                     │
                                     ├─▶ Notion · Participants     new page, State = Applied, all Survey 1 fields   ← the database
                                     │
-                                    └─▶ Google Sheet · "Survey 1"  one raw row (backup, Jenny's export)
-                                              │
-                                              └─▶ Apps Script (runs as jenny@) ──▶ Email 1 to the applicant, stamps email1_sent_at
+                                    └─▶ Apps Script web app in the Google Sheet (runs as jenny@)
+                                              ├─▶ Sheet · "Survey 1"  one raw row (backup, Jenny's export)
+                                              └─▶ Email 1 to the applicant from Jenny's inbox, stamps email1_sent_at
 
 "I don't fit this round" / Under 18 ──▶ later-round page ──▶ "I'm interested" ──▶ POST /api/later
                                     ├─▶ Notion · Participants     State = Waitlisted, tag Later program
-                                    └─▶ Sheet · "Later round"     row → Apps Script sends "Done, you're on the list"
+                                    └─▶ Apps Script ──▶ Sheet · "Later round" row + "Done, you're on the list" email
 ```
 
 - **Notion is the database.** The survey creates the participant page directly, with the property names from `notion-build-spec-v1.md`. Jenny's pipeline starts from that page (State = Applied → she runs the gates).
-- **The Sheet is the raw log and the email trigger.** Every submission is also appended as a row. The Apps Script attached to the sheet, running as Jenny, sends Email 1 within a minute and writes the timestamp back — Jenny only verifies. If the Notion automation for Gmail is preferred later, the script can be switched off; nothing else changes.
+- **The Sheet is the raw log and Email 1 goes out in the same call.** `/api/apply` POSTs to the Apps Script web app deployed from the sheet (runs as Jenny, guarded by a shared secret). The script appends the row, sends Email 1 from Jenny's inbox, and stamps `email1_sent_at` — instantly, no trigger. No Google Cloud service account is involved (the org policy blocks key creation anyway).
 - **Duplicates**: same email or phone already in Notion (or the sheet, if Notion is off) → the survey shows "You've already applied" and writes nothing.
-- **Either destination can be off.** With only `NOTION_*` set, the sheet is skipped; with only the Google vars set, Notion is skipped (Jenny then creates the page from the row). Both set is the intended setup.
+- **Either destination can be off.** With only `NOTION_*` set, the sheet is skipped; with only the `APPS_SCRIPT_*` vars set, Notion is skipped (Jenny then creates the page from the row). Both set is the intended setup.
 - **iPhone / US** are self-declared by tapping "I'm in" on the deal screen and written as Device = iPhone, Country = US. **Under 18** is the one hard stop (no submission; routed to the later-round page).
 
 ## Setup
@@ -30,7 +30,7 @@ applicant ──▶ survey (Vercel) ──▶ POST /api/apply
 1. Copy `.env.example` → `.env.local`, fill it (instructions inside).
 2. `npm install` · `npm run dev` → http://localhost:3000
 3. Vercel: import this repo, add the same env vars, deploy. Point the chosen domain at it.
-4. Install `scripts/apps-script-email1.gs` in the answers sheet as jenny@saymarlo.com.
+4. As jenny@saymarlo.com: install `scripts/apps-script-email1.gs` in the sheet `survey-1-answers`, set the `SECRET` script property, deploy as a web app (steps in the file header). Put the URL and secret in Vercel.
 
 ## Notion properties written (must exist exactly as named)
 
