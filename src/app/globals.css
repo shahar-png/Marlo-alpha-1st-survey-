@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+/* Marlo web design system v0 (Doc 04 §5) — replaced when the identity lands */
+:root {
+  --ground: #f4f2ed;
+  --surface: #ffffff;
+  --ink: #1f2226;
+  --ink-2: #5c6168;
+  --ink-3: #9aa0a6;
+  --accent: #b8763a;
+  --accent-soft: #f3e6d9;
+  --line: #d9d6cf;
+  --danger: #a05252;
+}
+
+@theme inline {
+  --color-ground: var(--ground);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-line: var(--line);
+  --color-danger: var(--danger);
+  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  color-scheme: light;
+}
+
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  margin: 0;
+}
+
+h1, h2 { text-wrap: balance; }
+
+/* iOS: keep inputs from zooming */
+input, textarea, select, button { font: inherit; }
+
+.fade-up { animation: fade-up 0.35s ease-out both; }
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fade-up { animation: none; }
+}
