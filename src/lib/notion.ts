@@ -16,17 +16,17 @@ function compact(o: Record<string, Prop | undefined>): Record<string, Prop> {
   return Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined)) as Record<string, Prop>;
 }
 
-async function notionFetch(path: string, body: unknown) {
+async function notionFetch(path: string, body: unknown, method: "POST" | "GET" | "PATCH" = "POST") {
   const token = process.env.NOTION_TOKEN;
   if (!token) throw new Error("missing_notion_token");
   const res = await fetch(`https://api.notion.com/v1/${path}`, {
-    method: "POST",
+    method,
     headers: {
       Authorization: `Bearer ${token}`,
       "Notion-Version": NOTION_VERSION,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(body),
+    body: method === "GET" ? undefined : JSON.stringify(body),
   });
   if (!res.ok) {
     const t = await res.text();
@@ -109,4 +109,86 @@ export async function notionCreateLaterRound(email: string, submitted_at: string
   });
   const r = (await notionFetch("pages", { parent: { database_id: db }, properties: props })) as { id: string };
   return r.id;
+}
+
+/* ---------- Survey 2 ---------- */
+
+type NotionPage = { id: string; properties: Record<string, { type: string; [k: string]: unknown }> };
+
+function plain(p: NotionPage["properties"][string] | undefined): string {
+  if (!p) return "";
+  const t = p.type;
+  if (t === "rich_text" || t === "title") return ((p[t] as { plain_text: string }[]) || []).map((x) => x.plain_text).join("");
+  if (t === "email") return String(p.email || "");
+  if (t === "select") return String((p.select as { name: string } | null)?.name || "");
+  if (t === "date") return String((p.date as { start: string } | null)?.start || "");
+  return "";
+}
+
+export type Participant = { id: string; first_name: string; email: string; state: string; survey2_done: string };
+
+function toParticipant(page: NotionPage): Participant {
+  const P = page.properties;
+  return {
+    id: page.id,
+    first_name: plain(P["First name"]) || plain(P.Name).split(/\s+/)[0] || "",
+    email: plain(P.Email),
+    state: plain(P.State),
+    survey2_done: plain(P["Survey 2 done"]),
+  };
+}
+
+const UUID = /^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$/i;
+
+/** Participant by page id (the ?p= in the Survey 2 link) — null if not found. */
+export async function notionGetParticipant(pageId: string): Promise<Participant | null> {
+  if (!UUID.test(pageId)) return null;
+  try {
+    const page = (await notionFetch(`pages/${pageId}`, undefined, "GET")) as NotionPage;
+    return toParticipant(page);
+  } catch (e) {
+    if (String(e).includes("notion_404")) return null;
+    throw e;
+  }
+}
+
+/** Participant by email — the fallback when the link carries no id. */
+export async function notionFindByEmail(email: string): Promise<Participant | null> {
+  const db = process.env.NOTION_PARTICIPANTS_DB!;
+  const r = (await notionFetch(`databases/${db}/query`, { filter: { property: "Email", email: { equals: email } }, page_size: 1 })) as { results: NotionPage[] };
+  return r.results?.[0] ? toParticipant(r.results[0]) : null;
+}
+
+export type Survey2Tags = {
+  "Baseline confidence (1–5)": number;
+  "Baseline hours": string;
+  "Baseline feel": string;
+  "Spend tier": string;
+  "Tech comfort": string;
+  "Research style": string;
+  Skeptic: string;
+  Delegation: string;
+  "Proof standard": string[];
+  "Lead pain": string;
+  "Data vs feel": string;
+};
+
+/** Write the Survey 2 tags onto the participant page. Persona / Runner-up / Confidence are left to Jenny's scoring. */
+export async function notionWriteSurvey2(pageId: string, tags: Survey2Tags, doneAt: string, rawUrl: string): Promise<void> {
+  const props = compact({
+    "Survey 2 done": date(doneAt),
+    "Survey 2 raw": rawUrl ? { url: rawUrl } : undefined,
+    "Baseline confidence (1–5)": tags["Baseline confidence (1–5)"] ? { number: tags["Baseline confidence (1–5)"] } : undefined,
+    "Baseline hours": select(tags["Baseline hours"]),
+    "Baseline feel": select(tags["Baseline feel"]),
+    "Spend tier": select(tags["Spend tier"]),
+    "Tech comfort": select(tags["Tech comfort"]),
+    "Research style": select(tags["Research style"]),
+    Skeptic: select(tags.Skeptic),
+    Delegation: select(tags.Delegation),
+    "Proof standard": multi(tags["Proof standard"]),
+    "Lead pain": select(tags["Lead pain"]),
+    "Data vs feel": select(tags["Data vs feel"]),
+  });
+  await notionFetch(`pages/${pageId}`, { properties: props }, "PATCH");
 }

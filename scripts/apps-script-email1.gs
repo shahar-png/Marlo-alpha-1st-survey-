@@ -10,8 +10,9 @@
  *      Authorize when asked. Copy the Web app URL → Vercel APPS_SCRIPT_URL.
  *   4. Re-deploy (Manage deployments → edit → new version) after any code change; the URL stays the same.
  *
- * Flow: Vercel /api/apply POSTs {secret, tab, columns, row, dupCols}. The script appends the row (header on first use),
- * sends the email for that tab from Jenny's inbox, and stamps the sent time in the row. One call, no trigger.
+ * Flow: Vercel /api/apply and /api/deep-dive POST {secret, tab, columns, row, dupCols}. The script appends the row (header on first use),
+ * sends the email for that tab from Jenny's inbox (tabs in MAIL only — "Survey 2" sends nothing), stamps the sent time,
+ * and returns {rowIndex, gid, sheetId} so the caller can link the row from Notion ("Survey 2 raw").
  * Text = 02_Acceptance/email-1-we-got-it.md, verbatim. Change it there first, then here.
  */
 var SHEET_ID = "1O3R50Gk2ZXDZQjAUcvKKFQrzOoYabfIEJ8BUJAELVS8"; // survey-1-answers
@@ -77,10 +78,10 @@ function doPost(e) {
         if (iSent >= 0) sh.getRange(rowIndex, iSent + 1).setValue(new Date().toISOString());
       } catch (err) {
         Logger.log("send failed row " + rowIndex + ": " + err);
-        return out_({ ok: true, duplicate: false, emailed: false, warn: String(err) });
+        return out_({ ok: true, duplicate: false, emailed: false, warn: String(err), rowIndex: rowIndex, gid: sh.getSheetId(), sheetId: SHEET_ID });
       }
     }
-    return out_({ ok: true, duplicate: false, emailed: Boolean(m && to) });
+    return out_({ ok: true, duplicate: false, emailed: Boolean(m && to), rowIndex: rowIndex, gid: sh.getSheetId(), sheetId: SHEET_ID });
   } catch (err) {
     return out_({ error: String(err) });
   } finally {

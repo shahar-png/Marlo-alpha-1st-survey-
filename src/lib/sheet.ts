@@ -8,7 +8,7 @@ export function sheetEnabled() {
 }
 
 /** Append a row to `tab` (header written on first use) and send the matching email. Returns duplicate=true if `dupCols` already match a row. */
-export async function sheetAppend(tab: string, columns: readonly string[], row: Record<string, string>, dupCols: string[] = []): Promise<{ duplicate: boolean }> {
+export async function sheetAppend(tab: string, columns: readonly string[], row: Record<string, string>, dupCols: string[] = []): Promise<{ duplicate: boolean; rowUrl: string }> {
   const res = await fetch(process.env.APPS_SCRIPT_URL!, {
     method: "POST",
     // text/plain avoids the CORS preflight that Apps Script cannot answer; redirect: follow is required (script.google.com → script.googleusercontent.com).
@@ -17,8 +17,9 @@ export async function sheetAppend(tab: string, columns: readonly string[], row: 
     redirect: "follow",
   });
   const text = await res.text();
-  let data: { ok?: boolean; duplicate?: boolean; error?: string } = {};
+  let data: { ok?: boolean; duplicate?: boolean; error?: string; rowIndex?: number; gid?: number; sheetId?: string } = {};
   try { data = JSON.parse(text); } catch { throw new Error(`apps_script_bad_response ${res.status}: ${text.slice(0, 200)}`); }
   if (!res.ok || data.error) throw new Error(`apps_script_failed: ${data.error || res.status}`);
-  return { duplicate: Boolean(data.duplicate) };
+  const rowUrl = data.sheetId && data.gid !== undefined && data.rowIndex ? `https://docs.google.com/spreadsheets/d/${data.sheetId}/edit#gid=${data.gid}&range=A${data.rowIndex}` : "";
+  return { duplicate: Boolean(data.duplicate), rowUrl };
 }
