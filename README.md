@@ -25,6 +25,19 @@ applicant ──▶ survey (Vercel) ──▶ POST /api/apply
 - **Either destination can be off.** With only `NOTION_*` set, the sheet is skipped; with only the `APPS_SCRIPT_*` vars set, Notion is skipped (Jenny then creates the page from the row). Both set is the intended setup.
 - **iPhone / US** are self-declared by tapping "I'm in" on the deal screen and written as Device = iPhone, Country = US. **Under 18** is the one hard stop (no submission; routed to the later-round page).
 
+## Survey 2 · the deep dive (`/deep-dive`)
+
+Linked from Email 2 as `https://alpha.saymarlo.com/deep-dive?p=<Participants page id>` — the Participants database has a **Survey 2 link** formula that builds it per person. No `?p=` → the intro asks for the email they applied with.
+
+```
+participant ──▶ /deep-dive?p=… ──▶ GET /api/participant  (first name, already done?)
+                 10 parts, ~38 questions ──▶ POST /api/deep-dive
+                                    ├─▶ Apps Script ──▶ Sheet · "Survey 2"   full row + raw JSON (no email)
+                                    └─▶ Notion · same Participants page      Survey 2 done · Survey 2 raw (row link) · 11 tags
+```
+
+Tags written: Baseline confidence / hours / feel · Spend tier · Tech comfort · Research style · Skeptic · Delegation · Proof standard · Lead pain · Data vs feel (derived: paid testing, yearly blood work, a wearable, blood/wearable proof → 3+ = Data, 0 = Feel, else Mixed). **Persona, Runner-up, Confidence are not set** — Jenny runs `persona-scoring-rules-v1.xlsx` over the row. A second submit is refused (409) once `Survey 2 done` is set. Part 6 (pains) is one tap per line — not an issue / annoying / a real problem — then one pick among the rated items; that pick is Lead pain.
+
 ## Setup
 
 1. Copy `.env.example` → `.env.local`, fill it (instructions inside).
