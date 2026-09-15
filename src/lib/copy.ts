@@ -1,4 +1,4 @@
-// Survey 1 · approved copy v1.2 (survey-1-screens-v1.md, 15 Sep 2026)
+// Survey 1 · approved design v3 (canvas "Marlo Alpha Survey", 15 Sep 2026)
 // Screen 1 is Marlo's voice. Screens 2–8 are the company's voice.
 
 export const AGE_BANDS = [
@@ -15,17 +15,6 @@ export const SEX = [
   { id: "female", label: "Female" },
   { id: "male", label: "Male" },
   { id: "prefer_not", label: "Prefer not to say" },
-] as const;
-
-export const DEVICE = [
-  { id: "iphone", label: "iPhone" },
-  { id: "android", label: "Android" },
-  { id: "other", label: "Other" },
-] as const;
-
-export const COUNTRY = [
-  { id: "us", label: "In the US" },
-  { id: "outside_us", label: "Outside the US" },
 ] as const;
 
 export const FIT = [
@@ -57,7 +46,7 @@ export const SUPPLEMENTS = [
   { id: "collagen", label: "Collagen" },
   { id: "electrolytes", label: "Electrolytes" },
   { id: "ashwagandha", label: "Ashwagandha" },
-  { id: "turmeric", label: "Turmeric / curcumin" },
+  { id: "turmeric", label: "Turmeric" },
   { id: "coq10", label: "CoQ10" },
   { id: "melatonin", label: "Melatonin" },
   { id: "nac", label: "NAC" },
@@ -70,8 +59,6 @@ export type Answers = {
   email: string;
   age_band: string;
   sex: string;
-  device: string;
-  country: string;
   fit: string[];
   fit_specific_text: string;
   fit_other_text: string;
@@ -88,8 +75,6 @@ export const EMPTY: Answers = {
   email: "",
   age_band: "",
   sex: "",
-  device: "",
-  country: "",
   fit: [],
   fit_specific_text: "",
   fit_other_text: "",
@@ -112,3 +97,11 @@ export function bucket(fit: string[]): string {
 export function firstName(full: string): string {
   return full.trim().split(/\s+/)[0] || "";
 }
+
+export const LABELS = {
+  age: Object.fromEntries(AGE_BANDS.map((a) => [a.id, a.label])) as Record<string, string>,
+  sex: Object.fromEntries(SEX.map((a) => [a.id, a.label])) as Record<string, string>,
+  frequency: Object.fromEntries(FREQUENCY.map((a) => [a.id, a.label])) as Record<string, string>,
+  supplements: Object.fromEntries(SUPPLEMENTS.map((a) => [a.id, a.label])) as Record<string, string>,
+  fit: { performance: "Performance", longevity: "Longevity", specific: "Something specific", other: "Other" } as Record<string, string>,
+};

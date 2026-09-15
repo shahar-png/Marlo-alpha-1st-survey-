@@ -1,54 +1,48 @@
 @import "tailwindcss";
 
-/* Marlo web design system v0 (Doc 04 §5) — replaced when the identity lands */
+/* Design system v5 "Unified" (Figma, Jul 2026). Wordmark is a placeholder until the Marlo identity lands. */
 :root {
-  --ground: #f4f2ed;
-  --surface: #ffffff;
-  --ink: #1f2226;
-  --ink-2: #5c6168;
-  --ink-3: #9aa0a6;
-  --accent: #b8763a;
-  --accent-soft: #f3e6d9;
-  --line: #d9d6cf;
+  --cream: #fcfaf5;
+  --paper: #fefdf9;
+  --white: #ffffff;
+  --wheat: #dfd8c9;
+  --taupe: #cfc6b4;
+  --midnight: #1a1a17;
+  --slate: #6e6a60;
+  --line: #e4ddce;
+  --salmon: #fa8a72;
+  --lime: #d4ea5b;
+  --sage: #c7d2b4;
   --danger: #a05252;
 }
 
 @theme inline {
-  --color-ground: var(--ground);
-  --color-surface: var(--surface);
-  --color-ink: var(--ink);
-  --color-ink-2: var(--ink-2);
-  --color-ink-3: var(--ink-3);
-  --color-accent: var(--accent);
-  --color-accent-soft: var(--accent-soft);
+  --color-cream: var(--cream);
+  --color-paper: var(--paper);
+  --color-wheat: var(--wheat);
+  --color-taupe: var(--taupe);
+  --color-midnight: var(--midnight);
+  --color-slate: var(--slate);
   --color-line: var(--line);
+  --color-salmon: var(--salmon);
   --color-danger: var(--danger);
-  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Hanken Grotesk", "Helvetica Neue", Arial, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
-html {
-  -webkit-text-size-adjust: 100%;
-  color-scheme: light;
-}
+html { -webkit-text-size-adjust: 100%; color-scheme: light; }
 
 body {
-  background: var(--ground);
-  color: var(--ink);
+  background: var(--cream);
+  color: var(--midnight);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   margin: 0;
 }
 
-h1, h2 { text-wrap: balance; }
-
-/* iOS: keep inputs from zooming */
+h1 { text-wrap: balance; }
 input, textarea, select, button { font: inherit; }
 
-.fade-up { animation: fade-up 0.35s ease-out both; }
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .fade-up { animation: none; }
-}
+.fade-up { animation: fade-up 0.3s ease-out both; }
+@keyframes fade-up { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .fade-up { animation: none; } }

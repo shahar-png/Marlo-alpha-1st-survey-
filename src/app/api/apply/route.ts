@@ -1,39 +1,16 @@
 import { NextResponse } from "next/server";
-import { google } from "googleapis";
-import { bucket, type Answers } from "@/lib/copy";
+import { bucket, LABELS, type Answers } from "@/lib/copy";
+import { notionEnabled, notionFindParticipant, notionCreateApplicant } from "@/lib/notion";
+import { sheetEnabled, sheetAppend } from "@/lib/sheet";
 
 export const runtime = "nodejs";
 
-// Sheet columns — keep in sync with survey-1-screens-v1.md "Data captured" and the Notion spec.
+// Sheet columns — the raw log. Keep in sync with survey-1-screens-v1.md "Data captured".
 const COLUMNS = [
-  "submitted_at",
-  "full_name",
-  "first_name",
-  "phone_e164",
-  "email",
-  "age_band",
-  "sex",
-  "device",
-  "country",
-  "fit",
-  "fit_specific_text",
-  "fit_other_text",
-  "icp_bucket",
-  "frequency",
-  "supplements",
-  "supplements_other",
-  "rx",
-  "rx_text",
-  "user_agent",
+  "submitted_at", "full_name", "first_name", "phone_e164", "email", "age_band", "sex",
+  "fit", "fit_text", "icp_bucket", "frequency", "supplements", "supplements_other", "rx", "rx_text",
+  "notion_page_id", "email1_sent_at", "user_agent",
 ] as const;
-
-function sheets() {
-  const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const key = (process.env.GOOGLE_PRIVATE_KEY || "").replace(/\\n/g, "\n");
-  if (!email || !key) throw new Error("missing_google_credentials");
-  const auth = new google.auth.JWT({ email, key, scopes: ["https://www.googleapis.com/auth/spreadsheets"] });
-  return google.sheets({ version: "v4", auth });
-}
 
 function clean(s: unknown, max = 500) {
   return String(s ?? "").replace(/[\r\n\t]+/g, " ").trim().slice(0, max);
@@ -53,71 +30,72 @@ export async function POST(req: Request) {
   if (digits.length !== 10 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || fullName.split(/\s+/).length < 2) {
     return NextResponse.json({ error: "invalid" }, { status: 400 });
   }
-  if (a.age_band === "under_18") {
-    return NextResponse.json({ error: "under_18" }, { status: 400 });
-  }
-
-  const sheetId = process.env.SHEET_ID;
-  const tab = process.env.SHEET_TAB || "Survey 1";
-  if (!sheetId) return NextResponse.json({ error: "missing_sheet_id" }, { status: 500 });
+  if (a.age_band === "under_18") return NextResponse.json({ error: "under_18" }, { status: 400 });
+  if (!notionEnabled() && !sheetEnabled()) return NextResponse.json({ error: "no_destination_configured" }, { status: 500 });
 
   const phoneE164 = `+1${digits}`;
-  const api = sheets();
-
-  // Duplicate check: same email or phone already on the sheet → 409, nothing written.
-  try {
-    const existing = await api.spreadsheets.values.get({ spreadsheetId: sheetId, range: `'${tab}'!A:E` });
-    const rows = existing.data.values || [];
-    const iPhone = COLUMNS.indexOf("phone_e164");
-    const iEmail = COLUMNS.indexOf("email");
-    const dup = rows.slice(1).some((r) => (r[iPhone] || "") === phoneE164 || String(r[iEmail] || "").toLowerCase() === email);
-    if (dup) return NextResponse.json({ error: "duplicate" }, { status: 409 });
-    if (rows.length === 0) {
-      await api.spreadsheets.values.append({
-        spreadsheetId: sheetId,
-        range: `'${tab}'!A1`,
-        valueInputOption: "RAW",
-        requestBody: { values: [[...COLUMNS]] },
-      });
-    }
-  } catch (e) {
-    console.error("sheet_read_failed", e);
-    return NextResponse.json({ error: "sheet_read_failed" }, { status: 500 });
-  }
-
-  const row: Record<(typeof COLUMNS)[number], string> = {
-    submitted_at: new Date().toISOString(),
+  const submitted_at = new Date().toISOString();
+  const fitIds = (a.fit || []).map((x) => clean(x, 20));
+  const record = {
     full_name: fullName,
     first_name: fullName.split(/\s+/)[0],
-    phone_e164: phoneE164,
     email,
-    age_band: clean(a.age_band, 20),
-    sex: clean(a.sex, 20),
-    device: clean(a.device, 20),
-    country: clean(a.country, 20),
-    fit: (a.fit || []).map((x) => clean(x, 20)).join(", "),
-    fit_specific_text: clean(a.fit_specific_text),
-    fit_other_text: clean(a.fit_other_text),
-    icp_bucket: bucket(a.fit || []),
-    frequency: clean(a.frequency, 20),
-    supplements: (a.supplements || []).map((x) => clean(x, 30)).join(", "),
+    phone_e164: phoneE164,
+    age_band: LABELS.age[clean(a.age_band, 20)] || "",
+    sex: LABELS.sex[clean(a.sex, 20)] || "",
+    fit: fitIds.map((f) => LABELS.fit[f]).filter(Boolean),
+    fit_text: [clean(a.fit_specific_text), clean(a.fit_other_text)].filter(Boolean).join(" · "),
+    icp_bucket: bucket(fitIds),
+    frequency: LABELS.frequency[clean(a.frequency, 20)] || "",
+    supplements: (a.supplements || []).map((s) => (s === "other" ? "Other" : LABELS.supplements[clean(s, 30)])).filter(Boolean),
     supplements_other: clean(a.supplements_other),
-    rx: a.rx ? "yes" : "no",
+    rx: Boolean(a.rx),
     rx_text: clean(a.rx_text),
-    user_agent: clean(req.headers.get("user-agent"), 200),
+    submitted_at,
   };
 
-  try {
-    await api.spreadsheets.values.append({
-      spreadsheetId: sheetId,
-      range: `'${tab}'!A1`,
-      valueInputOption: "RAW",
-      insertDataOption: "INSERT_ROWS",
-      requestBody: { values: [COLUMNS.map((c) => row[c])] },
-    });
-  } catch (e) {
-    console.error("sheet_append_failed", e);
-    return NextResponse.json({ error: "sheet_append_failed" }, { status: 500 });
+  // 1. Database (Notion): duplicate guard, then create the participant page, State = Applied.
+  let pageId = "";
+  if (notionEnabled()) {
+    try {
+      const existing = await notionFindParticipant(email, phoneE164);
+      if (existing) return NextResponse.json({ error: "duplicate" }, { status: 409 });
+      pageId = await notionCreateApplicant(record);
+    } catch (e) {
+      console.error("notion_failed", e);
+      if (!sheetEnabled()) return NextResponse.json({ error: "db_failed" }, { status: 500 });
+    }
+  }
+
+  // 2. Raw log (Google Sheet). Also the trigger for email 1 (Apps Script on the sheet) when Notion's automation isn't used.
+  if (sheetEnabled()) {
+    try {
+      const row: Record<string, string> = {
+        submitted_at,
+        full_name: record.full_name,
+        first_name: record.first_name,
+        phone_e164: phoneE164,
+        email,
+        age_band: record.age_band,
+        sex: record.sex,
+        fit: record.fit.join(", "),
+        fit_text: record.fit_text,
+        icp_bucket: record.icp_bucket,
+        frequency: record.frequency,
+        supplements: record.supplements.join(", "),
+        supplements_other: record.supplements_other,
+        rx: record.rx ? "yes" : "no",
+        rx_text: record.rx_text,
+        notion_page_id: pageId,
+        email1_sent_at: "",
+        user_agent: clean(req.headers.get("user-agent"), 200),
+      };
+      const { duplicate } = await sheetAppend(process.env.SHEET_TAB || "Survey 1", COLUMNS, row, pageId ? [] : ["email", "phone_e164"]);
+      if (duplicate) return NextResponse.json({ error: "duplicate" }, { status: 409 });
+    } catch (e) {
+      console.error("sheet_failed", e);
+      if (!pageId) return NextResponse.json({ error: "log_failed" }, { status: 500 });
+    }
   }
 
   return NextResponse.json({ ok: true });
