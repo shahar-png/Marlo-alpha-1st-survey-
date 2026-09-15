@@ -126,7 +126,7 @@ function TopPain({ a, set }: { a: Answers2; set: Set2 }) {
 
 /* ---------- Intro ---------- */
 
-export function S2Intro({ firstName, needEmail, email, setEmail, next, loading }: { firstName: string; needEmail: boolean; email: string; setEmail: (v: string) => void; next: () => void; loading: boolean }) {
+export function S2Intro({ firstName, needEmail, email, setEmail, emailError, next, loading }: { firstName: string; needEmail: boolean; email: string; setEmail: (v: string) => void; emailError?: string; next: () => void; loading: boolean }) {
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
   return (
     <Screen cta={<Button onClick={next} disabled={loading || (needEmail && !emailOk)}>{loading ? "One moment…" : "Let’s go"}</Button>}>
@@ -137,7 +137,7 @@ export function S2Intro({ firstName, needEmail, email, setEmail, next, loading }
       <Ticket eyebrow="Time"><p className="m-0 text-[17px]">About ten minutes. Your answers save when you finish.</p></Ticket>
       {needEmail ? (
         <div className="mt-6">
-          <Field id="s2_email" label="The email you applied with" value={email} onChange={setEmail} type="email" inputMode="email" autoComplete="email" placeholder="you@example.com" />
+          <Field id="s2_email" label="The email you applied with" value={email} onChange={setEmail} type="email" inputMode="email" autoComplete="email" placeholder="you@example.com" error={emailError || undefined} />
         </div>
       ) : null}
     </Screen>

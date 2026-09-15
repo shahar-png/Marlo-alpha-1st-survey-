@@ -17,6 +17,7 @@ function DeepDive() {
   const [needEmail, setNeedEmail] = useState(!p);
   const [loading, setLoading] = useState(Boolean(p));
   const [busy, setBusy] = useState(false);
+  const [emailError, setEmailError] = useState("");
 
   // Who is this link for? Greet by first name; refuse a second run.
   useEffect(() => {
@@ -56,11 +57,26 @@ function DeepDive() {
     } catch { setStep("error"); } finally { setBusy(false); }
   };
 
+  // Intro → first part. With an email, confirm it's a participant before letting them in.
+  const start = async () => {
+    if (!needEmail) { setStep("part"); return; }
+    setLoading(true); setEmailError("");
+    try {
+      const r = await fetch(`/api/participant?email=${encodeURIComponent(email.trim().toLowerCase())}`);
+      if (r.status === 404) { setEmailError("We don’t have an application under that email. Use the one you applied with, or reply to our email."); return; }
+      if (!r.ok) { setEmailError("Something on our side — try once more."); return; }
+      const d = (await r.json()) as { first_name: string; done: boolean };
+      setFirstName(d.first_name || "");
+      if (d.done) { setStep("done"); return; }
+      setStep("part");
+    } catch { setEmailError("Something on our side — try once more."); } finally { setLoading(false); }
+  };
+
   const next = () => { if (i < PARTS.length - 1) setI(i + 1); else void submit(); };
   const back = () => { if (i > 0) setI(i - 1); else setStep("intro"); };
 
   switch (step) {
-    case "intro": return <S2Intro firstName={firstName} needEmail={needEmail} email={email} setEmail={setEmail} loading={loading} next={() => setStep("part")} />;
+    case "intro": return <S2Intro firstName={firstName} needEmail={needEmail} email={email} setEmail={(v) => { setEmail(v); setEmailError(""); }} emailError={emailError} loading={loading} next={() => void start()} />;
     case "part": return <PartScreen part={PARTS[i]} a={a} set={set} next={next} back={back} step={i + 1} total={PARTS.length} busy={busy} />;
     case "close": return <S2Close firstName={firstName} bookingUrl={process.env.NEXT_PUBLIC_BOOKING_URL} />;
     case "done": return <S2Done />;
