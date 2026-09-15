@@ -38,7 +38,7 @@ Name · First name · Email · Phone · Age band · Sex · Device · Country · 
 
 ## Sheet columns
 
-Survey 1: submitted_at · full_name · first_name · phone_e164 · email · age_band · sex · fit · fit_text · icp_bucket · frequency · supplements · supplements_other · rx · rx_text · notion_page_id · email1_sent_at · user_agent
+Survey 1: submitted_at · full_name · first_name · phone · email · age_band · sex · fit · fit_text · icp_bucket · frequency · supplements · supplements_other · rx · rx_text · notion_page_id · email1_sent_at · user_agent
 Later round: submitted_at · email · reason · notion_page_id · email_sent_at
 
 ## Bucketing (server-side)

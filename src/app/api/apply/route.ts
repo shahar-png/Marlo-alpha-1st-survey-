@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 
 // Sheet columns — the raw log. Keep in sync with survey-1-screens-v1.md "Data captured".
 const COLUMNS = [
-  "submitted_at", "full_name", "first_name", "phone_e164", "email", "age_band", "sex",
+  "submitted_at", "full_name", "first_name", "phone", "email", "age_band", "sex",
   "fit", "fit_text", "icp_bucket", "frequency", "supplements", "supplements_other", "rx", "rx_text",
   "notion_page_id", "email1_sent_at", "user_agent",
 ] as const;
@@ -74,7 +74,7 @@ export async function POST(req: Request) {
         submitted_at,
         full_name: record.full_name,
         first_name: record.first_name,
-        phone_e164: phoneE164,
+        phone: `+1 ${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`, // human form: Sheets would parse "+1212…" as a formula
         email,
         age_band: record.age_band,
         sex: record.sex,
@@ -90,7 +90,7 @@ export async function POST(req: Request) {
         email1_sent_at: "",
         user_agent: clean(req.headers.get("user-agent"), 200),
       };
-      const { duplicate } = await sheetAppend("Survey 1", COLUMNS, row, pageId ? [] : ["email", "phone_e164"]);
+      const { duplicate } = await sheetAppend("Survey 1", COLUMNS, row, pageId ? [] : ["email", "phone"]);
       if (duplicate) return NextResponse.json({ error: "duplicate" }, { status: 409 });
     } catch (e) {
       console.error("sheet_failed", e);

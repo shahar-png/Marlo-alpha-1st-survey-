@@ -65,10 +65,8 @@ function doPost(e) {
     }
 
     var line = header.map(function (h) { return p.row[h] != null ? String(p.row[h]) : ""; });
-    var rowIndex = sh.getLastRow() + 1;
-    var rng = sh.getRange(rowIndex, 1, 1, line.length);
-    rng.setNumberFormat("@"); // plain text, so "+1…" phones and ISO dates survive untouched
-    rng.setValues([line]);
+    sh.appendRow(line);
+    var rowIndex = sh.getLastRow();
 
     var m = MAIL[p.tab];
     var to = String(p.row.email || "").trim();
