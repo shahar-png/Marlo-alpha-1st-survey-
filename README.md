@@ -38,6 +38,10 @@ participant ──▶ /deep-dive?p=… ──▶ GET /api/participant  (first na
 
 Tags written: Baseline confidence / hours / feel · Spend tier · Tech comfort · Research style · Skeptic · Delegation · Proof standard · Lead pain · Data vs feel (derived: paid testing, yearly blood work, a wearable, blood/wearable proof → 3+ = Data, 0 = Feel, else Mixed). **Persona, Runner-up, Confidence are not set** — Jenny runs `persona-scoring-rules-v1.xlsx` over the row. A second submit is refused (409) once `Survey 2 done` is set. Part 6 (pains) is one tap per line — not an issue / annoying / a real problem — then one pick among the rated items; that pick is Lead pain.
 
+## Program guide (`/guide`)
+
+The participant-facing program guide, rendered from `02_Acceptance/program-guide-v1.md` (copy verbatim — change the .md first, then the page). Linked from Email 2 as `https://alpha.saymarlo.com/guide`.
+
 ## Setup
 
 1. Copy `.env.example` → `.env.local`, fill it (instructions inside).
