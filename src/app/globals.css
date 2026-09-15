@@ -25,6 +25,8 @@
   --color-slate: var(--slate);
   --color-line: var(--line);
   --color-salmon: var(--salmon);
+  --color-sage: var(--sage);
+  --color-lime: var(--lime);
   --color-danger: var(--danger);
   --font-sans: "Hanken Grotesk", "Helvetica Neue", Arial, ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
