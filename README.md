@@ -27,7 +27,7 @@ applicant ──▶ survey (Vercel) ──▶ POST /api/apply
 
 ## Survey 2 · the deep dive (`/deep-dive`)
 
-Linked from Email 2 as `https://alpha.saymarlo.com/deep-dive?p=<Participants page id>` — the Participants database has a **Survey 2 link** formula that builds it per person. No `?p=` → the intro asks for the email they applied with.
+Linked from Email 2 as `https://marlo-alpha-1st-survey.vercel.app/deep-dive?p=<Participants page id>` — the Participants database has a **Survey 2 link** formula that builds it per person. No `?p=` → the intro asks for the email they applied with.
 
 ```
 participant ──▶ /deep-dive?p=… ──▶ GET /api/participant  (first name, already done?)
@@ -40,7 +40,7 @@ Tags written: Baseline confidence / hours / feel · Spend tier · Tech comfort �
 
 ## Program guide (`/guide`)
 
-The participant-facing program guide, rendered from `02_Acceptance/program-guide-v1.md` (copy verbatim — change the .md first, then the page). Linked from Email 2 as `https://alpha.saymarlo.com/guide`.
+The participant-facing program guide, rendered from `02_Acceptance/program-guide-v1.md` (copy verbatim — change the .md first, then the page). Linked from Email 2 as `https://marlo-alpha-1st-survey.vercel.app/guide`.
 
 ## Setup
 
