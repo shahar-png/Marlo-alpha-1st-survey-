@@ -10,6 +10,15 @@ const H2 = ({ children }: { children: React.ReactNode }) => (
 const P = ({ children }: { children: React.ReactNode }) => <p className="m-0 text-[17px] leading-[1.5] text-midnight">{children}</p>;
 const B = ({ children }: { children: React.ReactNode }) => <span className="font-semibold text-midnight">{children}</span>;
 const Slash = ({ children = "/" }: { children?: React.ReactNode }) => <span className="font-mono font-semibold text-midnight bg-paper border border-line rounded-[6px] px-1.5 py-0.5 text-[15px]">{children}</span>;
+const Shot = ({ src, alt, caption }: { src: string; alt: string; caption: string }) => (
+  <figure className="m-0 flex flex-col gap-2.5">
+    <div className="rounded-[28px] overflow-hidden border border-line bg-black shadow-[0_18px_40px_-24px_rgba(26,26,23,0.45)]">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={src} alt={alt} width={393} height={852} className="block w-full h-auto" loading="lazy" />
+    </div>
+    <figcaption className="text-[13px] leading-[1.4] text-slate px-1">{caption}</figcaption>
+  </figure>
+);
 const Q = ({ q, children }: { q: string; children: React.ReactNode }) => (
   <div className="py-4 border-t border-line">
     <p className="m-0 mb-1.5 text-[17px] font-semibold text-midnight">{q}</p>
@@ -97,15 +106,18 @@ export default function Guide() {
           <div className="flex flex-col gap-4">
             <P>We expect it, and we read all of it.</P>
             <P><B>In the thread.</B> Three ways:</P>
-            <ol className="m-0 pl-0 list-none flex flex-col gap-3">
+            <ol className="m-0 pl-0 list-none flex flex-col gap-7">
               {[
-                <><B>React to a specific message.</B> Reply to that message, start with <Slash /> and write your feedback.</>,
-                <><B>General feedback.</B> Send a new message to the thread, start with <Slash /> and write your feedback.</>,
-                <><B>Straight to the founders.</B> When something needs a person: start a message with <Slash>/founders</Slash> and write what&rsquo;s going on. The conversation routes to us, we take over in the thread, and we sort it out. Use it for things like an order that&rsquo;s wrong, late, or never arrived; something Marlo said that seems incorrect or unsafe; Marlo stuck or not responding; wanting to pause, change your protocol, or leave the program; or anything you&rsquo;d rather not say to Marlo.</>,
+                { text: <><B>React to a specific message.</B> Reply to that message, start with <Slash /> and write your feedback.</>, src: "/guide/reply-on-message.webp", alt: "iMessage thread: a reply to one of Marlo’s messages, starting with a slash", caption: "Long-press Marlo’s message → Reply, then start with /" },
+                { text: <><B>General feedback.</B> Send a new message to the thread, start with <Slash /> and write your feedback.</>, src: "/guide/general-feedback.webp", alt: "iMessage thread: a new message to Marlo starting with a slash", caption: "A new message that starts with / — about anything" },
+                { text: <><B>Straight to the founders.</B> When something needs a person: start a message with <Slash>/founders</Slash> and write what&rsquo;s going on. The conversation routes to us, we take over in the thread, and we sort it out. Use it for things like an order that&rsquo;s wrong, late, or never arrived; something Marlo said that seems incorrect or unsafe; Marlo stuck or not responding; wanting to pause, change your protocol, or leave the program; or anything you&rsquo;d rather not say to Marlo.</>, src: "/guide/founders.webp", alt: "iMessage thread: a message starting with /founders, answered by a founder in the same thread", caption: "/founders — a person answers in the same thread" },
               ].map((item, i) => (
-                <li key={i} className="flex gap-3 text-[17px] leading-[1.5] text-midnight">
-                  <span className="shrink-0 w-7 h-7 rounded-full bg-salmon text-midnight font-mono text-[14px] font-semibold flex items-center justify-center mt-0.5">{i + 1}</span>
-                  <span>{item}</span>
+                <li key={i} className="flex flex-col gap-4">
+                  <div className="flex gap-3 text-[17px] leading-[1.5] text-midnight">
+                    <span className="shrink-0 w-7 h-7 rounded-full bg-salmon text-midnight font-mono text-[14px] font-semibold flex items-center justify-center mt-0.5">{i + 1}</span>
+                    <span>{item.text}</span>
+                  </div>
+                  <div className="pl-10 max-w-[330px]"><Shot src={item.src} alt={item.alt} caption={item.caption} /></div>
                 </li>
               ))}
             </ol>
