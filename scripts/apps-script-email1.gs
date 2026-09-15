@@ -1,9 +1,10 @@
 /**
  * Marlo alpha — Survey 1 log + Email 1 sender.
- * Lives inside the Google Sheet "survey-1-answers" (Extensions → Apps Script), owned by jenny@saymarlo.com.
+ * Standalone Apps Script project "Marlo survey 1" in jenny@saymarlo.com's Drive; writes to the sheet "survey-1-answers" by id.
+ * (A sheet-bound script could not be opened from Jenny's account, so it is standalone. Same behaviour.)
  *
  * Install (as Jenny):
- *   1. Extensions → Apps Script → replace Code.gs with this file → Save.
+ *   1. script.google.com → New project → name it "Marlo survey 1" → replace Code.gs with this file → Save.
  *   2. Project Settings → Script Properties → add SECRET = <long random string>. Same value goes to Vercel as APPS_SCRIPT_SECRET.
  *   3. Deploy → New deployment → type "Web app" → Execute as: Me (jenny@) → Who has access: Anyone → Deploy.
  *      Authorize when asked. Copy the Web app URL → Vercel APPS_SCRIPT_URL.
@@ -13,6 +14,7 @@
  * sends the email for that tab from Jenny's inbox, and stamps the sent time in the row. One call, no trigger.
  * Text = 02_Acceptance/email-1-we-got-it.md, verbatim. Change it there first, then here.
  */
+var SHEET_ID = "1O3R50Gk2ZXDZQjAUcvKKFQrzOoYabfIEJ8BUJAELVS8"; // survey-1-answers
 var FROM_NAME = "The Marlo team";
 
 var EMAIL1_SUBJECT = "Marlo — we got your application";
@@ -46,7 +48,7 @@ function doPost(e) {
     if (!secret || p.secret !== secret) return out_({ error: "unauthorized" });
     if (!p.tab || !p.columns || !p.row) return out_({ error: "bad_request" });
 
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var ss = SpreadsheetApp.openById(SHEET_ID);
     var sh = ss.getSheetByName(p.tab) || ss.insertSheet(p.tab);
     var values = sh.getDataRange().getValues();
     if (values.length === 0 || !values[0][0]) { sh.getRange(1, 1, 1, p.columns.length).setValues([p.columns]); values = [p.columns]; }
