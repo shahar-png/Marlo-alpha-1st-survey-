@@ -38,6 +38,21 @@ participant ──▶ /deep-dive?p=… ──▶ GET /api/participant  (first na
 
 Tags written: Baseline confidence / hours / feel · Spend tier · Tech comfort · Research style · Skeptic · Delegation · Proof standard · Lead pain · Data vs feel (derived: paid testing, yearly blood work, a wearable, blood/wearable proof → 3+ = Data, 0 = Feel, else Mixed). **Persona, Runner-up, Confidence are not set** — Jenny runs `persona-scoring-rules-v1.xlsx` over the row. A second submit is refused (409) once `Survey 2 done` is set. Part 6 (pains) is one tap per line — not an issue / annoying / a real problem — then one pick among the rated items; that pick is Lead pain.
 
+## Waiver · the participant agreement (`/waiver`)
+
+The e-sign version of `02_Acceptance/alpha-participant-agreement-v1.md`. Linked from Email 2 as `https://marlo-alpha-1st-survey.vercel.app/waiver?p=<Participants page id>` — the Participants database has a **Waiver link** formula that builds it per person. No `?p=` → the intro asks for the email they applied with; an email that isn't in the database is refused ("This email is not in our system…").
+
+```
+participant ──▶ /waiver?p=… ──▶ GET /api/participant  (name, email, already signed?)
+                 reads the agreement (src/lib/waiver.ts), name pre-filled, draws or types a signature,
+                 ticks "I agree… and agree to sign electronically" ──▶ POST /api/waiver
+                                    ├─▶ PDF (pdf-lib): agreement + signature + audit block (UTC time, IP, device, version, text hash)
+                                    ├─▶ Notion · same Participants page   Signed waiver (the PDF) · Waiver signed · Waiver version
+                                    └─▶ Apps Script (action "waiver")     Drive 02_Acceptance/signed/ · email to the participant, cc Jenny · row in tab "Waiver"
+```
+
+The Notion write happens first and is the record; Drive/email/log are best effort. A second signature is refused (409) once `Waiver signed` is set. The agreement text lives in `src/lib/waiver.ts` — change the .md first, then this file, then bump `WAIVER_VERSION`; the version and a sha256 of the text are stamped on every PDF and on the card, so a text change never silently re-labels an old signature. Not "HIPAA compliant" and not a named e-sign provider: a click-to-sign with typed/drawn signature and audit trail (ESIGN/UETA) — counsel review of the text is still open.
+
 ## Program guide (`/guide`)
 
 The participant-facing program guide, rendered from `02_Acceptance/program-guide-v1.md` (copy verbatim — change the .md first, then the page). Linked from Email 2 as `https://marlo-alpha-1st-survey.vercel.app/guide`.
