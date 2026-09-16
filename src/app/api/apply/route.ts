@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { bucket, LABELS, type Answers } from "@/lib/copy";
-import { notionEnabled, notionFindParticipant, notionCreateApplicant } from "@/lib/notion";
+import { notionEnabled, notionUpsertApplicant } from "@/lib/notion";
 import { sheetEnabled, sheetAppend } from "@/lib/sheet";
 
 export const runtime = "nodejs";
@@ -54,13 +54,11 @@ export async function POST(req: Request) {
     submitted_at,
   };
 
-  // 1. Database (Notion): duplicate guard, then create the participant page, State = Applied.
+  // 1. Database (Notion): merge an existing Participants card when phone / invited name / email matches; else create.
   let pageId = "";
   if (notionEnabled()) {
     try {
-      const existing = await notionFindParticipant(email, phoneE164);
-      if (existing) return NextResponse.json({ error: "duplicate" }, { status: 409 });
-      pageId = await notionCreateApplicant(record);
+      pageId = await notionUpsertApplicant(record);
     } catch (e) {
       console.error("notion_failed", e);
       if (!sheetEnabled()) return NextResponse.json({ error: "db_failed" }, { status: 500 });

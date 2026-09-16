@@ -1,9 +1,20 @@
 // Writes directly to the participant database (Notion — see notion-build-spec-v1.md).
 // Property names below must match the Participants database exactly.
+// Invite email and Apply email are Email properties on Participants.
+
+import {
+  emailsMatch,
+  mergeEmailFields,
+  namesMatch,
+  phoneVariants,
+  phonesMatch,
+  type MergeCandidate,
+} from "./participant-merge";
 
 const NOTION_VERSION = "2022-06-28";
 
 type Prop = Record<string, unknown>;
+type NotionPage = { id: string; properties: Record<string, { type: string; [k: string]: unknown }> };
 
 function title(v: string): Prop { return { title: [{ text: { content: v } }] }; }
 function text(v: string): Prop { return { rich_text: v ? [{ text: { content: v.slice(0, 1900) } }] : [] }; }
@@ -14,6 +25,10 @@ function checkbox(v: boolean): Prop { return { checkbox: v }; }
 
 function compact(o: Record<string, Prop | undefined>): Record<string, Prop> {
   return Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined)) as Record<string, Prop>;
+}
+
+function emailProp(v: string): Prop {
+  return { email: v || null };
 }
 
 async function notionFetch(path: string, body: unknown, method: "POST" | "GET" | "PATCH" = "POST") {
@@ -39,14 +54,80 @@ export function notionEnabled() {
   return Boolean(process.env.NOTION_TOKEN && process.env.NOTION_PARTICIPANTS_DB);
 }
 
-/** Find an existing Participants page by email or phone (duplicate guard). */
-export async function notionFindParticipant(email: string, phone: string): Promise<string | null> {
+async function queryParticipants(filter: unknown, pageSize = 100): Promise<NotionPage[]> {
   const db = process.env.NOTION_PARTICIPANTS_DB!;
-  const r = (await notionFetch(`databases/${db}/query`, {
-    filter: { or: [{ property: "Email", email: { equals: email } }, { property: "Phone", phone_number: { equals: phone } }] },
-    page_size: 1,
-  })) as { results: { id: string }[] };
-  return r.results?.[0]?.id ?? null;
+  const out: NotionPage[] = [];
+  let cursor: string | undefined;
+  do {
+    const r = (await notionFetch(`databases/${db}/query`, {
+      filter,
+      page_size: pageSize,
+      ...(cursor ? { start_cursor: cursor } : {}),
+    })) as { results: NotionPage[]; has_more?: boolean; next_cursor?: string | null };
+    out.push(...(r.results || []));
+    cursor = r.has_more && r.next_cursor ? r.next_cursor : undefined;
+  } while (cursor);
+  return out;
+}
+
+function plain(p: NotionPage["properties"][string] | undefined): string {
+  if (!p) return "";
+  const t = p.type;
+  if (t === "rich_text" || t === "title") return ((p[t] as { plain_text: string }[]) || []).map((x) => x.plain_text).join("");
+  if (t === "email") return String(p.email || "");
+  if (t === "phone_number") return String(p.phone_number || "");
+  if (t === "select") return String((p.select as { name: string } | null)?.name || "");
+  if (t === "date") return String((p.date as { start: string } | null)?.start || "");
+  return "";
+}
+
+function toMergeCandidate(page: NotionPage): MergeCandidate {
+  const P = page.properties;
+  return {
+    id: page.id,
+    name: plain(P.Name),
+    phone: plain(P.Phone),
+    email: plain(P.Email),
+    inviteEmail: plain(P["Invite email"]),
+    state: plain(P.State),
+    applied: plain(P.Applied),
+  };
+}
+
+/** Merge match order: Phone → Invited+Name → Email / Invite email. See participant-merge.ts. */
+export async function notionFindMergeTarget(email: string, phone: string, name: string): Promise<MergeCandidate | null> {
+  if (phone) {
+    const variants = phoneVariants(phone);
+    const byFormat = await queryParticipants({
+      or: variants.map((v) => ({ property: "Phone", phone_number: { equals: v } })),
+    }, 10);
+    const phoneHit = byFormat.map(toMergeCandidate).find((c) => phonesMatch(c.phone, phone));
+    if (phoneHit) return phoneHit;
+
+    const withPhone = (await queryParticipants({ property: "Phone", phone_number: { is_not_empty: true } }))
+      .map(toMergeCandidate)
+      .find((c) => phonesMatch(c.phone, phone));
+    if (withPhone) return withPhone;
+  }
+
+  const invited = (await queryParticipants({ property: "State", select: { equals: "Invited" } }))
+    .map(toMergeCandidate)
+    .filter((c) => namesMatch(c.name, name));
+  if (invited.length) return invited.find((c) => !c.applied.trim()) ?? invited[0];
+
+  const emailFilter = {
+    or: [
+      { property: "Email", email: { equals: email } },
+      { property: "Invite email", email: { equals: email } },
+    ],
+  };
+  const emailPages = await queryParticipants(emailFilter, 5).catch(() =>
+    queryParticipants({ property: "Email", email: { equals: email } }, 5),
+  );
+  const byEmail = emailPages
+    .map(toMergeCandidate)
+    .find((c) => emailsMatch(c.email, email) || emailsMatch(c.inviteEmail, email));
+  return byEmail ?? null;
 }
 
 export type ApplicantRecord = {
@@ -67,14 +148,11 @@ export type ApplicantRecord = {
   submitted_at: string;
 };
 
-/** Create the participant page: State = Applied, all Survey 1 fields. Returns the page id. */
-export async function notionCreateApplicant(a: ApplicantRecord): Promise<string> {
-  const db = process.env.NOTION_PARTICIPANTS_DB!;
+function survey1Properties(a: ApplicantRecord): Record<string, Prop> {
   const secondary = a.fit.filter((f) => !(a.icp_bucket === "Optimizer" && f === "Performance"));
-  const props = compact({
+  return compact({
     Name: title(a.full_name),
     "First name": text(a.first_name),
-    Email: { email: a.email },
     Phone: { phone_number: a.phone_e164 },
     "Age band": select(a.age_band),
     Sex: select(a.sex),
@@ -92,8 +170,33 @@ export async function notionCreateApplicant(a: ApplicantRecord): Promise<string>
     Rx: checkbox(a.rx),
     "Rx text": text(a.rx_text),
   });
+}
+
+function applicantEmailProperties(applyEmail: string, priorEmail: string): Record<string, Prop> {
+  const fields = mergeEmailFields(applyEmail, priorEmail);
+  return compact({
+    Email: emailProp(fields.email),
+    "Apply email": emailProp(fields.applyEmail),
+    "Invite email": fields.setInviteEmail ? emailProp(fields.inviteEmail) : undefined,
+  });
+}
+
+/** Create the participant page: State = Applied, all Survey 1 fields. Returns the page id. */
+export async function notionCreateApplicant(a: ApplicantRecord): Promise<string> {
+  const db = process.env.NOTION_PARTICIPANTS_DB!;
+  const props = { ...survey1Properties(a), ...applicantEmailProperties(a.email, "") };
   const r = (await notionFetch("pages", { parent: { database_id: db }, properties: props })) as { id: string };
   return r.id;
+}
+
+/** Update an existing Participants page with Survey 1 fields, or create one if no merge match. */
+export async function notionUpsertApplicant(a: ApplicantRecord): Promise<string> {
+  const match = await notionFindMergeTarget(a.email, a.phone_e164, a.full_name);
+  if (!match) return notionCreateApplicant(a);
+  const priorEmail = match.email || match.inviteEmail;
+  const props = { ...survey1Properties(a), ...applicantEmailProperties(a.email, priorEmail) };
+  await notionFetch(`pages/${match.id}`, { properties: props }, "PATCH");
+  return match.id;
 }
 
 /** Later-round list: someone who didn't fit this round but wants to hear about the next. */
@@ -112,18 +215,6 @@ export async function notionCreateLaterRound(email: string, submitted_at: string
 }
 
 /* ---------- Survey 2 ---------- */
-
-type NotionPage = { id: string; properties: Record<string, { type: string; [k: string]: unknown }> };
-
-function plain(p: NotionPage["properties"][string] | undefined): string {
-  if (!p) return "";
-  const t = p.type;
-  if (t === "rich_text" || t === "title") return ((p[t] as { plain_text: string }[]) || []).map((x) => x.plain_text).join("");
-  if (t === "email") return String(p.email || "");
-  if (t === "select") return String((p.select as { name: string } | null)?.name || "");
-  if (t === "date") return String((p.date as { start: string } | null)?.start || "");
-  return "";
-}
 
 export type Participant = { id: string; first_name: string; email: string; state: string; survey2_done: string };
 
