@@ -3,7 +3,7 @@ import { notionEnabled, notionGetParticipant, notionFindByEmail } from "@/lib/no
 
 export const runtime = "nodejs";
 
-/** GET /api/participant?p=<page id> or ?email=… → who this Survey 2 run belongs to. Only the first name leaves the server. */
+/** GET /api/participant?p=<page id> or ?email=… → who this Survey 2 / waiver run belongs to. Name and email only (they came from the person). */
 export async function GET(req: Request) {
   const q = new URL(req.url).searchParams;
   const p = q.get("p") || "";
@@ -12,7 +12,7 @@ export async function GET(req: Request) {
   try {
     const who = p ? await notionGetParticipant(p) : email && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) ? await notionFindByEmail(email) : null;
     if (!who) return NextResponse.json({ error: "not_found" }, { status: 404 });
-    return NextResponse.json({ first_name: who.first_name, email: who.email, done: Boolean(who.survey2_done) });
+    return NextResponse.json({ first_name: who.first_name, name: who.name, email: who.email, done: Boolean(who.survey2_done), signed: Boolean(who.waiver_signed) });
   } catch (e) {
     console.error("participant_lookup_failed", e);
     return NextResponse.json({ error: "lookup_failed" }, { status: 500 });

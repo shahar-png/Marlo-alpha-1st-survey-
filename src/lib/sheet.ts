@@ -23,3 +23,22 @@ export async function sheetAppend(tab: string, columns: readonly string[], row: 
   const rowUrl = data.sheetId && data.gid !== undefined && data.rowIndex ? `https://docs.google.com/spreadsheets/d/${data.sheetId}/edit#gid=${data.gid}&range=A${data.rowIndex}` : "";
   return { duplicate: Boolean(data.duplicate), rowUrl };
 }
+
+/**
+ * Signed waiver: the Apps Script files the PDF in Drive (02_Acceptance/signed), emails it from Jenny's inbox to the
+ * participant (cc Jenny), and logs a row in tab "Waiver". Returns the Drive URL of the copy and the log row.
+ */
+export async function waiverDeliver(input: { to: string; name: string; first_name: string; filename: string; pdfBase64: string; row: Record<string, string> }): Promise<{ driveUrl: string; rowUrl: string }> {
+  const res = await fetch(process.env.APPS_SCRIPT_URL!, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({ secret: process.env.APPS_SCRIPT_SECRET, action: "waiver", ...input }),
+    redirect: "follow",
+  });
+  const text = await res.text();
+  let data: { ok?: boolean; error?: string; driveUrl?: string; rowIndex?: number; gid?: number; sheetId?: string } = {};
+  try { data = JSON.parse(text); } catch { throw new Error(`apps_script_bad_response ${res.status}: ${text.slice(0, 200)}`); }
+  if (!res.ok || data.error) throw new Error(`apps_script_failed: ${data.error || res.status}`);
+  const rowUrl = data.sheetId && data.gid !== undefined && data.rowIndex ? `https://docs.google.com/spreadsheets/d/${data.sheetId}/edit#gid=${data.gid}&range=A${data.rowIndex}` : "";
+  return { driveUrl: data.driveUrl || "", rowUrl };
+}

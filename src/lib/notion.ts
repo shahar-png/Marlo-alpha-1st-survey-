@@ -125,16 +125,18 @@ function plain(p: NotionPage["properties"][string] | undefined): string {
   return "";
 }
 
-export type Participant = { id: string; first_name: string; email: string; state: string; survey2_done: string };
+export type Participant = { id: string; name: string; first_name: string; email: string; state: string; survey2_done: string; waiver_signed: string };
 
 function toParticipant(page: NotionPage): Participant {
   const P = page.properties;
   return {
     id: page.id,
+    name: plain(P.Name),
     first_name: plain(P["First name"]) || plain(P.Name).split(/\s+/)[0] || "",
     email: plain(P.Email),
     state: plain(P.State),
     survey2_done: plain(P["Survey 2 done"]),
+    waiver_signed: plain(P["Waiver signed"]),
   };
 }
 
@@ -189,6 +191,34 @@ export async function notionWriteSurvey2(pageId: string, tags: Survey2Tags, done
     "Proof standard": multi(tags["Proof standard"]),
     "Lead pain": select(tags["Lead pain"]),
     "Data vs feel": select(tags["Data vs feel"]),
+  });
+  await notionFetch(`pages/${pageId}`, { properties: props }, "PATCH");
+}
+
+/* ---------- Waiver ---------- */
+
+/** Upload a file to Notion (File Upload API) and return the upload id to attach to a files property. */
+export async function notionUploadFile(filename: string, contentType: string, bytes: Uint8Array): Promise<string> {
+  const token = process.env.NOTION_TOKEN;
+  if (!token) throw new Error("missing_notion_token");
+  const created = (await notionFetch("file_uploads", { filename, content_type: contentType })) as { id: string };
+  const form = new FormData();
+  form.append("file", new Blob([bytes as BlobPart], { type: contentType }), filename);
+  const res = await fetch(`https://api.notion.com/v1/file_uploads/${created.id}/send`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Notion-Version": NOTION_VERSION },
+    body: form,
+  });
+  if (!res.ok) throw new Error(`notion_upload_${res.status}: ${(await res.text()).slice(0, 300)}`);
+  return created.id;
+}
+
+/** Stamp the signed waiver on the participant page: date, version, the PDF itself. */
+export async function notionWriteWaiver(pageId: string, signedAt: string, version: string, uploadId: string, filename: string): Promise<void> {
+  const props = compact({
+    "Waiver signed": date(signedAt),
+    "Waiver version": text(version),
+    "Signed waiver": { files: [{ type: "file_upload", file_upload: { id: uploadId }, name: filename }] },
   });
   await notionFetch(`pages/${pageId}`, { properties: props }, "PATCH");
 }
