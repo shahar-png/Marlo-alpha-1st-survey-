@@ -55,7 +55,7 @@ function Waiver() {
     if (busy) return;
     setSig(s); setBusy(true);
     try {
-      const local_time = new Date().toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short", timeZoneName: "short" });
+      const local_time = new Date().toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short" });
       const res = await fetch("/api/waiver", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ p, email: email.trim().toLowerCase(), name: name.trim(), signature: s.png, typed: s.typed, local_time }) });
       if (res.status === 409) { setStep("already"); return; }
       if (res.status === 404) { setStep("intro"); setEmailError(NOT_IN_SYSTEM); return; }

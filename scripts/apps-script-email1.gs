@@ -143,3 +143,10 @@ function doGet() { return out_({ ok: true, service: "marlo-survey-1" }); }
 function out_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
+
+/** Run once from the editor (as Jenny) to grant the Drive + Gmail scopes the waiver path needs. Logs the folder it will file into. */
+function authorizeWaiver() {
+  var f = waiverFolder_();
+  Logger.log("Signed waivers go to: " + f.getName() + " " + f.getUrl());
+  Logger.log("Gmail ok, drafts: " + GmailApp.getDrafts().length);
+}
