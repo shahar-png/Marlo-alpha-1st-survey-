@@ -83,12 +83,48 @@ function doPost(e) {
         return out_({ ok: true, duplicate: false, emailed: false, warn: String(err), rowIndex: rowIndex, gid: sh.getSheetId(), sheetId: SHEET_ID });
       }
     }
+    // Jenny's trigger: a "New application" notice in her inbox (cc Shahar) for every Survey 1 / later-round row.
+    try { notifyNew_(p.tab, p.row, rowIndex); } catch (err) { Logger.log("notify failed: " + err); }
     return out_({ ok: true, duplicate: false, emailed: Boolean(m && to), rowIndex: rowIndex, gid: sh.getSheetId(), sheetId: SHEET_ID });
   } catch (err) {
     return out_({ error: String(err) });
   } finally {
     lock.releaseLock();
   }
+}
+
+/* ---------- Jenny's trigger: "New application" notice ---------- */
+
+var NOTIFY_TO = "jenny@saymarlo.com";
+var NOTIFY_CC = "shahar@saymarlo.com";
+
+function notionUrl_(id) { return id ? "https://www.notion.so/" + String(id).replace(/-/g, "") : ""; }
+
+function notifyNew_(tab, r, rowIndex) {
+  if (tab !== "Survey 1" && tab !== "Later round") return;
+  var name = r.full_name || r.email || "someone";
+  var subject, body;
+  if (tab === "Survey 1") {
+    subject = "[Alpha] New application \u2014 " + name + " \u00b7 " + (r.icp_bucket || "no bucket");
+    body =
+      "A Survey 1 application just landed. Run the gates (guide A5\u2013A9) and send Email 2 or 3 within 1 business day.\n\n" +
+      "Name: " + name + "\n" +
+      "Email: " + (r.email || "") + "\n" +
+      "Phone: " + (r.phone || "") + "\n" +
+      "Age band: " + (r.age_band || "") + " \u00b7 Sex: " + (r.sex || "") + "\n" +
+      "Bucket: " + (r.icp_bucket || "") + " \u00b7 Fit: " + (r.fit || "") + (r.fit_text ? " \u2014 " + r.fit_text : "") + "\n" +
+      "Frequency: " + (r.frequency || "") + "\n" +
+      "Supplements: " + (r.supplements || "") + (r.supplements_other ? " \u00b7 other: " + r.supplements_other : "") + "\n" +
+      "Rx: " + (r.rx || "no") + (r.rx_text ? " \u2014 " + r.rx_text : "") + "\n" +
+      "Self-declared on the deal screen: iPhone \u00b7 US \u00b7 18+\n\n" +
+      "Card: " + (notionUrl_(r.notion_page_id) || "(no Notion page \u2014 the write failed; create it from the sheet row)") + "\n" +
+      "Sheet row: https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/edit#range=A" + rowIndex + "\n\n" +
+      "Check for an Invited card with the same name or phone and merge before you decide.";
+  } else {
+    subject = "[Alpha] Later-round signup \u2014 " + name;
+    body = "Someone opted into the later-round list from the deal screen (didn't fit this round).\n\nEmail: " + (r.email || "") + "\nReason: " + (r.reason || "") + "\nCard: " + notionUrl_(r.notion_page_id) + "\n\nNothing to send; keep the row.";
+  }
+  GmailApp.sendEmail(NOTIFY_TO, subject, body, { name: "Marlo alpha \u2014 pipeline", cc: NOTIFY_CC });
 }
 
 /* ---------- Signed waiver: file in Drive, email the copy, log a row ---------- */
