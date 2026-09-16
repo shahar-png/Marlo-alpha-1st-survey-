@@ -14,25 +14,21 @@ function DeepDive() {
   const [a, setA] = useState<Answers2>(EMPTY2);
   const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
-  const [needEmail, setNeedEmail] = useState(!p);
   const [loading, setLoading] = useState(Boolean(p));
   const [busy, setBusy] = useState(false);
   const [emailError, setEmailError] = useState("");
 
-  // Who is this link for? Greet by first name; refuse a second run.
+  // A per-person link (?p=) only pre-fills the email; the email is what identifies the participant.
   useEffect(() => {
     if (!p) return;
     let alive = true;
     (async () => {
       try {
         const r = await fetch(`/api/participant?p=${encodeURIComponent(p)}`);
-        if (!alive) return;
-        if (r.status === 404) { setNeedEmail(true); return; }
-        if (!r.ok) return; // proceed; server will re-check at submit
-        const d = (await r.json()) as { first_name: string; done: boolean };
-        setFirstName(d.first_name || "");
-        if (d.done) setStep("done");
-      } finally {
+        if (!alive || !r.ok) return;
+        const d = (await r.json()) as { email?: string };
+        if (d.email) setEmail(d.email);
+      } catch {} finally {
         if (alive) setLoading(false);
       }
     })();
@@ -57,13 +53,12 @@ function DeepDive() {
     } catch { setStep("error"); } finally { setBusy(false); }
   };
 
-  // Intro → first part. With an email, confirm it's a participant before letting them in.
+  // Intro → first part. The email must match a participant in the pipeline before the survey opens.
   const start = async () => {
-    if (!needEmail) { setStep("part"); return; }
     setLoading(true); setEmailError("");
     try {
       const r = await fetch(`/api/participant?email=${encodeURIComponent(email.trim().toLowerCase())}`);
-      if (r.status === 404) { setEmailError("We don’t have an application under that email. Use the one you applied with, or reply to our email."); return; }
+      if (r.status === 404) { setEmailError("This email is not in our system. Please reach out to the program manager."); return; }
       if (!r.ok) { setEmailError("Something on our side — try once more."); return; }
       const d = (await r.json()) as { first_name: string; done: boolean };
       setFirstName(d.first_name || "");
@@ -76,7 +71,7 @@ function DeepDive() {
   const back = () => { if (i > 0) setI(i - 1); else setStep("intro"); };
 
   switch (step) {
-    case "intro": return <S2Intro firstName={firstName} needEmail={needEmail} email={email} setEmail={(v) => { setEmail(v); setEmailError(""); }} emailError={emailError} loading={loading} next={() => void start()} />;
+    case "intro": return <S2Intro email={email} setEmail={(v) => { setEmail(v); setEmailError(""); }} emailError={emailError} loading={loading} next={() => void start()} />;
     case "part": return <PartScreen part={PARTS[i]} a={a} set={set} next={next} back={back} step={i + 1} total={PARTS.length} busy={busy} />;
     case "close": return <S2Close firstName={firstName} bookingUrl={process.env.NEXT_PUBLIC_BOOKING_URL} />;
     case "done": return <S2Done />;

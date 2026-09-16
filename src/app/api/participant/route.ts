@@ -12,7 +12,7 @@ export async function GET(req: Request) {
   try {
     const who = p ? await notionGetParticipant(p) : email && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) ? await notionFindByEmail(email) : null;
     if (!who) return NextResponse.json({ error: "not_found" }, { status: 404 });
-    return NextResponse.json({ first_name: who.first_name, done: Boolean(who.survey2_done) });
+    return NextResponse.json({ first_name: who.first_name, email: who.email, done: Boolean(who.survey2_done) });
   } catch (e) {
     console.error("participant_lookup_failed", e);
     return NextResponse.json({ error: "lookup_failed" }, { status: 500 });

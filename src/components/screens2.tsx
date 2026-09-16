@@ -126,20 +126,18 @@ function TopPain({ a, set }: { a: Answers2; set: Set2 }) {
 
 /* ---------- Intro ---------- */
 
-export function S2Intro({ firstName, needEmail, email, setEmail, emailError, next, loading }: { firstName: string; needEmail: boolean; email: string; setEmail: (v: string) => void; emailError?: string; next: () => void; loading: boolean }) {
+export function S2Intro({ email, setEmail, emailError, next, loading }: { email: string; setEmail: (v: string) => void; emailError?: string; next: () => void; loading: boolean }) {
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
   return (
-    <Screen cta={<Button onClick={next} disabled={loading || (needEmail && !emailOk)}>{loading ? "One moment…" : "Let’s go"}</Button>}>
+    <Screen cta={<Button onClick={next} disabled={loading || !emailOk}>{loading ? "One moment…" : "Let’s go"}</Button>}>
       <Title className="text-[42px] leading-[1.02] mb-4">Let&rsquo;s get to know you better<span className="text-salmon">.</span></Title>
       <Lead className="mb-[18px]">
-        {firstName ? `${firstName}, you’re in.` : "You’re in."} Before your first call, a few questions about how you run your supplements today &mdash; what you buy, how you decide, what gets in the way. There are no right answers; we want the real picture.
+        You&rsquo;re in. Before your first call, a few questions about how you run your supplements today &mdash; what you buy, how you decide, what gets in the way. There are no right answers; we want the real picture.
       </Lead>
       <Ticket eyebrow="Time"><p className="m-0 text-[17px]">About ten minutes. Your answers save when you finish.</p></Ticket>
-      {needEmail ? (
-        <div className="mt-6">
-          <Field id="s2_email" label="The email you applied with" value={email} onChange={setEmail} type="email" inputMode="email" autoComplete="email" placeholder="you@example.com" error={emailError || undefined} />
-        </div>
-      ) : null}
+      <div className="mt-6">
+        <Field id="s2_email" label="The email you applied with" value={email} onChange={setEmail} type="email" inputMode="email" autoComplete="email" placeholder="you@example.com" error={emailError || undefined} />
+      </div>
     </Screen>
   );
 }

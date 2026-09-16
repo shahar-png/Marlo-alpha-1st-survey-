@@ -33,8 +33,8 @@ export async function POST(req: Request) {
   // 1. Who is this?
   let who = null;
   try {
-    who = body.p ? await notionGetParticipant(clean(body.p, 40)) : null;
-    if (!who && body.email) who = await notionFindByEmail(clean(body.email, 120).toLowerCase());
+    if (body.email) who = await notionFindByEmail(clean(body.email, 120).toLowerCase());
+    if (!who && body.p) who = await notionGetParticipant(clean(body.p, 40));
   } catch (e) {
     console.error("participant_lookup_failed", e);
     return NextResponse.json({ error: "lookup_failed" }, { status: 500 });
