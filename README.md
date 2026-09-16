@@ -8,7 +8,7 @@ Copy and screens: `survey-1-screens-v1.md` (Drive: Alpha program/01_Recruiting) 
 ```
 applicant ──▶ survey (Vercel) ──▶ POST /api/apply
                                     │
-                                    ├─▶ Notion · Participants     new page, State = Applied, all Survey 1 fields   ← the database
+                                    ├─▶ Notion · Participants     merge Invited card or new page, State = Applied   ← the database
                                     │
                                     └─▶ Apps Script web app in the Google Sheet (runs as jenny@)
                                               ├─▶ Sheet · "Survey 1"  one raw row (backup, Jenny's export)
@@ -19,9 +19,10 @@ applicant ──▶ survey (Vercel) ──▶ POST /api/apply
                                     └─▶ Apps Script ──▶ Sheet · "Later round" row + "Done, you're on the list" email
 ```
 
-- **Notion is the database.** The survey creates the participant page directly, with the property names from `notion-build-spec-v1.md`. Jenny's pipeline starts from that page (State = Applied → she runs the gates).
+- **Notion is the database.** The survey writes the participant page directly, with the property names from `notion-build-spec-v1.md`. Jenny's pipeline starts from that page (State = Applied → she runs the gates).
+- **Invite ↔ apply merge.** Before creating a page, Survey 1 looks for an existing Participants card (first hit wins): **Phone** (digits / E.164) → else **Name** on State = Invited (or Invited with empty Applied, case-insensitive trim) → else **Email** or **Invite email** = the apply email. A match **updates that page** (State = Applied, Applied timestamp, Email = apply email). If the card had a different prior email, **Invite email** keeps it and **Apply email** gets the survey address. No second page. Email 1 and the sheet row still go out as usual, to the apply email. Walk-ins with no match create a page as before (Email + Apply email = survey email; Invite email empty).
 - **The Sheet is the raw log and Email 1 goes out in the same call.** `/api/apply` POSTs to the Apps Script web app deployed from the sheet (runs as Jenny, guarded by a shared secret). The script appends the row, sends Email 1 from Jenny's inbox, and stamps `email1_sent_at` — instantly, no trigger. No Google Cloud service account is involved (the org policy blocks key creation anyway).
-- **Duplicates**: same email or phone already in Notion (or the sheet, if Notion is off) → the survey shows "You've already applied" and writes nothing.
+- **Duplicates**: someone who already Applied (Applied timestamp set, State past Invited) is still refused — "You've already applied", nothing written. Same email/phone in the sheet, if Notion is off, is the same 409.
 - **Either destination can be off.** With only `NOTION_*` set, the sheet is skipped; with only the `APPS_SCRIPT_*` vars set, Notion is skipped (Jenny then creates the page from the row). Both set is the intended setup.
 - **iPhone / US** are self-declared by tapping "I'm in" on the deal screen and written as Device = iPhone, Country = US. **Under 18** is the one hard stop (no submission; routed to the later-round page).
 
@@ -51,7 +52,7 @@ The participant-facing program guide, rendered from `02_Acceptance/program-guide
 
 ## Notion properties written (must exist exactly as named)
 
-Name · First name · Email · Phone · Age band · Sex · Device · Country · State · State changed · Applied · ICP bucket · Secondary tags · Fit text · Frequency · Supplements · Supplements other · Rx · Rx text — and for the later-round list: Name · Email · State · State changed · Waitlist tag · Gate reason.
+Name · First name · Email · Apply email · Invite email · Phone · Age band · Sex · Device · Country · State · State changed · Applied · ICP bucket · Secondary tags · Fit text · Frequency · Supplements · Supplements other · Rx · Rx text — and for the later-round list: Name · Email · State · State changed · Waitlist tag · Gate reason.
 
 ## Sheet columns
 

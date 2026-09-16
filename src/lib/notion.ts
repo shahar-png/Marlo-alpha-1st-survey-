@@ -39,14 +39,126 @@ export function notionEnabled() {
   return Boolean(process.env.NOTION_TOKEN && process.env.NOTION_PARTICIPANTS_DB);
 }
 
-/** Find an existing Participants page by email or phone (duplicate guard). */
-export async function notionFindParticipant(email: string, phone: string): Promise<string | null> {
+type NotionPage = { id: string; properties: Record<string, { type: string; [k: string]: unknown }> };
+
+function plain(p: NotionPage["properties"][string] | undefined): string {
+  if (!p) return "";
+  const t = p.type;
+  if (t === "rich_text" || t === "title") return ((p[t] as { plain_text: string }[]) || []).map((x) => x.plain_text).join("");
+  if (t === "email") return String(p.email || "");
+  if (t === "phone_number") return String(p.phone_number || "");
+  if (t === "select") return String((p.select as { name: string } | null)?.name || "");
+  if (t === "date") return String((p.date as { start: string } | null)?.start || "");
+  return "";
+}
+
+/** Last 10 digits — Survey 1 is US-only, so this is the E.164 national number. */
+export function phoneDigits(phone: string): string {
+  return phone.replace(/\D/g, "").slice(-10);
+}
+
+function namesMatch(a: string, b: string): boolean {
+  return a.trim().toLowerCase() === b.trim().toLowerCase();
+}
+
+function phoneEqualsFilter(phoneE164: string) {
+  const d = phoneDigits(phoneE164);
+  const variants = [
+    `+1${d}`,
+    d,
+    `1${d}`,
+    `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`,
+    `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`,
+    `${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6)}`,
+    `+1 ${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`,
+    `+1 ${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6)}`,
+    `+1 (${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`,
+  ];
+  return { or: variants.map((v) => ({ property: "Phone", phone_number: { equals: v } })) };
+}
+
+async function queryPages(filter: unknown, pageSize = 100): Promise<NotionPage[]> {
   const db = process.env.NOTION_PARTICIPANTS_DB!;
-  const r = (await notionFetch(`databases/${db}/query`, {
-    filter: { or: [{ property: "Email", email: { equals: email } }, { property: "Phone", phone_number: { equals: phone } }] },
-    page_size: 1,
-  })) as { results: { id: string }[] };
-  return r.results?.[0]?.id ?? null;
+  const out: NotionPage[] = [];
+  let cursor: string | undefined;
+  do {
+    const r = (await notionFetch(`databases/${db}/query`, {
+      filter,
+      page_size: pageSize,
+      ...(cursor ? { start_cursor: cursor } : {}),
+    })) as { results: NotionPage[]; has_more?: boolean; next_cursor?: string | null };
+    out.push(...(r.results || []));
+    cursor = r.has_more && r.next_cursor ? r.next_cursor : undefined;
+  } while (cursor);
+  return out;
+}
+
+export type ApplicantMatch = {
+  id: string;
+  name: string;
+  email: string;
+  inviteEmail: string;
+  applyEmail: string;
+  phone: string;
+  state: string;
+  applied: string;
+};
+
+function toApplicantMatch(page: NotionPage): ApplicantMatch {
+  const P = page.properties;
+  return {
+    id: page.id,
+    name: plain(P.Name),
+    email: plain(P.Email).toLowerCase(),
+    inviteEmail: plain(P["Invite email"]).toLowerCase(),
+    applyEmail: plain(P["Apply email"]).toLowerCase(),
+    phone: plain(P.Phone),
+    state: plain(P.State),
+    applied: plain(P.Applied),
+  };
+}
+
+/**
+ * Find an existing Participants page to merge into (first hit wins):
+ * 1. Phone — digits / E.164 match an existing Phone
+ * 2. Else Name (case-insensitive trim) on State = Invited (or Invited with empty Applied)
+ * 3. Else Email or Invite email equals the apply email
+ */
+export async function notionFindApplicantMatch(email: string, phoneE164: string, name: string): Promise<ApplicantMatch | null> {
+  const digits = phoneDigits(phoneE164);
+
+  const byPhone = await queryPages(phoneEqualsFilter(phoneE164), 10);
+  const phoneHit = byPhone.find((p) => phoneDigits(plain(p.properties.Phone)) === digits);
+  if (phoneHit) return toApplicantMatch(phoneHit);
+
+  // Invite cards may store Phone in a format the equals variants miss — scan Invited phones.
+  const invited = await queryPages({
+    or: [
+      { property: "State", select: { equals: "Invited" } },
+      { and: [{ property: "State", select: { equals: "Invited" } }, { property: "Applied", date: { is_empty: true } }] },
+    ],
+  });
+  const invitedPhoneHit = invited.find((p) => {
+    const stored = phoneDigits(plain(p.properties.Phone));
+    return stored.length === 10 && stored === digits;
+  });
+  if (invitedPhoneHit) return toApplicantMatch(invitedPhoneHit);
+
+  const nameHit = invited.find((p) => namesMatch(plain(p.properties.Name), name));
+  if (nameHit) return toApplicantMatch(nameHit);
+
+  const byEmail = await queryPages({
+    or: [
+      { property: "Email", email: { equals: email } },
+      { property: "Invite email", email: { equals: email } },
+    ],
+  }, 5);
+  return byEmail[0] ? toApplicantMatch(byEmail[0]) : null;
+}
+
+/** Invited (or not-yet-applied) cards merge; anyone who already Applied stays a duplicate. */
+export function isMergeableInvite(m: ApplicantMatch): boolean {
+  return m.state === "Invited" || !m.applied;
 }
 
 export type ApplicantRecord = {
@@ -67,11 +179,9 @@ export type ApplicantRecord = {
   submitted_at: string;
 };
 
-/** Create the participant page: State = Applied, all Survey 1 fields. Returns the page id. */
-export async function notionCreateApplicant(a: ApplicantRecord): Promise<string> {
-  const db = process.env.NOTION_PARTICIPANTS_DB!;
+function survey1Properties(a: ApplicantRecord): Record<string, Prop> {
   const secondary = a.fit.filter((f) => !(a.icp_bucket === "Optimizer" && f === "Performance"));
-  const props = compact({
+  return compact({
     Name: title(a.full_name),
     "First name": text(a.first_name),
     Email: { email: a.email },
@@ -91,9 +201,27 @@ export async function notionCreateApplicant(a: ApplicantRecord): Promise<string>
     "Supplements other": text(a.supplements_other),
     Rx: checkbox(a.rx),
     "Rx text": text(a.rx_text),
+    "Apply email": { email: a.email },
   });
-  const r = (await notionFetch("pages", { parent: { database_id: db }, properties: props })) as { id: string };
+}
+
+/** Create the participant page: State = Applied, all Survey 1 fields. Returns the page id. */
+export async function notionCreateApplicant(a: ApplicantRecord): Promise<string> {
+  const db = process.env.NOTION_PARTICIPANTS_DB!;
+  // New walk-ins: Email + Apply email = survey email; Invite email stays empty.
+  const r = (await notionFetch("pages", { parent: { database_id: db }, properties: survey1Properties(a) })) as { id: string };
   return r.id;
+}
+
+/** Merge Survey 1 onto an existing Participants page (invite card). Does not create a second page. */
+export async function notionUpdateApplicant(pageId: string, a: ApplicantRecord, prior: ApplicantMatch): Promise<void> {
+  const priorEmail = prior.inviteEmail || prior.email;
+  const props = compact({
+    ...survey1Properties(a),
+    // If they applied under a different address than the invite card, keep the old one on Invite email.
+    ...(priorEmail && priorEmail !== a.email ? { "Invite email": { email: priorEmail } } : {}),
+  });
+  await notionFetch(`pages/${pageId}`, { properties: props }, "PATCH");
 }
 
 /** Later-round list: someone who didn't fit this round but wants to hear about the next. */
@@ -112,18 +240,6 @@ export async function notionCreateLaterRound(email: string, submitted_at: string
 }
 
 /* ---------- Survey 2 ---------- */
-
-type NotionPage = { id: string; properties: Record<string, { type: string; [k: string]: unknown }> };
-
-function plain(p: NotionPage["properties"][string] | undefined): string {
-  if (!p) return "";
-  const t = p.type;
-  if (t === "rich_text" || t === "title") return ((p[t] as { plain_text: string }[]) || []).map((x) => x.plain_text).join("");
-  if (t === "email") return String(p.email || "");
-  if (t === "select") return String((p.select as { name: string } | null)?.name || "");
-  if (t === "date") return String((p.date as { start: string } | null)?.start || "");
-  return "";
-}
 
 export type Participant = { id: string; first_name: string; email: string; state: string; survey2_done: string };
 
