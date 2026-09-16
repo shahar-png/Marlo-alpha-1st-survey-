@@ -16,7 +16,18 @@ export default function Page() {
   const [errorFrom, setErrorFrom] = useState<Step>("stack");
 
   useEffect(() => {
-    try { if (localStorage.getItem("marlo_alpha_applied") === "1") setStep("already"); } catch {}
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("reset") === "1" || params.get("fresh") === "1") {
+        localStorage.removeItem("marlo_alpha_applied");
+        params.delete("reset");
+        params.delete("fresh");
+        const qs = params.toString();
+        window.history.replaceState(null, "", window.location.pathname + (qs ? `?${qs}` : "") + window.location.hash);
+        return;
+      }
+      if (localStorage.getItem("marlo_alpha_applied") === "1") setStep("already");
+    } catch {}
   }, []);
   useEffect(() => { window.scrollTo({ top: 0 }); }, [step]);
 
