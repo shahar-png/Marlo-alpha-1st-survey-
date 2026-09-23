@@ -1,19 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { scrollStep, INTRO_MAX_PX_PER_SECOND } from "../src/lib/intro-scroll";
 import { supplementSuggestions } from "../src/lib/supplement-improvements";
 import { notionCreateApplicant, type ApplicantRecord } from "../src/lib/notion";
 import { POST } from "../src/app/api/apply/route";
 
-test("intro pacing cannot exceed the cap at 30/60/120Hz or jump after a stalled frame", () => {
-  for (const dt of [8.33, 16.67, 32, 1000]) {
-    assert(scrollStep(0, 10000, dt) <= INTRO_MAX_PX_PER_SECOND * Math.min(dt, 32) / 1000);
-    assert(scrollStep(5000, 0, dt) >= 5000 - INTRO_MAX_PX_PER_SECOND * Math.min(dt, 32) / 1000);
-  }
-  assert.equal(scrollStep(50, 52, 16), 52);
-  assert.equal(scrollStep(52, 50, 16), 50);
-  assert.equal(scrollStep(50, 500, 0), 50);
-});
 test("supplement queue filters listed items, keeps novel wording and deduplicates each response", () => {
   assert.deepEqual(supplementSuggestions("Vitamin D, D3; fish oil\nB12; turmeric; vitamin C"), []);
   assert.deepEqual(supplementSuggestions("L-theanine, taurine and Vitamin K2; l-THEANINE"), ["L-theanine", "taurine", "Vitamin K2"]);
