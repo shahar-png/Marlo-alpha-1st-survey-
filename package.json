@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "tsx --test tests/*.test.ts tests/*.test.tsx",
+    "qa:serve": "MARLO_LOCAL_QA=1 node --require ./tests/fixtures/mock-upstream.cjs node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 8771"
   },
   "dependencies": {
     "next": "16.3.5",

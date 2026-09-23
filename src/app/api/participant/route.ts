@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { notionEnabled, notionGetParticipant, notionFindByEmail } from "@/lib/notion";
+import {
+  notionEnabled,
+  notionGetParticipant,
+  notionFindByEmail,
+} from "@/lib/notion";
 
 export const runtime = "nodejs";
 
@@ -8,11 +12,32 @@ export async function GET(req: Request) {
   const q = new URL(req.url).searchParams;
   const p = q.get("p") || "";
   const email = (q.get("email") || "").trim().toLowerCase().slice(0, 120);
-  if (!notionEnabled()) return NextResponse.json({ error: "no_database" }, { status: 500 });
+  if (!notionEnabled())
+    return NextResponse.json({ error: "no_database" }, { status: 500 });
   try {
-    const who = p ? await notionGetParticipant(p) : email && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) ? await notionFindByEmail(email) : null;
+    let who = p
+      ? await notionGetParticipant(p)
+      : email && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)
+        ? await notionFindByEmail(email)
+        : null;
+    // Additional profile context requires both the participant's private link and matching email.
+    const profileAllowed =
+      q.get("include") === "profile" &&
+      Boolean(p && email && who?.email.toLowerCase() === email);
+    if (email && (!who || who.email.toLowerCase() !== email))
+      who = await notionFindByEmail(email);
     if (!who) return NextResponse.json({ error: "not_found" }, { status: 404 });
-    return NextResponse.json({ first_name: who.first_name, name: who.name, email: who.email, done: Boolean(who.survey2_done), signed: Boolean(who.waiver_signed) });
+    return NextResponse.json(
+      {
+        first_name: who.first_name,
+        name: who.name,
+        email: who.email,
+        done: Boolean(who.survey2_done),
+        signed: Boolean(who.waiver_signed),
+        ...(profileAllowed ? { profile: who.profile } : {}),
+      },
+      { headers: { "Cache-Control": "private, no-store" } },
+    );
   } catch (e) {
     console.error("participant_lookup_failed", e);
     return NextResponse.json({ error: "lookup_failed" }, { status: 500 });

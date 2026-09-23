@@ -76,3 +76,11 @@ Later round: submitted_at · email · reason · notion_page_id · email_sent_at
 ## Bucketing (server-side)
 
 Performance checked → Optimizer; else Longevity → Longevity; else Something specific → Specific condition; else Other. Remaining checks → Secondary tags.
+
+## Current Survey 2 experience
+
+The approved story quiz is live on the same `/deep-dive` route. See [Jenny's link guide](docs/jenny-survey-links.md) and the [machine-readable production links](https://marlo-alpha-1st-survey.vercel.app/survey-links.json). Personal `?p=` links remain compatible.
+
+The client preserves the original answer schema and adds ranking/profile context inside `raw_json.context`, without changing Sheet columns or Notion tags. Drafts stay in session storage for the current browser tab and are restored only after participant lookup. No fictional profile data ships. Saved profile context is returned only for a personal link plus its matching email; the email-only entry can collect optional profile details without exposing the saved supplement list.
+
+Validation: `npm test`, `npx tsc --noEmit`, `npm run build`. Safe interactive QA: build, then `npm run qa:serve` (fake Notion and Sheet only; do not use production for test submissions).

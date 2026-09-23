@@ -3,6 +3,8 @@ import { EMPTY2, SHEET2_COLUMNS, flatten, tagsFrom, type Answers2 } from "@/lib/
 import { notionEnabled, notionGetParticipant, notionFindByEmail, notionWriteSurvey2 } from "@/lib/notion";
 import { sheetEnabled, sheetAppend } from "@/lib/sheet";
 
+import { cleanContext } from "@/lib/survey2-context";
+
 export const runtime = "nodejs";
 
 function clean(s: unknown, max = 500) {
@@ -11,12 +13,13 @@ function clean(s: unknown, max = 500) {
 
 /** Survey 2 submit: identify the participant (?p= page id, or email fallback), log the row, write the tags to the same Notion page. */
 export async function POST(req: Request) {
-  let body: { p?: string; email?: string; answers?: Partial<Answers2> };
+  let body: { p?: string; email?: string; answers?: Partial<Answers2>; context?: unknown };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "bad_json" }, { status: 400 });
   }
+  if (!body || typeof body !== "object" || Array.isArray(body)) return NextResponse.json({ error: "bad_json" }, { status: 400 });
   if (!notionEnabled()) return NextResponse.json({ error: "no_database" }, { status: 500 });
 
   // Sanitize: only known keys, only strings / string arrays / the one number.
@@ -34,7 +37,7 @@ export async function POST(req: Request) {
   let who = null;
   try {
     if (body.email) who = await notionFindByEmail(clean(body.email, 120).toLowerCase());
-    if (!who && body.p) who = await notionGetParticipant(clean(body.p, 40));
+    if (!body.email && body.p) who = await notionGetParticipant(clean(body.p, 40));
   } catch (e) {
     console.error("participant_lookup_failed", e);
     return NextResponse.json({ error: "lookup_failed" }, { status: 500 });
@@ -42,6 +45,7 @@ export async function POST(req: Request) {
   if (!who) return NextResponse.json({ error: "not_found" }, { status: 404 });
   if (who.survey2_done) return NextResponse.json({ error: "already_done" }, { status: 409 });
 
+  const context = cleanContext(body.context);
   const submitted_at = new Date().toISOString();
   const tags = tagsFrom(a);
 
@@ -67,7 +71,7 @@ export async function POST(req: Request) {
         tag_baseline_confidence: String(tags["Baseline confidence (1–5)"] || ""),
         tag_baseline_hours: tags["Baseline hours"],
         tag_baseline_feel: tags["Baseline feel"],
-        raw_json: JSON.stringify(a),
+        raw_json: JSON.stringify({ ...a, ...(context ? { context } : {}) }),
         user_agent: clean(req.headers.get("user-agent"), 200),
       };
       rowUrl = (await sheetAppend("Survey 2", SHEET2_COLUMNS, row)).rowUrl;

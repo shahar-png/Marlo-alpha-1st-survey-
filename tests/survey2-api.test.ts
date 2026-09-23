@@ -113,6 +113,29 @@ test("Survey 2 API contracts (all external requests mocked)", async (t) => {
       });
     },
   );
+  await t.test("profile details require matching email AND personal link", async () => {
+    reset();
+    const emailOnly=await GET(new Request("http://localhost/api/participant?email=alex@example.com&include=profile"));
+    assert.equal((await emailOnly.json()).profile, undefined);
+    const personal=await GET(new Request(`http://localhost/api/participant?p=${id}&email=alex@example.com&include=profile`));
+    assert.ok((await personal.json()).profile);
+    assert.equal(personal.headers.get('Cache-Control'), 'private, no-store');
+    const mismatch=await GET(new Request(`http://localhost/api/participant?p=${id}&email=someone@example.com&include=profile`));
+    assert.equal((await mismatch.json()).profile, undefined);
+  });
+  await t.test("new ranking and profile context survive in existing raw JSON column", async () => {
+    reset();
+    const r=await POST(req({email:'alex@example.com', answers:EMPTY2, context:{priorityOrder:['routine','clarity','spending','effort'],profile:{age:'38',stack:'Magnesium'}}}));
+    assert.equal(r.status,200);
+    const raw=JSON.parse(calls.find(c=>c.url==='https://qa.invalid/sheet')!.body.row.raw_json);
+    assert.deepEqual(raw.context.priorityOrder,['routine','clarity','spending','effort']);
+    assert.equal(raw.context.profile.stack,'Magnesium');
+  });
+  await t.test("an unknown explicit email cannot write through a different participant link", async () => {
+    reset();missing=true;
+    assert.equal((await POST(req({p:id,email:'missing@example.com',answers:EMPTY2}))).status,404);
+    assert(!calls.some(c=>c.method==='PATCH'||c.url==='https://qa.invalid/sheet'));
+  });
   await t.test(
     "success retains sheet columns, sanitizes data, writes tags to the same participant",
     async () => {
