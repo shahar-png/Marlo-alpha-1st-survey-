@@ -28,7 +28,7 @@ export function Lead({ children, className = "" }: { children: React.ReactNode; 
 }
 export function Label({ children }: { children: React.ReactNode }) { return <div className="flow-label">{children}</div>; }
 export function Button({ children, onClick, disabled, quiet, type = "button" }: { children: React.ReactNode; onClick?: () => void; disabled?: boolean; quiet?: boolean; type?: "button" | "submit" }) {
-  return <button type={type} className={quiet ? "secondary" : "next"} onClick={onClick} disabled={disabled}>{children}{!quiet && <span aria-hidden="true">↗</span>}</button>;
+  return <button type={type} className={quiet ? "secondary" : "next"} onClick={onClick} disabled={disabled}>{children}{!quiet && <svg className="button-arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M6 18 18 6M6 6h12v12" /></svg>}</button>;
 }
 export function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return <button type="button" className="chip" aria-pressed={active} onClick={onClick}>{children}</button>;
