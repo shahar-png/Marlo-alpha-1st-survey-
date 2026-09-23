@@ -2,7 +2,7 @@
 
 ## Behavior
 
-The original hard scroll cap was removed after user feedback about sticking and jumps. The intro now observes native scrolling without intercepting wheel, touch, keyboard, scrollbar or momentum. Story travel is 1.25 times its original length (20% slower progress for the same gesture); the crossfade timings are also divided by .8. Scrolling during the opening reveals its content immediately. Reduced-motion content stays static.
+The original hard scroll cap was removed after user feedback about sticking and jumps. The intro now observes native scrolling without intercepting wheel, touch, keyboard, scrollbar or momentum. After a second requested 20% slowdown, story travel and crossfade timings are divided by .64 (two successive factors of .8). A fixed down arrow stays visible through the intro, hides at the bottom, and returns when scrolling up; clicking it advances down the page. Scrolling during the opening reveals its content immediately. Reduced-motion content stays static.
 
 Age and Sex labels are now 22 px (previously 14 px).
 
