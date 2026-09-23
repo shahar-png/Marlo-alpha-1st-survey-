@@ -1,0 +1,2174 @@
+#marlo-recap {
+  --recap-ink: #191918;
+  --recap-paper: #f2e9dd;
+  --recap-lime: #e6ffb3;
+  --recap-electric: #4144ef;
+  font:
+    400 16px/1.4 "DM Sans",
+    sans-serif;
+  color: var(--recap-paper);
+  background: transparent;
+  width: 100%;
+  color-scheme: light;
+}
+#marlo-recap * {
+  box-sizing: border-box;
+}
+#marlo-recap [hidden] {
+  display: none !important;
+}
+#marlo-recap button,
+#marlo-recap input {
+  font: inherit;
+}
+#marlo-recap button {
+  touch-action: manipulation;
+}
+#marlo-recap .recap-app {
+  background: var(--recap-ink);
+  max-width: 420px;
+  margin: auto;
+  padding: 15px 13px 10px;
+  overflow: hidden;
+}
+#marlo-recap .recap-progress {
+  display: flex;
+  gap: 5px;
+  margin: 0 5px 16px;
+}
+#marlo-recap .recap-progress span {
+  height: 3px;
+  flex: 1;
+  background: #f2e9dd2b;
+  border-radius: 4px;
+}
+#marlo-recap .recap-progress .done {
+  background: var(--recap-lime);
+}
+#marlo-recap .recap-stage {
+  position: relative;
+  isolation: isolate;
+  touch-action: pan-y;
+  margin-right: 8px;
+}
+#marlo-recap .recap-peek {
+  position: absolute;
+  inset: 9px -8px 9px 9px;
+  background: var(--recap-lime);
+  border-radius: 22px;
+  transform: rotate(2deg);
+  z-index: -1;
+}
+#marlo-recap .recap-card {
+  --surface: var(--recap-paper);
+  --text: var(--recap-ink);
+  position: relative;
+  container-type: inline-size;
+  border-radius: 20px;
+  background: var(--surface);
+  color: var(--text);
+  overflow: hidden;
+  min-width: 0;
+  transform-origin: 50% 85%;
+  box-shadow: 0 1px 0 #f2e9dd22;
+  will-change: transform;
+  user-select: none;
+  -webkit-user-select: none;
+}
+#marlo-recap .recap-card[data-tone="ink"] {
+  --surface: var(--recap-ink);
+  --text: var(--recap-paper);
+  box-shadow: inset 0 0 0 1px #f2e9dd26;
+}
+#marlo-recap .recap-card[data-tone="electric"] {
+  --surface: var(--recap-electric);
+  --text: var(--recap-paper);
+}
+#marlo-recap .recap-card[data-tone="lime"] {
+  --surface: var(--recap-lime);
+  --text: var(--recap-ink);
+}
+#marlo-recap[data-palette="brand"] {
+  --recap-electric: #191918;
+}
+#marlo-recap .recap-brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 23px 23px 0;
+  height: 53px;
+  position: relative;
+  z-index: 1;
+}
+#marlo-recap .recap-wordmark {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  width: 85px;
+  aspect-ratio: 1055/283;
+  mix-blend-mode: multiply;
+}
+#marlo-recap .recap-wordmark img {
+  position: absolute;
+  max-width: none;
+  width: 116.4%;
+  left: -11.66%;
+  top: -48.4%;
+  height: auto;
+}
+#marlo-recap .recap-symbol {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  width: 39px;
+  aspect-ratio: 229/102;
+  mix-blend-mode: multiply;
+}
+#marlo-recap .recap-symbol img {
+  position: absolute;
+  max-width: none;
+  width: 130.568%;
+  left: -12.23%;
+  top: -45.1%;
+  height: auto;
+}
+#marlo-recap [data-tone="ink"] .recap-wordmark,
+#marlo-recap [data-tone="ink"] .recap-symbol,
+#marlo-recap [data-tone="electric"] .recap-wordmark,
+#marlo-recap [data-tone="electric"] .recap-symbol {
+  mix-blend-mode: screen;
+}
+#marlo-recap [data-tone="ink"] .recap-brand img,
+#marlo-recap [data-tone="electric"] .recap-brand img {
+  filter: invert(1);
+}
+#marlo-recap .recap-edit input {
+  user-select: text;
+  -webkit-user-select: text;
+}
+#marlo-recap .recap-page {
+  padding: 30px 23px 23px;
+  min-height: 627px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+#marlo-recap h1,
+#marlo-recap h2 {
+  font:
+    400 clamp(44px, 16.8cqw, 65px) / 0.98 "Archivo Black",
+    sans-serif;
+  letter-spacing: -3.3px;
+  margin: 0 0 25px;
+  color: inherit;
+  text-wrap: initial;
+}
+#marlo-recap .recap-greeting {
+  font-size: 16px;
+  line-height: 1.4;
+  margin: 0 0 15px;
+  color: inherit;
+}
+#marlo-recap .recap-highlight {
+  display: inline-block;
+  background: var(--recap-lime);
+  color: var(--recap-ink);
+  padding: 0 8px 6px;
+  margin-left: -5px;
+  transform: rotate(-3deg);
+  transform-origin: left center;
+}
+#marlo-recap p {
+  font:
+    400 16px/1.45 "DM Sans",
+    sans-serif;
+  margin: 0 0 20px;
+  color: inherit;
+}
+#marlo-recap .recap-facts {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 18px;
+}
+#marlo-recap .recap-facts li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font:
+    400 17px/1.35 "DM Sans",
+    sans-serif;
+}
+#marlo-recap .recap-facts .fact-no {
+  font:
+    400 11px/1.5 "DM Sans",
+    sans-serif;
+  color: var(--recap-lime);
+  padding-top: 3px;
+  width: 18px;
+  flex: none;
+}
+#marlo-recap .recap-facts small {
+  display: block;
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #f2e9ddad;
+  margin-bottom: 5px;
+}
+#marlo-recap .recap-facts strong {
+  font-weight: 500;
+  color: var(--recap-paper);
+}
+#marlo-recap .recap-actions {
+  margin-top: auto;
+  padding-top: 25px;
+}
+#marlo-recap .recap-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  border: 0;
+  border-radius: 32px;
+  padding: 14px 21px;
+  background: var(--recap-ink);
+  color: var(--recap-paper);
+  font:
+    500 16px/1.35 "DM Sans",
+    sans-serif;
+  text-align: left;
+}
+#marlo-recap [data-tone="ink"] .recap-main,
+#marlo-recap [data-tone="electric"] .recap-main {
+  background: var(--recap-lime);
+  color: var(--recap-ink);
+}
+#marlo-recap .recap-main:disabled {
+  opacity: 0.3;
+}
+#marlo-recap .recap-main svg {
+  width: 23px;
+  height: 23px;
+  flex: none;
+}
+#marlo-recap .recap-secondary {
+  display: block;
+  min-height: 44px;
+  padding: 10px 14px;
+  margin: 5px auto -7px;
+  background: none;
+  border: 0;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  font-size: 13px;
+}
+#marlo-recap .recap-caption {
+  font:
+    400 12px/1.45 "DM Sans",
+    sans-serif;
+  margin: 0 0 19px;
+  opacity: 0.8;
+}
+#marlo-recap .recap-options {
+  display: grid;
+  gap: 9px;
+  border: 0;
+  padding: 0;
+  margin: 5px 0 0;
+  min-width: 0;
+}
+#marlo-recap .recap-options legend {
+  font-size: 14px;
+  line-height: 1.4;
+  margin-bottom: 15px;
+  padding: 0;
+  width: 100%;
+}
+#marlo-recap .recap-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  min-height: 57px;
+  padding: 14px 12px;
+  border: 1px solid #1919184f;
+  border-radius: 9px;
+  font:
+    400 16px/1.35 "DM Sans",
+    sans-serif;
+}
+#marlo-recap .recap-option input {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  width: 21px;
+  height: 21px;
+  flex: none;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  margin: 0;
+  background: none;
+}
+#marlo-recap .recap-option:has(input:checked) {
+  background: var(--recap-ink);
+  color: var(--recap-lime);
+  border-color: var(--recap-ink);
+}
+#marlo-recap .recap-option input:checked {
+  background: var(--recap-lime);
+  box-shadow: inset 0 0 0 5px var(--recap-ink);
+}
+#marlo-recap .recap-insight h2 {
+  font-size: clamp(44px, 17.3cqw, 68px);
+  letter-spacing: -3.7px;
+  margin-top: 13px;
+  margin-bottom: 29px;
+  position: relative;
+  z-index: 1;
+}
+#marlo-recap .recap-insight .punch {
+  color: var(--recap-lime);
+  display: block;
+}
+#marlo-recap .recap-insight .insight-line {
+  display: block;
+}
+#marlo-recap .recap-insight .insight-body {
+  max-width: 280px;
+  font-size: 17px;
+  line-height: 1.45;
+  margin: 0 0 22px;
+}
+#marlo-recap .recap-insight .insight-sub {
+  font-size: 13px;
+  max-width: 270px;
+  opacity: 0.83;
+  margin: 0 0 20px;
+}
+#marlo-recap .recap-ticket {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  margin: 0 0 22px;
+  padding-bottom: 13px;
+  border-bottom: 1px solid #f2e9dd4f;
+}
+#marlo-recap .recap-ticket span:last-child {
+  font-size: 17px;
+  letter-spacing: -0.8px;
+}
+#marlo-recap .recap-insight:after {
+  content: "";
+  position: absolute;
+  width: 67px;
+  height: 67px;
+  background: var(--recap-lime);
+  right: -36px;
+  top: 192px;
+  transform: rotate(45deg);
+  z-index: 0;
+}
+#marlo-recap .recap-edit label {
+  font-size: 13px;
+  margin: 0 0 22px;
+  display: block;
+}
+#marlo-recap .recap-edit input {
+  width: 100%;
+  padding: 11px 0;
+  border: 0;
+  border-bottom: 1px solid #19191869;
+  font-size: 16px;
+  background: none;
+  color: inherit;
+  display: block;
+  margin-top: 6px;
+}
+#marlo-recap .recap-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 16px;
+  color: var(--recap-paper);
+  min-height: 46px;
+  padding: 0 5px;
+}
+#marlo-recap .recap-footer .recap-count {
+  white-space: nowrap;
+  font-size: 12px;
+  color: #f2e9ddad;
+  margin-left: 9px;
+}
+#marlo-recap .recap-footer .recap-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+#marlo-recap .recap-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #f2e9dd50;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  background: none;
+  color: var(--recap-paper);
+}
+#marlo-recap .recap-nav svg {
+  width: 19px;
+  height: 19px;
+}
+#marlo-recap .recap-nav:disabled {
+  opacity: 0.25;
+}
+#marlo-recap .recap-swipe {
+  font-size: 12px;
+  color: #f2e9ddad;
+}
+#marlo-recap .recap-note {
+  font:
+    400 11px/1.4 "DM Sans",
+    sans-serif;
+  text-align: center;
+  padding: 12px 0 2px;
+  margin: 0;
+  color: #f2e9dd9c;
+}
+#marlo-recap .recap-handoff h2 {
+  font-size: clamp(42px, 16.7cqw, 64px);
+}
+#marlo-recap .recap-receipt {
+  padding: 20px 0;
+  border-top: 1px solid #19191840;
+  border-bottom: 1px solid #19191840;
+  margin-bottom: 20px;
+}
+#marlo-recap .recap-receipt small {
+  font-size: 12px;
+  display: block;
+  margin-bottom: 10px;
+}
+#marlo-recap .recap-receipt p {
+  font-size: 22px;
+  line-height: 1.25;
+  letter-spacing: -0.6px;
+  margin: 0;
+}
+#marlo-recap .recap-card .recap-wordmark,
+#marlo-recap .recap-card .recap-symbol {
+  background: var(--surface);
+  isolation: isolate;
+  mix-blend-mode: normal;
+}
+#marlo-recap .recap-card .recap-brand img {
+  mix-blend-mode: multiply;
+}
+#marlo-recap .recap-card[data-tone="ink"] .recap-brand img,
+#marlo-recap .recap-card[data-tone="electric"] .recap-brand img {
+  mix-blend-mode: screen;
+}
+@media (max-width: 360px) {
+  #marlo-recap .recap-app {
+    padding: 12px 10px 10px;
+  }
+  #marlo-recap .recap-brand {
+    padding-inline: 19px;
+  }
+  #marlo-recap .recap-page {
+    padding-inline: 19px;
+    min-height: 610px;
+  }
+  #marlo-recap h1,
+  #marlo-recap h2 {
+    letter-spacing: -2.6px;
+  }
+  #marlo-recap .recap-insight h2 {
+    letter-spacing: -3px;
+  }
+  #marlo-recap .recap-facts li {
+    font-size: 16px;
+  }
+  #marlo-recap .recap-option {
+    font-size: 15px;
+    padding: 12px 10px;
+  }
+  #marlo-recap .recap-swipe {
+    font-size: 11px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #marlo-recap * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+#marlo-recap .recap-app {
+  background: var(--recap-paper);
+  color: var(--recap-ink);
+}
+#marlo-recap .recap-progress span {
+  background: #19191820;
+}
+#marlo-recap .recap-progress span.done {
+  background: var(--recap-ink);
+}
+#marlo-recap .recap-footer,
+#marlo-recap .recap-nav {
+  color: var(--recap-ink);
+}
+#marlo-recap .recap-nav {
+  border-color: #19191855;
+}
+#marlo-recap .recap-footer .recap-count,
+#marlo-recap .recap-swipe,
+#marlo-recap .recap-note {
+  color: #3e5159;
+}
+#marlo-recap .recap-card[data-tone="paper"] {
+  box-shadow: inset 0 0 0 1px #19191825;
+}
+#marlo-recap [data-page="priority"] h2 {
+  font-size: clamp(36px, 13.8cqw, 52px);
+  margin-bottom: 20px;
+  letter-spacing: -2.4px;
+}
+#marlo-recap .rank-intro {
+  font-size: 14px;
+  line-height: 1.4;
+  margin: 0 0 14px;
+}
+#marlo-recap .rank-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+}
+#marlo-recap .rank-item {
+  display: flex;
+  position: relative;
+  align-items: stretch;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #19191840;
+  border-radius: 10px;
+  background: var(--recap-paper);
+  color: var(--recap-ink);
+  min-height: 78px;
+}
+#marlo-recap .rank-item:first-child {
+  background: var(--recap-lime);
+  border-color: var(--recap-ink);
+}
+#marlo-recap .rank-grip {
+  border: 0;
+  display: grid;
+  grid-template-columns: 23px minmax(0, 1fr) 16px;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  padding: 12px 7px 12px 12px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  border-radius: 10px 0 0 10px;
+}
+#marlo-recap .rank-grip svg {
+  width: 16px;
+  height: 20px;
+  opacity: 0.5;
+}
+#marlo-recap .rank-number {
+  font:
+    400 17px/1 "Archivo Black",
+    sans-serif;
+  letter-spacing: -0.7px;
+}
+#marlo-recap .rank-label {
+  font:
+    400 15px/1.3 "DM Sans",
+    sans-serif;
+}
+#marlo-recap .rank-top {
+  width: 40px;
+  flex: none;
+  align-self: center;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: inherit;
+  padding: 0;
+}
+#marlo-recap .rank-top svg {
+  width: 17px;
+  height: 17px;
+}
+#marlo-recap .rank-top:disabled {
+  opacity: 0.2;
+}
+#marlo-recap .rank-item.dragging {
+  z-index: 5;
+  box-shadow: 0 12px 24px #19191824;
+  border-color: var(--recap-ink);
+}
+#marlo-recap .rank-item.dragging .rank-grip {
+  cursor: grabbing;
+}
+#marlo-recap .rank-instructions {
+  font-size: 11px;
+  line-height: 1.4;
+  color: #3e5159;
+  margin: 12px 0 0;
+}
+#marlo-recap .rank-live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@media (pointer: coarse) {
+  #marlo-recap .rank-top {
+    width: 44px;
+  }
+}
+
+#marlo-recap .quiz-page {
+  min-height: 627px;
+}
+#marlo-recap .quiz-eyebrow {
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  color: #3e5159;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+#marlo-recap [data-tone="ink"] .quiz-eyebrow,
+#marlo-recap [data-tone="electric"] .quiz-eyebrow {
+  color: var(--recap-lime);
+}
+#marlo-recap .quiz-page h2 {
+  font-size: clamp(33px, 12.8cqw, 49px);
+  line-height: 1.02;
+  letter-spacing: -2px;
+  margin: 0 0 22px;
+  overflow-wrap: anywhere;
+}
+#marlo-recap .quiz-page h2.quiz-display {
+  font-size: clamp(42px, 16cqw, 62px);
+  line-height: 0.99;
+  letter-spacing: -3px;
+}
+#marlo-recap .quiz-page .quiz-question {
+  font-size: 19px;
+  line-height: 1.35;
+  letter-spacing: -0.25px;
+  margin: 0 0 18px;
+  padding: 0;
+  width: 100%;
+}
+#marlo-recap .quiz-instruction {
+  font-size: 12px;
+  color: #3e5159;
+  margin: -6px 0 16px;
+}
+#marlo-recap .quiz-options {
+  gap: 8px;
+  margin: 0;
+}
+#marlo-recap .quiz-options .recap-option {
+  font-size: 15px;
+  line-height: 1.35;
+  padding: 13px 12px;
+  min-height: 54px;
+}
+#marlo-recap .quiz-options input[type="checkbox"] {
+  border-radius: 5px;
+}
+#marlo-recap .quiz-field {
+  display: block;
+  font-size: 13px;
+  margin: 20px 0 10px;
+}
+#marlo-recap .quiz-field input,
+#marlo-recap .quiz-field textarea {
+  font:
+    400 16px/1.5 "DM Sans",
+    sans-serif;
+  display: block;
+  width: 100%;
+  background: transparent;
+  color: inherit;
+  padding: 14px 0;
+  margin-top: 6px;
+  border: 0;
+  border-bottom: 1px solid #19191866;
+  user-select: text;
+  -webkit-user-select: text;
+  border-radius: 0;
+}
+#marlo-recap .quiz-field textarea {
+  padding: 12px;
+  border: 1px solid #19191866;
+  border-radius: 8px;
+  resize: vertical;
+  min-height: 90px;
+}
+#marlo-recap .quiz-demo {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #3e5159;
+  margin: 14px 0 0;
+}
+#marlo-recap .quiz-error {
+  color: #a52623;
+  font-size: 13px;
+  margin: 10px 0 0;
+}
+#marlo-recap .quiz-pain {
+  border: 0;
+  padding: 20px 0;
+  margin: 0;
+  border-top: 1px solid #19191835;
+  min-width: 0;
+}
+#marlo-recap .quiz-pain legend {
+  float: left;
+  font-size: 16px;
+  line-height: 1.4;
+  padding: 0;
+  margin: 0 0 13px;
+  width: 100%;
+}
+#marlo-recap .quiz-pain legend small {
+  display: block;
+  font-size: 12px;
+  color: #3e5159;
+  margin-top: 4px;
+}
+#marlo-recap .quiz-pain-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  clear: both;
+}
+#marlo-recap .quiz-pain-options label {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 72px;
+  padding: 10px 4px;
+  border: 1px solid #19191845;
+  border-radius: 9px;
+  text-align: center;
+  gap: 7px;
+  font-size: 11px;
+  line-height: 1.25;
+}
+#marlo-recap .quiz-pain-options input {
+  accent-color: var(--recap-ink);
+  width: 17px;
+  height: 17px;
+  margin: 0;
+}
+#marlo-recap .quiz-pain-options label:has(input:checked) {
+  background: var(--recap-lime);
+  border-color: var(--recap-ink);
+}
+#marlo-recap .quiz-scale {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+#marlo-recap .quiz-scale label {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 70px;
+  border: 1px solid #19191855;
+  border-radius: 11px;
+  font:
+    400 28px/1 "Archivo Black",
+    sans-serif;
+  overflow: hidden;
+}
+#marlo-recap .quiz-scale input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+#marlo-recap .quiz-scale label:has(input:checked) {
+  background: var(--recap-ink);
+  color: var(--recap-lime);
+}
+#marlo-recap .quiz-scale label:has(input:focus-visible) {
+  outline: 2px solid var(--recap-electric);
+  outline-offset: 2px;
+}
+#marlo-recap .quiz-scale-ends {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #3e5159;
+  margin-top: 11px;
+  gap: 15px;
+}
+#marlo-recap .quiz-recap {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+#marlo-recap .quiz-recap li {
+  border-top: 1px solid #19191835;
+  padding: 17px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+#marlo-recap .quiz-recap small {
+  font-size: 11px;
+  display: block;
+  color: #3e5159;
+  margin-bottom: 4px;
+}
+#marlo-recap .quiz-recap strong {
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.4;
+  display: block;
+}
+#marlo-recap .quiz-recap button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  padding: 12px 0 12px 8px;
+  font-size: 12px;
+  min-height: 44px;
+}
+#marlo-recap .quiz-summary-caption {
+  font-size: 13px;
+  line-height: 1.5;
+}
+#marlo-recap .quiz-review-links {
+  display: grid;
+  gap: 0;
+  margin-top: 8px;
+}
+#marlo-recap .quiz-review-links button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 48px;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid #19191835;
+  color: inherit;
+  text-align: left;
+  font-size: 14px;
+  padding: 10px 0;
+}
+#marlo-recap .quiz-review-links small {
+  font-size: 11px;
+  color: #3e5159;
+  white-space: nowrap;
+}
+#marlo-recap .quiz-explore {
+  font-size: 12px;
+  color: #3e5159;
+  margin: 12px 5px 2px;
+  border-top: 1px solid #19191830;
+  padding-top: 5px;
+}
+#marlo-recap .quiz-explore summary {
+  padding: 12px 0;
+  min-height: 44px;
+}
+#marlo-recap .quiz-chapter-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding-bottom: 8px;
+}
+#marlo-recap .quiz-chapter-links button {
+  border: 1px solid #19191830;
+  border-radius: 8px;
+  padding: 10px;
+  background: transparent;
+  color: var(--recap-ink);
+  text-align: left;
+  min-height: 48px;
+  font-size: 12px;
+}
+#marlo-recap .quiz-chapter-links button[aria-current="step"] {
+  background: var(--recap-ink);
+  color: var(--recap-paper);
+}
+#marlo-recap .quiz-big-number {
+  font:
+    400 clamp(68px, 25cqw, 98px) / 1 "Archivo Black",
+    sans-serif;
+  letter-spacing: -5px;
+  color: var(--recap-lime);
+  margin: 3px 0 25px;
+}
+#marlo-recap .quiz-stat-line {
+  border-top: 1px solid #f2e9dd50;
+  padding-top: 18px;
+  margin-top: 5px;
+}
+#marlo-recap .recap-progress {
+  gap: 4px;
+}
+#marlo-recap .recap-progress .active {
+  background: var(--recap-electric);
+}
+#marlo-recap .recap-footer {
+  gap: 5px;
+}
+#marlo-recap .recap-footer .recap-count {
+  margin-left: 4px;
+}
+#marlo-recap .recap-swipe {
+  font-size: 11px;
+  text-align: center;
+  max-width: 130px;
+}
+#marlo-recap .quiz-page .recap-ticket {
+  margin-bottom: 20px;
+}
+#marlo-recap .quiz-page .quiz-display .punch {
+  color: var(--recap-lime);
+}
+#marlo-recap .quiz-page .quiz-display span {
+  display: block;
+}
+@media (max-width: 360px) {
+  #marlo-recap .quiz-page {
+    min-height: 610px;
+  }
+  #marlo-recap .quiz-page .quiz-question {
+    font-size: 18px;
+  }
+  #marlo-recap .quiz-page h2 {
+    letter-spacing: -1.6px;
+  }
+  #marlo-recap .quiz-options .recap-option {
+    padding: 12px 10px;
+    font-size: 14px;
+  }
+  #marlo-recap .quiz-page h2.quiz-display {
+    letter-spacing: -2.6px;
+  }
+}
+/* Open survey pages; the expressive card treatment belongs only to insights. */
+#marlo-recap[data-presentation="quiz"] .recap-stage {
+  margin-right: 0;
+  touch-action: pan-y;
+}
+#marlo-recap[data-presentation="quiz"] .recap-peek {
+  display: none;
+}
+#marlo-recap .recap-card[data-presentation="quiz"] {
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+  will-change: auto;
+  user-select: auto;
+  -webkit-user-select: auto;
+}
+#marlo-recap[data-presentation="quiz"] .recap-app {
+  padding: 20px 0 10px;
+}
+#marlo-recap[data-presentation="quiz"] .recap-progress {
+  margin: 0 27px 26px;
+}
+#marlo-recap[data-presentation="quiz"] .recap-progress .active {
+  background: var(--recap-ink);
+}
+#marlo-recap[data-presentation="quiz"] .recap-brand {
+  padding: 0 27px;
+  height: 38px;
+}
+#marlo-recap[data-presentation="quiz"] .recap-wordmark {
+  width: 102px;
+}
+#marlo-recap[data-presentation="quiz"] .recap-symbol {
+  width: 46px;
+}
+#marlo-recap[data-presentation="quiz"] .recap-footer {
+  padding: 0;
+  margin: 22px 27px 0;
+  min-height: 44px;
+  gap: 12px;
+}
+#marlo-recap[data-presentation="quiz"] .recap-footer-left {
+  gap: 16px;
+}
+#marlo-recap .quiz-back-label {
+  display: none;
+}
+#marlo-recap[data-presentation="quiz"] .quiz-back-label {
+  display: inline;
+  font-size: 14px;
+}
+#marlo-recap[data-presentation="quiz"] .recap-nav[data-back] {
+  border: 0;
+  width: auto;
+  border-radius: 0;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0;
+  color: #3e5159;
+}
+#marlo-recap[data-presentation="quiz"] .recap-nav[data-forward] {
+  display: none;
+}
+#marlo-recap[data-presentation="quiz"] .recap-swipe {
+  font-size: 12px;
+  max-width: 145px;
+  text-align: right;
+}
+#marlo-recap[data-presentation="quiz"] .recap-page {
+  padding: 28px 27px 32px;
+  min-height: 590px;
+}
+#marlo-recap[data-presentation="quiz"] h1,
+#marlo-recap[data-presentation="quiz"] h2,
+#marlo-recap[data-presentation="quiz"] .quiz-page h2.quiz-display {
+  font:
+    400 clamp(34px, 10.3cqw, 43px) / 1.1 "Manrope",
+    sans-serif;
+  letter-spacing: -1.8px;
+  margin: 0 0 28px;
+}
+#marlo-recap[data-presentation="quiz"] .quiz-page h2.quiz-form-title {
+  font-size: clamp(29px, 8.6cqw, 36px);
+  line-height: 1.17;
+  letter-spacing: -1.3px;
+  margin-bottom: 30px;
+  overflow-wrap: normal;
+}
+#marlo-recap[data-presentation="quiz"]
+  .quiz-page
+  h2.quiz-form-title[data-long="true"] {
+  font-size: clamp(26px, 7.7cqw, 32px);
+  letter-spacing: -1px;
+}
+#marlo-recap[data-presentation="quiz"] .quiz-eyebrow {
+  display: none;
+}
+#marlo-recap[data-presentation="quiz"] .recap-options {
+  gap: 0;
+  border-top: 1px solid #3e515947;
+}
+#marlo-recap[data-presentation="quiz"] .recap-options:has(.quiz-scale) {
+  border-top: 0;
+}
+#marlo-recap[data-presentation="quiz"] .quiz-options .recap-option {
+  border: 0;
+  border-bottom: 1px solid #3e515947;
+  border-radius: 0;
+  background: transparent;
+  color: var(--recap-ink);
+  padding: 19px 0;
+  min-height: 64px;
+  font:
+    400 16px/1.45 "DM Sans",
+    sans-serif;
+  gap: 16px;
+}
+#marlo-recap[data-presentation="quiz"] .recap-option:has(input:checked) {
+  background: transparent;
+  color: var(--recap-ink);
+}
+#marlo-recap[data-presentation="quiz"] .recap-option input {
+  width: 23px;
+  height: 23px;
+  border-color: #3e515981;
+}
+#marlo-recap[data-presentation="quiz"] .recap-option input:checked {
+  border-color: var(--recap-ink);
+  background: var(--recap-lime);
+  box-shadow: inset 0 0 0 6px var(--recap-ink);
+}
+#marlo-recap[data-presentation="quiz"] .quiz-instruction {
+  margin: 0 0 18px;
+  color: #3e5159;
+  font-size: 13px;
+}
+#marlo-recap[data-presentation="quiz"] .quiz-options > .quiz-instruction {
+  padding-top: 14px;
+  margin-bottom: 0;
+}
+#marlo-recap[data-presentation="quiz"] .recap-actions {
+  padding-top: 32px;
+}
+#marlo-recap[data-presentation="quiz"] .recap-main {
+  min-height: 62px;
+  font-size: 17px;
+  padding: 16px 23px;
+}
+#marlo-recap[data-presentation="quiz"] .recap-main svg {
+  color: var(--recap-lime);
+}
+#marlo-recap[data-presentation="quiz"] .recap-main:disabled {
+  opacity: 1;
+  background: #19191815;
+  color: #3e515978;
+}
+#marlo-recap[data-presentation="quiz"] .recap-main:disabled svg {
+  color: inherit;
+}
+#marlo-recap[data-presentation="quiz"] .recap-facts {
+  gap: 0;
+  margin: 4px 0 0;
+}
+#marlo-recap[data-presentation="quiz"] .recap-facts li {
+  padding: 20px 0;
+  border-top: 1px solid #3e51592b;
+}
+#marlo-recap[data-presentation="quiz"] .recap-facts .fact-no {
+  color: #3e5159;
+}
+#marlo-recap[data-presentation="quiz"] .recap-facts small {
+  color: #3e5159;
+  text-transform: none;
+  font-size: 13px;
+  letter-spacing: 0;
+}
+#marlo-recap[data-presentation="quiz"] .recap-facts strong {
+  color: var(--recap-ink);
+  font-weight: 400;
+}
+#marlo-recap[data-presentation="quiz"] .recap-ticket {
+  border-color: #3e515947;
+  color: #3e5159;
+  text-transform: none;
+  font-size: 13px;
+  letter-spacing: 0;
+}
+#marlo-recap[data-presentation="quiz"] .quiz-stat-line {
+  border-color: #3e515947;
+}
+#marlo-recap[data-presentation="quiz"] .rank-list {
+  gap: 0;
+  border-top: 1px solid #3e515947;
+}
+#marlo-recap[data-presentation="quiz"] .rank-item {
+  border: 0;
+  border-bottom: 1px solid #3e515947;
+  border-radius: 0;
+  background: var(--recap-paper);
+  min-height: 82px;
+}
+#marlo-recap[data-presentation="quiz"] .rank-item:first-child .rank-number {
+  background: var(--recap-lime);
+  color: var(--recap-ink);
+}
+#marlo-recap[data-presentation="quiz"] .rank-number {
+  font:
+    400 15px/1 "DM Sans",
+    sans-serif;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+}
+#marlo-recap[data-presentation="quiz"] .rank-grip {
+  grid-template-columns: 30px minmax(0, 1fr) 16px;
+  padding-left: 0;
+  gap: 12px;
+  border-radius: 0;
+}
+#marlo-recap[data-presentation="quiz"] .rank-label {
+  font-size: 16px;
+}
+#marlo-recap[data-presentation="quiz"] .recap-note {
+  padding: 14px 27px 2px;
+}
+#marlo-recap[data-presentation="quiz"] .quiz-explore {
+  margin: 14px 27px 2px;
+}
+@media (max-width: 360px) {
+  #marlo-recap[data-presentation="quiz"] .recap-brand,
+  #marlo-recap[data-presentation="quiz"] .recap-page {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+  #marlo-recap[data-presentation="quiz"] .recap-footer {
+    margin-inline: 24px;
+  }
+  #marlo-recap[data-presentation="quiz"] .recap-options .recap-option {
+    font-size: 15px;
+    gap: 13px;
+  }
+  #marlo-recap[data-presentation="quiz"] .recap-count {
+    font-size: 11px;
+  }
+  #marlo-recap[data-presentation="quiz"] .recap-swipe {
+    font-size: 11px;
+  }
+  #marlo-recap[data-presentation="quiz"] .rank-label {
+    font-size: 15px;
+  }
+}
+#marlo-recap .quiz-options legend.rank-live {
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  left: 0;
+  top: 0;
+}
+
+/* All visible answer indicators share the same circular check treatment. */
+#marlo-recap .quiz-options .recap-option input[type="checkbox"],
+#marlo-recap .quiz-options .recap-option input[type="radio"],
+#marlo-recap .quiz-pain-options input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 23px;
+  height: 23px;
+  background: transparent;
+  border: 1px solid #3e515981;
+  box-shadow: none;
+  margin: 0;
+}
+#marlo-recap[data-presentation="quiz"] .recap-option input:checked,
+#marlo-recap .quiz-pain-options input:checked {
+  background: var(--recap-ink);
+  border-color: var(--recap-ink);
+  box-shadow: none;
+}
+#marlo-recap .quiz-options .recap-option input:checked:after,
+#marlo-recap .quiz-pain-options input:checked:after {
+  content: "✓";
+  font:
+    500 14px/1 "DM Sans",
+    sans-serif;
+  color: var(--recap-lime);
+}
+#marlo-recap .quiz-profile-demo {
+  font-size: 12px !important;
+  color: #3e5159 !important;
+  margin: -9px 0 20px !important;
+}
+#marlo-recap .recap-edit input[type="number"] {
+  max-width: 120px;
+}
+#marlo-recap .quiz-insight-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 0 0 12px;
+}
+#marlo-recap .quiz-explore .quiz-explore-label {
+  font-size: 12px;
+  margin: 12px 0 9px;
+  font-weight: 500;
+}
+#marlo-recap .quiz-insight-links button {
+  border: 1px solid #19191830;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--recap-ink);
+  text-align: left;
+  padding: 10px;
+  min-height: 48px;
+  font-size: 12px;
+}
+#marlo-recap .recap-card[data-presentation="insight"] {
+  --accent: var(--recap-lime);
+  box-shadow: none;
+}
+#marlo-recap[data-presentation="insight"] .quiz-page {
+  padding-top: 27px;
+  min-height: 660px;
+}
+#marlo-recap[data-presentation="insight"] .insight-kicker {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.25px;
+  margin-bottom: 23px;
+}
+#marlo-recap[data-presentation="insight"] .insight-kicker span:last-child {
+  flex: none;
+  white-space: nowrap;
+}
+#marlo-recap[data-presentation="insight"] h2.insight-title {
+  font:
+    400 clamp(31px, 12.5cqw, 48px) / 1.02 "Archivo Black",
+    sans-serif;
+  letter-spacing: -2px;
+  margin: 0 0 21px;
+  overflow-wrap: normal;
+}
+#marlo-recap[data-presentation="insight"] .insight-number {
+  font:
+    400 clamp(70px, 29cqw, 114px) / 0.95 "Archivo Black",
+    sans-serif;
+  letter-spacing: -7px;
+  margin: 0 0 15px;
+  color: var(--accent);
+  white-space: nowrap;
+}
+#marlo-recap[data-presentation="insight"] .insight-number > span {
+  font-size: 0.43em;
+  letter-spacing: -2px;
+  display: inline;
+  margin-left: 2px;
+}
+#marlo-recap[data-presentation="insight"] p.insight-stat {
+  font:
+    500 18px/1.35 "DM Sans",
+    sans-serif;
+  margin: 0 0 20px;
+  letter-spacing: -0.3px;
+}
+#marlo-recap[data-presentation="insight"] p.insight-you {
+  font:
+    400 14px/1.5 "DM Sans",
+    sans-serif;
+  margin: 14px 0 18px;
+}
+#marlo-recap[data-presentation="insight"] .insight-source {
+  font-size: 11px;
+  line-height: 1.5;
+  border-top: 1px solid currentColor;
+  margin-top: auto;
+  padding-top: 4px;
+}
+#marlo-recap[data-presentation="insight"] .insight-source summary {
+  padding: 11px 0;
+  min-height: 44px;
+  list-style-position: outside;
+  margin-left: 12px;
+}
+#marlo-recap[data-presentation="insight"] .insight-source p {
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 4px 0 9px;
+}
+#marlo-recap[data-presentation="insight"] .insight-source a {
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  text-underline-offset: 4px;
+}
+#marlo-recap[data-presentation="insight"] .recap-main {
+  background: var(--text);
+  color: var(--surface);
+  min-height: 56px;
+}
+#marlo-recap[data-presentation="insight"] .recap-actions {
+  margin-top: 0;
+  padding-top: 17px;
+}
+#marlo-recap[data-presentation="insight"] .insight-photo {
+  margin: 0 -23px 0;
+  overflow: hidden;
+  position: relative;
+}
+#marlo-recap[data-presentation="insight"] .insight-photo img {
+  width: 100%;
+  height: 175px;
+  object-fit: cover;
+  display: block;
+}
+#marlo-recap[data-presentation="insight"] .insight-photo-coast img {
+  object-position: 50% 64%;
+}
+#marlo-recap[data-presentation="insight"] .insight-photo-watch img {
+  height: 190px;
+  object-position: 50% 50%;
+}
+#marlo-recap .insight-orbit {
+  display: grid;
+  place-items: center;
+  margin: 3px 0 24px;
+}
+#marlo-recap .insight-dial {
+  width: 210px;
+  height: 210px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: conic-gradient(var(--accent) 0% 72%, #f2e9dd2b 72% 100%);
+  position: relative;
+  isolation: isolate;
+}
+#marlo-recap .insight-dial:before {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border-radius: 50%;
+  background: var(--surface);
+  z-index: -1;
+}
+#marlo-recap .insight-dial .insight-number {
+  font-size: 76px !important;
+  margin: 0 !important;
+  letter-spacing: -5px !important;
+}
+#marlo-recap .insight-side-stat {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: center;
+  padding-top: 23px;
+}
+#marlo-recap .insight-side-stat .insight-number {
+  font-size: clamp(60px, 25cqw, 90px) !important;
+  letter-spacing: -5px !important;
+}
+#marlo-recap .insight-side-stat p.insight-stat {
+  font-size: 16px !important;
+  margin: 0 !important;
+}
+#marlo-recap .insight-sideword {
+  font-size: 11px !important;
+  letter-spacing: 2px !important;
+  border-top: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  padding: 12px 0;
+  margin-bottom: 22px !important;
+}
+#marlo-recap .insight-proportion {
+  height: 18px;
+  background: #301d3a24;
+  overflow: hidden;
+  border-radius: 0;
+  margin: 3px 0 6px;
+}
+#marlo-recap .insight-proportion > span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+#marlo-recap .insight-halves {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 0 -23px 23px;
+  min-height: 190px;
+}
+#marlo-recap .insight-halves > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 6px;
+}
+#marlo-recap .insight-halves > div:first-child {
+  background: var(--accent);
+  color: var(--surface);
+}
+#marlo-recap .insight-halves .insight-number {
+  font-size: clamp(56px, 23cqw, 82px) !important;
+  color: var(--surface) !important;
+  letter-spacing: -5px !important;
+  margin: 0 !important;
+}
+#marlo-recap .insight-half-label {
+  font:
+    400 clamp(30px, 12cqw, 45px) / 1.02 "Archivo Black",
+    sans-serif;
+  letter-spacing: -2px;
+  text-align: left;
+  background: #713c5a;
+  color: var(--accent);
+}
+#marlo-recap .insight-trust-ticket {
+  background: var(--accent);
+  color: var(--surface);
+  padding: 22px 20px 4px;
+  transform: rotate(-2deg);
+  margin: 9px 3px 25px;
+  position: relative;
+}
+#marlo-recap .insight-trust-ticket .insight-number {
+  color: var(--surface) !important;
+  margin-top: 13px !important;
+}
+#marlo-recap .insight-ticket-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+#marlo-recap .insight-trust-ticket:before,
+#marlo-recap .insight-trust-ticket:after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--surface);
+  top: 48%;
+}
+#marlo-recap .insight-trust-ticket:before {
+  left: -9px;
+}
+#marlo-recap .insight-trust-ticket:after {
+  right: -9px;
+}
+#marlo-recap .insight-spend {
+  display: grid;
+  gap: 0;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  margin: 4px 0 23px;
+}
+#marlo-recap .insight-spend > div {
+  padding: 20px 12px 21px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 18px;
+  min-width: 0;
+}
+#marlo-recap .insight-spend > div + div {
+  border-left: 1px solid currentColor;
+  padding-left: 16px;
+  padding-right: 0;
+}
+#marlo-recap .insight-spend span,
+#marlo-recap .insight-spend small {
+  font-size: 12px;
+  line-height: 1.3;
+}
+#marlo-recap .insight-spend strong {
+  font:
+    400 clamp(32px, 12cqw, 46px) / 1 "Archivo Black",
+    sans-serif;
+  letter-spacing: -2px;
+}
+#marlo-recap .insight-spend .insight-spend-you strong {
+  font:
+    500 clamp(22px, 7.5cqw, 30px) / 1.15 "DM Sans",
+    sans-serif;
+  letter-spacing: -1px;
+  overflow-wrap: anywhere;
+}
+#marlo-recap p.insight-ratio {
+  font:
+    400 clamp(52px, 22cqw, 80px) / 1 "Archivo Black",
+    sans-serif;
+  letter-spacing: -4px;
+  margin: 0 0 24px;
+}
+#marlo-recap .insight-ratio > span {
+  display: block;
+  font:
+    400 13px/1.4 "DM Sans",
+    sans-serif;
+  letter-spacing: 0;
+  margin-top: 11px;
+}
+#marlo-recap[data-insight="insight"] .recap-main,
+#marlo-recap[data-insight="insight-handover"] .recap-main {
+  background: var(--accent);
+  color: var(--surface);
+}
+#marlo-recap[data-insight="insight-history"] .insight-number {
+  font-size: clamp(65px, 27cqw, 105px);
+}
+#marlo-recap[data-insight="insight-history"] .insight-history-stat {
+  padding: 5px 0 9px;
+}
+#marlo-recap[data-insight="insight-history"]
+  .insight-history-stat
+  .insight-number {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font:
+    500 clamp(108px, 43cqw, 158px) / 0.9 "Manrope",
+    sans-serif;
+  letter-spacing: -0.075em;
+  margin: 0 0 25px;
+}
+#marlo-recap[data-insight="insight-history"]
+  .insight-history-stat
+  .insight-number
+  > span {
+  font:
+    500 0.32em/1.2 "Manrope",
+    sans-serif;
+  letter-spacing: -0.04em;
+  padding-top: 0.12em;
+  margin: 0;
+}
+#marlo-recap .insight-budget {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  margin: 8px 0 10px;
+  padding: 21px 0;
+}
+#marlo-recap .insight-budget > span {
+  font-size: 12px;
+}
+#marlo-recap .insight-budget > strong {
+  font:
+    500 clamp(28px, 10cqw, 40px) / 1.1 "Manrope",
+    sans-serif;
+  letter-spacing: -1.5px;
+}
+@media (max-width: 360px) {
+  #marlo-recap[data-presentation="insight"] h2.insight-title {
+    font-size: 32px;
+    letter-spacing: -1.6px;
+  }
+  #marlo-recap[data-presentation="insight"] .insight-photo,
+  #marlo-recap .insight-halves {
+    margin-left: -19px;
+    margin-right: -19px;
+  }
+  #marlo-recap .insight-side-stat {
+    gap: 10px;
+  }
+  #marlo-recap .insight-side-stat p.insight-stat {
+    font-size: 14px !important;
+  }
+  #marlo-recap .insight-dial {
+    width: 185px;
+    height: 185px;
+  }
+  #marlo-recap[data-presentation="insight"] p.insight-stat {
+    font-size: 16px;
+  }
+  #marlo-recap[data-presentation="insight"] .insight-kicker {
+    font-size: 11px;
+  }
+  #marlo-recap[data-presentation="insight"] .insight-number {
+    letter-spacing: -5px;
+  }
+}
+
+#marlo-recap .wearable-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 18px;
+}
+#marlo-recap .wearable-picker button {
+  border: 1px solid currentColor;
+  background: transparent;
+  color: var(--text);
+  border-radius: 999px;
+  padding: 10px 14px;
+  min-height: 44px;
+  font:
+    500 13px/1.3 "DM Sans",
+    sans-serif;
+}
+#marlo-recap .wearable-picker button[aria-pressed="true"] {
+  background: var(--text);
+  color: var(--surface);
+}
+#marlo-recap[data-insight="insight-data"] .insight-photo img {
+  height: auto;
+  aspect-ratio: 3/2;
+  object-fit: cover;
+}
+#marlo-recap[data-insight="insight-data"] .wearable-image-note {
+  font:
+    400 12px/1.5 "DM Sans",
+    sans-serif;
+  margin: 0 0 24px;
+}
+
+/* Opening only. The rest of the survey keeps its existing presentation. */
+#marlo-recap[data-opening="true"] .recap-progress,
+#marlo-recap[data-opening="true"] .recap-brand,
+#marlo-recap[data-opening="true"] .recap-footer {
+  display: none;
+}
+#marlo-recap[data-opening="true"] .recap-app {
+  padding-top: 0;
+}
+#marlo-recap[data-opening="true"] .recap-page {
+  padding: 0 27px 6px;
+  min-height: 0;
+}
+#marlo-recap .opening {
+  min-height: 720px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  color: var(--recap-ink);
+}
+#marlo-recap .opening-stage {
+  height: 430px;
+  position: relative;
+  flex: none;
+  perspective: 900px;
+}
+#marlo-recap .opening-arrival {
+  position: absolute;
+  inset: 0;
+  height: 215px;
+  transform-origin: 50% 50%;
+  pointer-events: none;
+}
+#marlo-recap .opening-dots {
+  position: absolute;
+  left: 50%;
+  top: 135px;
+  display: flex;
+  gap: 12px;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+}
+#marlo-recap .opening-dots span {
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: var(--recap-ink);
+  display: block;
+  transform-origin: 50% 50%;
+}
+#marlo-recap .opening-mark {
+  position: absolute;
+  width: 55px;
+  right: 0;
+  top: 28px;
+  mix-blend-mode: multiply;
+}
+#marlo-recap .opening-mark .recap-symbol {
+  width: 100%;
+}
+#marlo-recap .opening-name {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 117px;
+  transform-origin: 50% 80%;
+  mix-blend-mode: multiply;
+}
+#marlo-recap .opening-name .recap-wordmark {
+  width: 100%;
+}
+#marlo-recap .opening-name img,
+#marlo-recap .opening-mark img {
+  mix-blend-mode: multiply;
+}
+#marlo-recap .opening-name:after {
+  content: "";
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  height: 9px;
+  bottom: -16px;
+  background: #19191825;
+  filter: blur(9px);
+  border-radius: 50%;
+  opacity: 0;
+}
+#marlo-recap .opening-copy {
+  position: absolute;
+  top: 253px;
+  left: 0;
+  right: 0;
+}
+#marlo-recap[data-opening="true"] .opening-copy h2 {
+  font:
+    500 clamp(48px, 16cqw, 64px) / 0.99 "Manrope",
+    sans-serif;
+  letter-spacing: -3px;
+  margin: 0 0 18px;
+}
+#marlo-recap .opening-copy p {
+  font:
+    400 17px/1.5 "DM Sans",
+    sans-serif;
+  margin: 0;
+  color: #3e5159;
+  max-width: 260px;
+}
+#marlo-recap .opening-form {
+  margin-top: auto;
+  padding-top: 32px;
+}
+#marlo-recap .opening-form .quiz-field {
+  font-size: 13px;
+  margin: 0;
+}
+#marlo-recap .opening-form input {
+  font:
+    400 20px/1.4 "DM Sans",
+    sans-serif;
+  padding: 12px 0 14px;
+  margin-top: 6px;
+  border-bottom: 1px solid #3e51596b;
+}
+#marlo-recap .opening-form input::placeholder {
+  color: #3e515982;
+  opacity: 1;
+}
+#marlo-recap .opening-help {
+  font:
+    400 12px/1.5 "DM Sans",
+    sans-serif;
+  color: #3e5159;
+  margin: 10px 0 0;
+}
+#marlo-recap[data-opening="true"] .opening-form .recap-actions {
+  padding-top: 27px;
+  margin: 0;
+}
+#marlo-recap[data-opening="true"] .opening-form .recap-main {
+  height: 64px;
+  min-height: 64px;
+  padding: 18px 24px;
+  border-radius: 32px;
+  background: var(--recap-ink);
+  color: var(--recap-paper);
+  font-size: 17px;
+}
+#marlo-recap .opening-replay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+  align-self: center;
+  border: 0;
+  background: transparent;
+  color: #3e5159;
+  font-size: 11px;
+  margin: 13px 0 0;
+  padding: 8px 12px;
+}
+#marlo-recap .opening-replay svg {
+  width: 13px;
+  height: 13px;
+}
+#marlo-recap[data-opening="true"] .recap-note {
+  font-size: 11px;
+  margin-top: 4px;
+  padding-top: 9px;
+}
+#marlo-recap[data-opening="true"][data-motion="true"]
+  .opening-run
+  .opening-dots {
+  animation: marlo-dots-out 1.45s both;
+}
+#marlo-recap[data-opening="true"][data-motion="true"]
+  .opening-run
+  .opening-dots
+  span {
+  animation: marlo-dot-form 1.4s both;
+}
+#marlo-recap[data-opening="true"][data-motion="true"]
+  .opening-run
+  .opening-dots
+  span:nth-child(2) {
+  animation-delay: 0.1s;
+}
+#marlo-recap[data-opening="true"][data-motion="true"]
+  .opening-run
+  .opening-dots
+  span:nth-child(3) {
+  animation-delay: 0.2s;
+}
+#marlo-recap[data-opening="true"][data-motion="true"]
+  .opening-run
+  .opening-mark {
+  animation: marlo-mark-arrive 2.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+#marlo-recap[data-opening="true"][data-motion="true"]
+  .opening-run
+  .opening-name {
+  animation: marlo-name-land 0.9s 1.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+#marlo-recap[data-opening="true"][data-motion="true"]
+  .opening-run
+  .opening-name:after {
+  animation: marlo-landing-shadow 0.9s 1.65s both;
+}
+#marlo-recap[data-opening="true"][data-motion="true"]
+  .opening-run
+  .opening-copy
+  h2 {
+  animation: marlo-opening-reveal 0.65s 2.15s both;
+}
+#marlo-recap[data-opening="true"][data-motion="true"]
+  .opening-run
+  .opening-copy
+  p {
+  animation: marlo-opening-reveal 0.65s 2.3s both;
+}
+#marlo-recap[data-opening="true"][data-motion="true"]
+  .opening-run
+  .opening-form {
+  animation: marlo-opening-reveal 0.65s 2.45s both;
+}
+#marlo-recap[data-opening="true"][data-motion="true"]
+  .opening-run
+  .opening-replay {
+  animation: marlo-opening-reveal 0.5s 2.6s both;
+}
+@keyframes marlo-dots-out {
+  0%,
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes marlo-dot-form {
+  0%,
+  35% {
+    transform: translateY(0) scale(1);
+  }
+  18% {
+    transform: translateY(-9px) scale(0.9);
+  }
+  55% {
+    transform: translateY(0) scale(1);
+  }
+  85%,
+  100% {
+    transform: rotate(-35deg) scale(1.8, 0.9);
+  }
+}
+@keyframes marlo-mark-arrive {
+  0%,
+  48% {
+    opacity: 0;
+    top: 111px;
+    right: calc(50% - 50px);
+    width: 100px;
+    transform: scale(0.85);
+  }
+  65% {
+    opacity: 1;
+    top: 111px;
+    right: calc(50% - 50px);
+    width: 100px;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    top: 28px;
+    right: 0;
+    width: 55px;
+    transform: scale(1);
+  }
+}
+@keyframes marlo-name-land {
+  0% {
+    opacity: 0;
+    transform: translateY(-75px) rotateX(32deg) scale(1.13);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(6px) rotateX(-5deg) scale(0.985);
+  }
+  82% {
+    transform: translateY(-3px) rotateX(0) scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes marlo-landing-shadow {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  60% {
+    opacity: 0.65;
+    transform: scale(1.06);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+@keyframes marlo-opening-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 360px) {
+  #marlo-recap[data-opening="true"] .recap-page {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+  #marlo-recap .opening {
+    min-height: 675px;
+  }
+  #marlo-recap .opening-stage {
+    height: 395px;
+  }
+  #marlo-recap .opening-name {
+    top: 117px;
+  }
+  #marlo-recap .opening-copy {
+    top: 229px;
+  }
+  #marlo-recap .opening-copy p {
+    font-size: 16px;
+  }
+  #marlo-recap[data-opening="true"] .opening-copy h2 {
+    font-size: 48px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #marlo-recap .opening-run * {
+    animation: none !important;
+  }
+  #marlo-recap .opening-dots,
+  #marlo-recap .opening-name:after {
+    display: none;
+  }
+  #marlo-recap .opening-replay {
+    display: none;
+  }
+}
+/* Production shell: retain the approved mobile column and actual brand artwork. */
+#marlo-recap {
+  min-height: 100svh;
+  background: #f2e9dd;
+  color-scheme: light;
+}
+#marlo-recap .recap-app {
+  max-width: 393px;
+  margin: 0 auto;
+  min-height: 100svh;
+}
+#marlo-recap .recap-stage:focus {
+  outline: none;
+}
+#marlo-recap button {
+  cursor: pointer;
+}
+#marlo-recap button:disabled {
+  cursor: default;
+}
+#marlo-recap .recap-wordmark {
+  display: block;
+  position: relative;
+  aspect-ratio: 1055/283;
+  overflow: hidden;
+  mix-blend-mode: multiply;
+}
+#marlo-recap .recap-wordmark img {
+  position: absolute;
+  width: 116.4%;
+  max-width: none;
+  left: -11.66%;
+  top: -48.4%;
+  height: auto;
+}
+#marlo-recap .recap-symbol {
+  display: block;
+  position: relative;
+  aspect-ratio: 229/102;
+  overflow: hidden;
+  mix-blend-mode: multiply;
+}
+#marlo-recap .recap-symbol img {
+  position: absolute;
+  width: 130.568%;
+  max-width: none;
+  left: -12.23%;
+  top: -45.1%;
+  height: auto;
+}
+#marlo-recap .opening-mark .recap-symbol {
+  width: 100%;
+}
+#marlo-recap .opening-name .recap-wordmark {
+  width: 100%;
+}
+#marlo-recap .rank-grip {
+  touch-action: none;
+}
+#marlo-recap .rank-top {
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 22px;
+}
+#marlo-recap .recap-card[data-presentation="insight"] {
+  animation: story-arrive 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+  touch-action: pan-y;
+}
+#marlo-recap .quiz-field input:disabled {
+  opacity: 0.6;
+}
+@keyframes story-arrive {
+  from {
+    transform: translateY(28px) rotate(2deg) scale(0.97);
+  }
+  to {
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #marlo-recap .recap-card[data-presentation="insight"] {
+    animation: none;
+  }
+}

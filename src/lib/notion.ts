@@ -125,7 +125,7 @@ function plain(p: NotionPage["properties"][string] | undefined): string {
   return "";
 }
 
-export type Participant = { id: string; name: string; first_name: string; email: string; state: string; survey2_done: string; waiver_signed: string };
+export type Participant = { id: string; name: string; first_name: string; email: string; state: string; survey2_done: string; waiver_signed: string; profile: { ageBand:string; goal:string; stack:string; routine:string } };
 
 function toParticipant(page: NotionPage): Participant {
   const P = page.properties;
@@ -137,6 +137,12 @@ function toParticipant(page: NotionPage): Participant {
     state: plain(P.State),
     survey2_done: plain(P["Survey 2 done"]),
     waiver_signed: plain(P["Waiver signed"]),
+    profile: {
+      ageBand: plain(P["Age band"]),
+      goal: plain(P["ICP bucket"]),
+      stack: [...((P.Supplements?.multi_select as { name:string }[]) || []).map(x=>x.name),plain(P["Supplements other"])].filter(Boolean).join(', '),
+      routine: plain(P.Frequency),
+    },
   };
 }
 

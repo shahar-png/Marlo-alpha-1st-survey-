@@ -1,0 +1,10 @@
+{
+  "brand": "Marlo",
+  "survey_1": "https://marlo-alpha-1st-survey.vercel.app/",
+  "survey_2": "https://marlo-alpha-1st-survey.vercel.app/deep-dive",
+  "survey_2_personalized_template": "https://marlo-alpha-1st-survey.vercel.app/deep-dive?p={participant_page_id}",
+  "survey_2_link_source": "Notion Participants: Survey 2 link property on the current participant record",
+  "instructions": "Use each participant's current Survey 2 link in Email 2. Preserve the p parameter. Use survey_2 only when a generic email-entry link is needed. Never send localhost or Vercel preview URLs.",
+  "experience": "story-quiz-v1",
+  "updated_at": "2026-09-23"
+}
