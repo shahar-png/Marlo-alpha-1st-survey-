@@ -1,0 +1,521 @@
+#marlo-deep-dive {
+  --cream: #f2e9dd;
+  --ink: #191918;
+  --slate: #3e5159;
+  --lime: #e6ffb3;
+  --line: #3e515947;
+  --space: 36px;
+  font-family: "DM Sans", sans-serif;
+  color: var(--ink);
+  color-scheme: light;
+  width: 100%;
+  overflow-anchor: none;
+}
+#marlo-deep-dive * {
+  box-sizing: border-box;
+  animation: none !important;
+  transition: none !important;
+}
+#marlo-deep-dive [hidden] {
+  display: none !important;
+}
+#marlo-deep-dive .survey-shell {
+  max-width: 393px;
+  margin: 0 auto;
+  background: var(--cream);
+  padding: 28px 27px calc(32px + env(safe-area-inset-bottom, 0px));
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  isolation: isolate;
+}
+#marlo-deep-dive .brand-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+  margin-bottom: 36px;
+  flex: none;
+}
+#marlo-deep-dive .wordmark {
+  width: 102px;
+  aspect-ratio: 1055/283;
+  position: relative;
+  display: block;
+  overflow: hidden;
+  mix-blend-mode: multiply;
+}
+#marlo-deep-dive .wordmark img {
+  position: absolute;
+  max-width: none;
+  width: 116.4%;
+  left: -11.66%;
+  top: -48.4%;
+  height: auto;
+}
+#marlo-deep-dive .brand-icon {
+  display: block;
+  width: 49px;
+  aspect-ratio: 229/102;
+  position: relative;
+  overflow: hidden;
+  mix-blend-mode: multiply;
+}
+#marlo-deep-dive .brand-icon img {
+  position: absolute;
+  max-width: none;
+  width: 130.568%;
+  left: -12.23%;
+  top: -45.1%;
+  height: auto;
+}
+#marlo-deep-dive .screen-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+#marlo-deep-dive .screen-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--slate);
+  font-size: 13px;
+  line-height: 1.4;
+  margin-bottom: 30px;
+  min-height: 44px;
+}
+#marlo-deep-dive .back {
+  border: 0;
+  padding: 8px 0;
+  background: transparent;
+  color: var(--slate);
+  font:
+    400 15px/1.4 "DM Sans",
+    sans-serif;
+  min-height: 44px;
+  display: flex;
+  gap: 7px;
+  align-items: center;
+}
+#marlo-deep-dive h1 {
+  font:
+    400 41px/1.07 "Manrope",
+    sans-serif;
+  letter-spacing: -1.8px;
+  text-wrap: wrap;
+  margin: 0 0 28px;
+  color: var(--ink);
+}
+#marlo-deep-dive h1.intro-title {
+  font-size: 45px;
+  line-height: 1.05;
+  letter-spacing: -2.1px;
+  margin-top: 18px;
+}
+#marlo-deep-dive h1.long-title {
+  font-size: 38px;
+  letter-spacing: -1.7px;
+}
+#marlo-deep-dive p {
+  font:
+    400 16px/1.55 "DM Sans",
+    sans-serif;
+  color: var(--slate);
+  margin: 0 0 22px;
+}
+#marlo-deep-dive .intro-copy {
+  margin-bottom: 26px;
+}
+#marlo-deep-dive .time-note {
+  padding: 20px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  margin: 0 0 27px;
+}
+#marlo-deep-dive .kicker {
+  font-size: 13px;
+  line-height: 1.4;
+  margin: 0 0 10px;
+  color: var(--slate);
+}
+#marlo-deep-dive .time-note p:last-child {
+  margin: 0;
+  font-size: 15px;
+  max-width: 265px;
+}
+#marlo-deep-dive .time-note mark {
+  color: var(--ink);
+  background: var(--lime);
+  padding: 1px 3px;
+}
+#marlo-deep-dive .question {
+  padding: 0 0 var(--space);
+  margin: 0 0 var(--space);
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  min-width: 0;
+}
+#marlo-deep-dive .question:last-child {
+  border-bottom: 0;
+  margin-bottom: 0;
+  padding-bottom: 14px;
+}
+#marlo-deep-dive .question legend {
+  float: left;
+  width: 100%;
+  font:
+    400 21px/1.32 "Manrope",
+    sans-serif;
+  letter-spacing: -0.45px;
+  color: var(--ink);
+  padding: 0;
+  margin: 0 0 18px;
+}
+#marlo-deep-dive .question legend + .question-options {
+  clear: both;
+}
+#marlo-deep-dive .choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+#marlo-deep-dive .chip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 47px;
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 26px;
+  padding: 11px 16px;
+  font:
+    400 15px/1.35 "DM Sans",
+    sans-serif;
+  color: var(--ink);
+  background: transparent;
+}
+#marlo-deep-dive .chip input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+}
+#marlo-deep-dive .chip:has(input:checked) {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--lime);
+}
+#marlo-deep-dive .chip:has(input:focus-visible) {
+  outline: 2px solid var(--slate);
+  outline-offset: 3px;
+}
+#marlo-deep-dive .choice-row {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 16px 0;
+  min-height: 58px;
+  border-bottom: 1px solid #3e515925;
+  font:
+    400 16px/1.45 "DM Sans",
+    sans-serif;
+  color: var(--ink);
+}
+#marlo-deep-dive .choice-row:first-child {
+  padding-top: 4px;
+}
+#marlo-deep-dive .choice-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+#marlo-deep-dive .choice-row input {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin: 1px 0 0;
+  background: transparent;
+  border: 1px solid #3e515980;
+  border-radius: 50%;
+  position: relative;
+}
+#marlo-deep-dive .choice-row input:checked {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+#marlo-deep-dive .choice-row input:checked:after {
+  content: "";
+  position: absolute;
+  width: 5px;
+  height: 9px;
+  border-right: 1.7px solid var(--lime);
+  border-bottom: 1.7px solid var(--lime);
+  transform: rotate(45deg);
+  left: 7px;
+  top: 4px;
+}
+#marlo-deep-dive .selection-hint {
+  font:
+    400 12px/1.4 "DM Sans",
+    sans-serif;
+  color: var(--slate);
+  margin: -5px 0 13px;
+}
+#marlo-deep-dive .field {
+  display: block;
+  margin: 24px 0 28px;
+}
+#marlo-deep-dive .field > span {
+  display: block;
+  color: var(--slate);
+  font:
+    500 14px/1.4 "DM Sans",
+    sans-serif;
+  margin-bottom: 10px;
+}
+#marlo-deep-dive input[type="email"],
+#marlo-deep-dive textarea {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #3e515967;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 10px 0 15px;
+  font:
+    400 18px/1.5 "DM Sans",
+    sans-serif;
+  color: var(--ink);
+}
+#marlo-deep-dive input::placeholder {
+  color: #3e51598c;
+  opacity: 1;
+}
+#marlo-deep-dive textarea {
+  font-size: 16px;
+  min-height: 85px;
+  resize: vertical;
+}
+#marlo-deep-dive .optional {
+  font-size: 13px;
+  margin: 10px 0 0;
+}
+#marlo-deep-dive .footer {
+  margin-top: auto;
+  padding-top: 29px;
+}
+#marlo-deep-dive .next {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 62px;
+  padding: 15px 24px;
+  border: 0;
+  border-radius: 34px;
+  background: var(--ink);
+  color: var(--cream);
+  font:
+    500 18px/1.3 "DM Sans",
+    sans-serif;
+}
+#marlo-deep-dive .next:disabled {
+  background: #19191815;
+  color: #3e515978;
+}
+#marlo-deep-dive .back-line {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+#marlo-deep-dive .back-line:before {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  left: 2px;
+  top: 4px;
+  border-left: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+}
+#marlo-deep-dive .back-line:after {
+  content: "";
+  position: absolute;
+  width: 13px;
+  height: 1.5px;
+  background: currentColor;
+  top: 7.3px;
+  left: 2px;
+}
+#marlo-deep-dive .rating-item {
+  border: 0;
+  border-top: 1px solid var(--line);
+  padding: 23px 0 25px;
+  margin: 0;
+  min-width: 0;
+}
+#marlo-deep-dive .rating-item legend {
+  float: left;
+  width: 100%;
+  margin: 0 0 17px;
+  padding: 0;
+  font:
+    400 19px/1.3 "Manrope",
+    sans-serif;
+  letter-spacing: -0.3px;
+}
+#marlo-deep-dive .rating-item legend small {
+  display: block;
+  color: var(--slate);
+  font:
+    400 15px/1.45 "DM Sans",
+    sans-serif;
+  letter-spacing: 0;
+  margin-top: 7px;
+}
+#marlo-deep-dive .rating-options {
+  clear: both;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.2fr;
+  gap: 6px;
+}
+#marlo-deep-dive .rating-options .chip {
+  justify-content: center;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.25;
+  padding: 10px 7px;
+  min-height: 46px;
+}
+#marlo-deep-dive .rating-options .chip:has(input[value="2"]:checked) {
+  background: var(--lime);
+  color: var(--ink);
+  border-color: var(--lime);
+}
+#marlo-deep-dive .rating-options .chip:has(input[value="1"]:checked) {
+  background: var(--slate);
+  color: var(--cream);
+  border-color: var(--slate);
+}
+#marlo-deep-dive .rating-options .chip:has(input[value="0"]:checked) {
+  background: var(--ink);
+  color: var(--cream);
+}
+#marlo-deep-dive .rating-progress {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: var(--slate);
+  margin: 0 0 20px;
+}
+#marlo-deep-dive .rating-progress strong {
+  font-weight: 400;
+  color: var(--ink);
+}
+#marlo-deep-dive .scale {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+#marlo-deep-dive .scale .chip {
+  justify-content: center;
+  font-size: 20px;
+  min-height: 56px;
+  padding: 10px 0;
+}
+#marlo-deep-dive .scale-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--slate);
+  margin-top: 12px;
+}
+#marlo-deep-dive .end-copy {
+  padding-top: 42px;
+}
+#marlo-deep-dive .signature {
+  color: var(--ink);
+  padding-top: 18px;
+}
+#marlo-deep-dive .error-text {
+  font-size: 13px;
+  color: #8f382c;
+  margin-top: 9px;
+}
+body:has(#marlo-deep-dive) {
+  background: #f2e9dd;
+}
+#marlo-deep-dive button,
+#marlo-deep-dive label:has(input) {
+  cursor: pointer;
+}
+#marlo-deep-dive button:disabled {
+  cursor: not-allowed;
+}
+#marlo-deep-dive :focus-visible {
+  outline: 2px solid var(--slate);
+  outline-offset: 3px;
+}
+#marlo-deep-dive .field > label {
+  display: block;
+  color: var(--slate);
+  font:
+    500 14px/1.4 "DM Sans",
+    sans-serif;
+  margin-bottom: 10px;
+}
+#marlo-deep-dive .field-error {
+  font-size: 13px;
+  color: #8f382c;
+  margin-top: 9px;
+}
+#marlo-deep-dive .next > .button-arrow {
+  display: block;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  color: var(--lime);
+}
+#marlo-deep-dive .next:disabled > .button-arrow {
+  color: #3e515978;
+}
+#marlo-deep-dive a.next {
+  text-decoration: none;
+}
+@media (max-width: 360px) {
+  #marlo-deep-dive .survey-shell {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+  #marlo-deep-dive h1 {
+    font-size: 36px;
+    letter-spacing: -1.5px;
+  }
+  #marlo-deep-dive h1.intro-title {
+    font-size: 40px;
+  }
+  #marlo-deep-dive h1.long-title {
+    font-size: 34px;
+  }
+  #marlo-deep-dive .question legend {
+    font-size: 20px;
+  }
+  #marlo-deep-dive .chip {
+    padding: 10px 13px;
+    font-size: 14px;
+  }
+  #marlo-deep-dive .rating-options .chip {
+    font-size: 11px;
+    padding: 9px 4px;
+  }
+  #marlo-deep-dive .scale .chip {
+    font-size: 20px;
+  }
+}
