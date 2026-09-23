@@ -1,6 +1,8 @@
 // Server only. Renders the signed agreement as a PDF: the full text, the participant block,
 // the signature image, and an audit block that says who signed which version, when, from where.
-import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+import { PDFDocument, StandardFonts, rgb, BlendMode, pushGraphicsState, popGraphicsState, rectangle, clip, endPath, type PDFImage, type PDFFont, type PDFPage } from "pdf-lib";
 import { WAIVER, WAIVER_VERSION, COMPANY, SIGNER } from "./waiver";
 
 export type Signed = {
@@ -17,9 +19,11 @@ export type Signed = {
 };
 
 const PAGE = { w: 612, h: 792, m: 64 }; // US Letter, 64pt margins
-const INK = rgb(0.102, 0.102, 0.09);   // midnight
-const MUTED = rgb(0.43, 0.416, 0.376); // slate
-const LINE = rgb(0.894, 0.867, 0.808); // line
+const INK = rgb(25/255, 25/255, 24/255);
+const MUTED = rgb(62/255, 81/255, 89/255);
+const LINE = rgb(0.75, 0.73, 0.68);
+const CREAM = rgb(242/255, 233/255, 221/255);
+const LIME = rgb(230/255, 1, 179/255);
 
 function wrap(font: PDFFont, size: number, text: string, width: number): string[] {
   const words = text.split(/\s+/);
@@ -44,7 +48,20 @@ export async function buildWaiverPdf(s: Signed): Promise<Uint8Array> {
   const mono = await doc.embedFont(StandardFonts.Courier);
   const width = PAGE.w - PAGE.m * 2;
 
-  let page: PDFPage = doc.addPage([PAGE.w, PAGE.h]);
+  const wordmark = await doc.embedPng(await readFile(path.join(process.cwd(), "public/brand/marlo-wordmark.png")));
+  const icon = await doc.embedJpg(await readFile(path.join(process.cwd(), "public/brand/marlo-icon.jpg")));
+  const newPage = () => {
+    const pg = doc.addPage([PAGE.w, PAGE.h]);
+    pg.drawRectangle({ x: 0, y: 0, width: PAGE.w, height: PAGE.h, color: CREAM });
+    return pg;
+  };
+  const brand = (pg: PDFPage, img: PDFImage, crop: number[], x: number, y: number, w: number) => {
+    const [cx, cy, cw, ch] = crop, scale = w / cw;
+    pg.pushOperators(pushGraphicsState(), rectangle(x, y, w, ch * scale), clip(), endPath());
+    pg.drawImage(img, { x: x - cx * scale, y: y - (img.height - cy - ch) * scale, width: img.width * scale, height: img.height * scale, blendMode: BlendMode.Multiply });
+    pg.pushOperators(popGraphicsState());
+  };
+  let page: PDFPage = newPage();
   let y = PAGE.h - PAGE.m;
   let pageNo = 1;
 
@@ -55,7 +72,7 @@ export async function buildWaiverPdf(s: Signed): Promise<Uint8Array> {
     pg.drawText(t, { x: PAGE.w - PAGE.m - font.widthOfTextAtSize(t, 8), y: 30, size: 8, font, color: MUTED });
   };
   const need = (h: number) => {
-    if (y - h < PAGE.m + 20) { footer(page, pageNo); page = doc.addPage([PAGE.w, PAGE.h]); pageNo++; y = PAGE.h - PAGE.m; }
+    if (y - h < PAGE.m + 20) { footer(page, pageNo); page = newPage(); pageNo++; y = PAGE.h - PAGE.m; }
   };
   const para = (text: string, opts: { size?: number; font?: PDFFont; color?: ReturnType<typeof rgb>; indent?: number; after?: number; lead?: number } = {}) => {
     const size = opts.size ?? 10.5, f = opts.font ?? font, lead = opts.lead ?? size * 1.42, indent = opts.indent ?? 0;
@@ -64,24 +81,23 @@ export async function buildWaiverPdf(s: Signed): Promise<Uint8Array> {
     y -= opts.after ?? 6;
   };
 
-  // Title block
-  page.drawText("Marlo", { x: PAGE.m, y: y - 14, size: 14, font: bold, color: INK });
-  page.drawText(".", { x: PAGE.m + bold.widthOfTextAtSize("Marlo", 14), y: y - 14, size: 14, font: bold, color: rgb(0.98, 0.54, 0.447) });
-  y -= 34;
-  para("Marlo Alpha Program — Participant Agreement", { size: 20, font: bold, lead: 24, after: 4 });
-  para(`${WAIVER_VERSION} · ${COMPANY}`, { size: 10, color: MUTED, after: 14 });
+  // Use the same supplied artwork and palette as the web agreement.
+  brand(page, wordmark, [123, 138, 1055, 283], PAGE.m, y - 26, 100);
+  brand(page, icon, [28, 46, 229, 102], PAGE.w - PAGE.m - 46, y - 24, 46);
+  y -= 64;
+  page.drawRectangle({ x: PAGE.m, y: y - 25, width: 250, height: 10, color: LIME });
+  para("Participant agreement.", { size: 26, lead: 32, after: 10 });
+  para(`${WAIVER_VERSION} · ${COMPANY}`, { size: 10, color: MUTED, after: 18 });
 
-  // Participant block
-  need(70);
-  page.drawRectangle({ x: PAGE.m, y: y - 62, width, height: 62, color: rgb(0.996, 0.992, 0.976), borderColor: LINE, borderWidth: 0.75 });
-  const cell = (label: string, value: string, x: number) => {
-    page.drawText(label.toUpperCase(), { x, y: y - 18, size: 7.5, font, color: MUTED });
-    page.drawText(value, { x, y: y - 36, size: 11, font: bold, color: INK });
-  };
-  cell("Participant", s.name, PAGE.m + 14);
-  cell("Email", s.email, PAGE.m + 14 + width * 0.38);
-  cell("Date", s.signedAtLocal.split(",").slice(0, 2).join(",").trim() || s.signedAt.slice(0, 10), PAGE.m + 14 + width * 0.76);
-  y -= 78;
+  // Wrap identity fields so long names and addresses cannot overlap.
+  para("PARTICIPANT", { size: 8, color: MUTED, after: 2 });
+  para(s.name, { size: 12, font: bold, after: 8 });
+  para("EMAIL", { size: 8, color: MUTED, after: 2 });
+  para(s.email, { size: 11, after: 8 });
+  para("SIGNED", { size: 8, color: MUTED, after: 2 });
+  para(s.signedAtLocal, { size: 10, after: 18 });
+  page.drawLine({ start: { x: PAGE.m, y }, end: { x: PAGE.w - PAGE.m, y }, thickness: .75, color: LINE });
+  y -= 20;
 
   // Sections
   for (const sec of WAIVER) {
@@ -112,7 +128,8 @@ export async function buildWaiverPdf(s: Signed): Promise<Uint8Array> {
   para("Signed", { size: 12.5, font: bold, lead: 16, after: 8 });
 
   const sig = await doc.embedPng(s.signaturePng);
-  const sigH = 54, sigW = Math.min(width * 0.5, (sig.width / sig.height) * sigH);
+  const sigScale = Math.min(54 / sig.height, (width * 0.5) / sig.width);
+  const sigH = sig.height * sigScale, sigW = sig.width * sigScale;
   page.drawImage(sig, { x: PAGE.m, y: y - sigH, width: sigW, height: sigH });
   y -= sigH + 6;
   page.drawLine({ start: { x: PAGE.m, y }, end: { x: PAGE.m + width * 0.5, y }, thickness: 0.75, color: INK });

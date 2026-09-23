@@ -25,3 +25,13 @@ Priority order and participant edits to profile context are in the existing Surv
 ## Quality checks
 
 `npm test`, `npx tsc --noEmit`, and `npm run build` must pass. To exercise submission without writing to real systems, build then run `npm run qa:serve` and use `http://127.0.0.1:8771/deep-dive?p=00000000-0000-0000-0000-000000000001`. The QA server uses fake upstream responses, fails the first Notion write to test retry, and saves only a synthetic payload to `/tmp/marlo-survey2-qa-last-submit.json`. It has no public QA route and is never deployed.
+
+## Program guide and participant agreement
+
+The approved Marlo document design is published at the same permanent links:
+
+- Program guide: **https://marlo-alpha-1st-survey.vercel.app/guide**
+- Agreement: **https://marlo-alpha-1st-survey.vercel.app/waiver**
+- Personal agreement: use the current participant card's **Waiver link**, preserving `?p=<participant page id>`.
+
+The link directory now also provides `program_guide`, `participant_agreement`, and `participant_agreement_personalized_template`. Fetch these stable URLs to retrieve the latest pages; do not send the HTML design preview. The coverage is **up to $200 per month** during the program. Newly signed agreements use **v2 · 23 Sep 2026**, and the signed PDF records that version and its text hash. Previously signed records and PDFs are not rewritten.

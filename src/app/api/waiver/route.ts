@@ -13,14 +13,17 @@ function clean(s: unknown, max = 300) {
 }
 
 /**
- * Sign the participant agreement. Body: { p, email, name, signature (data:image/png;base64,…), typed, local_time }.
+ * Sign the participant agreement. Body: { waiver_version, p, email, name, signature (data:image/png;base64,…), typed, local_time }.
  * Identifies the participant (email first, then ?p= id), refuses a second signature (409), builds the PDF,
  * attaches it to the Notion card (Signed waiver + Waiver signed + Waiver version), then files/emails it via Apps Script.
  */
 export async function POST(req: Request) {
-  let body: { p?: string; email?: string; name?: string; signature?: string; typed?: boolean; local_time?: string };
+  let body: { waiver_version?: string; p?: string; email?: string; name?: string; signature?: string; typed?: boolean; local_time?: string };
   try { body = await req.json(); } catch { return NextResponse.json({ error: "bad_json" }, { status: 400 }); }
   if (!notionEnabled()) return NextResponse.json({ error: "no_database" }, { status: 500 });
+
+  // An open tab must sign the same wording it displayed, including after a deployment.
+  if (body.waiver_version !== WAIVER_VERSION) return NextResponse.json({ error: "agreement_changed" }, { status: 412 });
 
   const name = clean(body.name, 120);
   const sig = String(body.signature || "");
@@ -36,7 +39,7 @@ export async function POST(req: Request) {
   let who = null;
   try {
     if (body.email) who = await notionFindByEmail(clean(body.email, 120).toLowerCase());
-    if (!who && body.p) who = await notionGetParticipant(clean(body.p, 40));
+    if (!body.email && body.p) who = await notionGetParticipant(clean(body.p, 40));
   } catch (e) {
     console.error("participant_lookup_failed", e);
     return NextResponse.json({ error: "lookup_failed" }, { status: 500 });
