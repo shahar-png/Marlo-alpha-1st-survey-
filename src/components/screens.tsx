@@ -67,7 +67,7 @@ export function S4About({ a, set, next, back, step, total }: Common) {
   return (
     <Screen onBack={back} step={step} total={total} cta={<Button onClick={next} disabled={!(a.age_band && a.sex)}>Continue</Button>}>
       <Title>A little<br />about you.</Title>
-      <div className="question-groups">
+      <div className="question-groups about-groups">
         <div>
           <Label>Age</Label>
           <div className="choices">{AGE_BANDS.map((o) => <Chip key={o.id} active={a.age_band === o.id} onClick={() => set("age_band", o.id)}>{o.label}</Chip>)}</div>

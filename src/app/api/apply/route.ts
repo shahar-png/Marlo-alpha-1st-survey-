@@ -48,7 +48,7 @@ export async function POST(req: Request) {
     icp_bucket: bucket(fitIds),
     frequency: LABELS.frequency[clean(a.frequency, 20)] || "",
     supplements: (a.supplements || []).map((s) => (s === "other" ? "Other" : LABELS.supplements[clean(s, 30)])).filter(Boolean),
-    supplements_other: clean(a.supplements_other),
+    supplements_other: (a.supplements || []).includes("other") ? String(a.supplements_other ?? "").trim().slice(0, 500) : "",
     rx: Boolean(a.rx),
     rx_text: clean(a.rx_text),
     submitted_at,

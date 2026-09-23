@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "tsx scripts/setup-supplement-review.ts && next build",
     "start": "next start",
     "lint": "eslint",
     "test": "tsx --test tests/*.test.ts tests/*.test.tsx",
