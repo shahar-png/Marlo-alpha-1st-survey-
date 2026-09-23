@@ -1,11 +1,9 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { paceIntroScroll } from "@/lib/intro-scroll";
 import { BrandIcon, Wordmark, Button } from "./survey-one-ui";
 
 export function MarloIntro({ next }: { next: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
-  const paced = useRef<ReturnType<typeof paceIntroScroll> | null>(null);
   useEffect(() => {
     const root = ref.current!;
     const el = (selector: string) => root.querySelector<HTMLElement>(selector)!;
@@ -44,11 +42,15 @@ export function MarloIntro({ next }: { next: () => void }) {
       panels.forEach((panel, i) => {panel.style.opacity = i === beat ? '1' : '0'; panel.style.transform = 'none'; panel.setAttribute('aria-hidden', String(i !== beat));});
       if (previous >= 0) {
         const direction = beat > previous ? 1 : -1;
-        storyAnimations.push(panels[previous].animate([{opacity:1,transform:'translateY(0)'},{opacity:0,transform:`translateY(${-18 * direction}px)`}], {duration:160,easing:'ease-out'}));
-        storyAnimations.push(panels[beat].animate([{opacity:0,transform:`translateY(${28 * direction}px)`},{opacity:1,transform:'translateY(0)'}], {duration:430,delay:160,fill:'backwards',easing:'cubic-bezier(.2,.8,.2,1)'}));
+        storyAnimations.push(panels[previous].animate([{opacity:1,transform:'translateY(0)'},{opacity:0,transform:`translateY(${-18 * direction}px)`}], {duration:200,easing:'ease-out'}));
+        storyAnimations.push(panels[beat].animate([{opacity:0,transform:`translateY(${28 * direction}px)`},{opacity:1,transform:'translateY(0)'}], {duration:537.5,delay:200,fill:'backwards',easing:'cubic-bezier(.2,.8,.2,1)'}));
       }
     }
-    const queueScroll = () => {if (!frame) frame = requestAnimationFrame(updateStory);};
+    // Observe native scrolling; never intercept gestures or write the scroll position.
+    const queueScroll = () => {
+      if (window.scrollY > 0 && !openingSkipped) showAll();
+      if (!frame) frame = requestAnimationFrame(updateStory);
+    };
     const motionChange = () => {if (reduced.matches) showAll(); updateStory();};
     window.addEventListener('scroll', queueScroll, {passive:true});
     window.addEventListener('resize', queueScroll);
@@ -82,10 +84,9 @@ export function MarloIntro({ next }: { next: () => void }) {
       }, {threshold:.15,rootMargin:'0px 0px -45px 0px'});
       sections.forEach(section => observer!.observe(section));
     }
-    paced.current = paceIntroScroll(root, showAll);
     start().catch(() => {if (!disposed) showAll();});
     return () => {
-      disposed = true; paced.current?.destroy(); paced.current = null; showAll(); storyAnimations.forEach(a => a.cancel()); cancelAnimationFrame(frame);
+      disposed = true; showAll(); storyAnimations.forEach(a => a.cancel()); cancelAnimationFrame(frame);
       window.removeEventListener('scroll', queueScroll); window.removeEventListener('resize', queueScroll); reduced.removeEventListener('change', motionChange);
     };
   }, []);
@@ -95,7 +96,7 @@ export function MarloIntro({ next }: { next: () => void }) {
       <header className="hero" aria-label="Marlo introduction">
         <div className="brand-actor" aria-hidden="true"><BrandIcon className="original-icon" /><span className="typing"><span className="dot" /><span className="dot" /><span className="dot" /></span></div>
         <h1 className="title" aria-label="Meet Marlo."><span className="meet">Meet</span><Wordmark className="wordmark" /></h1>
-        <button type="button" className="scroll-cue" aria-label="Scroll to learn about Marlo" onClick={() => { const section = ref.current?.querySelector('.intro-section'); if (section) paced.current?.to(window.scrollY + section.getBoundingClientRect().top); }}>↓</button>
+        <button type="button" className="scroll-cue" aria-label="Scroll to learn about Marlo" onClick={() => { const section = ref.current?.querySelector('.intro-section'); section?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'}); }}>↓</button>
       </header>
       <main>
         <section className="intro-section reveal"><h2>I’m a contact<br />in your phone.</h2><p>A supplement expert and your concierge in one, built by leading longevity scientists and backed by science. Talk to me about supplements, health, and what’s right for you.</p><p>I know your labs, your goals, your routine, and I work only for you. And I don’t just advise — I buy, I reorder, I follow up, on your behalf.</p></section>

@@ -2,7 +2,7 @@
 
 ## Behavior
 
-The opening alone paces wheel, single-finger touch, keyboard and native scroll requests. Movement is capped at 480 px/s, with 150 px/s through the sticky story; input backlog is capped at 240 px. Reversing direction cancels queued travel. Exploring during the opening reveals its content immediately. Handlers are removed when leaving the intro. Reduced-motion content stays static; pinch zoom remains available.
+The original hard scroll cap was removed after user feedback about sticking and jumps. The intro now observes native scrolling without intercepting wheel, touch, keyboard, scrollbar or momentum. Story travel is 1.25 times its original length (20% slower progress for the same gesture); the crossfade timings are also divided by .8. Scrolling during the opening reveals its content immediately. Reduced-motion content stays static.
 
 Age and Sex labels are now 22 px (previously 14 px).
 
@@ -24,8 +24,8 @@ Candidates are saved in the same Notion page-create request as the participant; 
 
 The production build runs an idempotent schema/view setup using the existing Notion connection. It adds three review fields, creates/reuses the filtered view, and backfills qualifying unanswered review entries without changing original responses. First run succeeded; zero existing responses qualified. The view was verified in Notion.
 
-- 26 automated tests pass, including capped scroll increments, suggestion parsing, atomic Notion payload, stale Other exclusion and raw Sheet logging.
+- 25 automated tests pass, including suggestion parsing, atomic Notion payload, stale Other exclusion and raw Sheet logging.
 - Production build, TypeScript, targeted ESLint and diff whitespace checks pass.
-- Browser: large wheel input stays bounded; End travels through intro to Next; next-page navigation works; Age/Sex choices advance; 393 px and 320 px layouts have no horizontal overflow; labels computed at 22 px; no browser console errors.
+- Browser: native wheel input moves immediately without a backlog; End travels through intro to Next; next-page navigation works; Age/Sex choices advance; 393 px and 320 px layouts have no horizontal overflow; labels computed at 22 px; no browser console errors.
 - Touch path is implemented but not tested on physical iPhone hardware.
 - No synthetic production application or email was created. Existing Sheet fallback remains; Jenny’s guide describes reconciliation if Notion is unavailable.

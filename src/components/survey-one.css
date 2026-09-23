@@ -46,7 +46,8 @@
 #marlo-arrival .story-panel h2 em{font-style:normal;position:relative;isolation:isolate;white-space:nowrap}
 #marlo-arrival .story-panel h2 em:after{content:'';position:absolute;left:0;right:-2px;bottom:3px;height:9px;background:var(--lime);z-index:-1}
 #marlo-arrival .story-panel p{color:var(--slate);font-size:17px;line-height:1.5;margin-top:23px;max-width:280px}
-#marlo-arrival[data-live-scroll="true"] .scroll-story{height:1350px;position:relative;margin-top:90px}
+/* 380px stage + (970px original travel / .8): story progresses 20% slower with native scrolling. */
+#marlo-arrival[data-live-scroll="true"] .scroll-story{height:1592.5px;position:relative;margin-top:90px}
 #marlo-arrival[data-live-scroll="true"] .story-stage{position:sticky;top:clamp(80px,23vh,190px);height:380px}
 #marlo-arrival[data-live-scroll="true"] .story-panel{position:absolute;inset:0;padding:42px 0 0;opacity:0;pointer-events:none;will-change:opacity,transform}
 #marlo-arrival[data-live-scroll="true"] .story-panel:first-child{opacity:1}
@@ -115,6 +116,4 @@ body:has(.survey-one){background:#f2e9dd}
 .survey-one .signature{padding-top:18px;color:var(--ink);font:400 16px/1.55 'DM Sans',sans-serif}
 @media(max-width:360px){.survey-one .flow{padding-left:24px;padding-right:24px}.survey-one .flow-title{font-size:38px}.survey-one .flow-title.long{font-size:33px}.survey-one .chip{padding:10px 13px;font-size:14px}}
 
-/* Slower reading pace is limited to the animated first page. */
-#marlo-arrival{touch-action:pan-x pinch-zoom}
 .survey-one .about-groups .flow-label{font-size:22px;line-height:1.35;color:var(--ink);margin-bottom:15px}
