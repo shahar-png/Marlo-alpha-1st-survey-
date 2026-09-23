@@ -1,9 +1,9 @@
 
-#marlo-arrival{--cream:#f2e9dd;--ink:#191918;--slate:#3e5159;--lime:#e6ffb3;font-family:'DM Sans',sans-serif;color:var(--ink);width:100%;color-scheme:light;overflow-anchor:none}
+#marlo-arrival{--cream:#f2e9dd;--ink:#191918;--slate:#3e5159;--lime:#e6ffb3;font-family:'DM Sans',sans-serif;color:var(--ink);width:100%;color-scheme:light;overflow-anchor:none;isolation:isolate}
 #marlo-arrival *{box-sizing:border-box}
-#marlo-arrival .survey{max-width:393px;width:100%;margin:0 auto;background:var(--cream);overflow:clip;isolation:isolate}
+#marlo-arrival .survey{max-width:393px;width:100%;margin:0 auto;background:transparent;overflow:clip;isolation:isolate;position:relative;z-index:1}
 #marlo-arrival h1,#marlo-arrival h2,#marlo-arrival p{margin:0}
-#marlo-arrival .hero{height:640px;position:relative;background:var(--cream);isolation:isolate}
+#marlo-arrival .hero{height:640px;position:relative;background:transparent;isolation:isolate}
 #marlo-arrival .brand-actor{width:92px;height:46px;position:absolute;left:calc(100% - 92.4px);top:28px;transform:scale(.7);transform-origin:0 0;mix-blend-mode:multiply;z-index:2}
 #marlo-arrival .original-icon{display:block;width:92px;aspect-ratio:229/102;overflow:hidden;position:relative}
 #marlo-arrival .original-icon img{position:absolute;max-width:none;width:130.568%;height:auto;left:-12.23%;top:-45.1%}
@@ -15,8 +15,7 @@
 #marlo-arrival .meet{font:400 49px/1.1 'Manrope',sans-serif;letter-spacing:-2px;display:block;margin-bottom:20px}
 #marlo-arrival .wordmark{display:block;width:100%;aspect-ratio:1055/283;overflow:hidden;position:relative}
 #marlo-arrival .wordmark img{position:absolute;max-width:none;width:116.4%;height:auto;left:-11.66%;top:-48.4%}
-#marlo-arrival .scroll-cue{position:fixed;z-index:10;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:calc(50% - 24px);width:48px;min-height:48px;border:0;background:var(--cream);color:var(--slate);font:400 28px/1 'DM Sans',sans-serif;border-radius:50%}
-#marlo-arrival .scroll-cue:hover{background:#e9dfd1}
+#marlo-arrival .scroll-cue{position:fixed;z-index:0;pointer-events:none;opacity:.25;text-align:center;display:grid;place-items:center;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:calc(50% - 24px);width:48px;min-height:48px;border:0;background:transparent;color:var(--slate);font:400 28px/1 'DM Sans',sans-serif;border-radius:50%}
 #marlo-arrival .scroll-cue[hidden]{display:none}
 #marlo-arrival main{padding:0 27px}
 #marlo-arrival .intro-section{padding:44px 0 26px}
@@ -118,3 +117,46 @@ body:has(.survey-one){background:#f2e9dd}
 @media(max-width:360px){.survey-one .flow{padding-left:24px;padding-right:24px}.survey-one .flow-title{font-size:38px}.survey-one .flow-title.long{font-size:33px}.survey-one .chip{padding:10px 13px;font-size:14px}}
 
 .survey-one .about-groups .flow-label{font-size:22px;line-height:1.35;color:var(--ink);margin-bottom:15px}
+
+/* Keep the scroll hint behind opaque reading surfaces, never over text. */
+#marlo-arrival :is(.intro-section,.benefit,.story-panel,.closing,footer){background:var(--cream)}
+
+/* The action area stays in the viewport; longer answers scroll within main. */
+.survey-one .flow{height:100svh;height:100dvh;min-height:0;padding-top:max(14px,env(safe-area-inset-top,0px));padding-bottom:max(12px,env(safe-area-inset-bottom,0px))}
+.survey-one .flow-header{height:28px;margin-bottom:12px}
+.survey-one .flow-nav{flex:none;margin-bottom:12px}
+.survey-one .flow-content{min-height:0;overflow-y:auto;overscroll-behavior-y:contain;scrollbar-width:thin;padding:3px 3px 12px;margin:0 -3px}
+.survey-one .flow-actions{flex:none;margin-top:0;padding-top:10px;background:var(--cream)}
+.survey-one .flow-title{margin-bottom:18px}
+.survey-one .flow-lead{margin-bottom:14px}
+.survey-one .flow-kicker{margin-bottom:8px}
+.survey-one .deal-lead{margin-bottom:10px}
+.survey-one .deal-block{padding:12px 0}
+.survey-one .deal-block h2{margin-bottom:8px}
+.survey-one .eligibility{margin-top:10px}
+.survey-one .eligibility li{margin:5px 0}
+.survey-one .field{margin:16px 0 20px}
+.survey-one .question-groups{gap:24px}
+.survey-one .choice-row{padding:16px 0}
+.survey-one .choice-description{margin-top:5px}
+.survey-one .prescriptions{margin-top:22px}
+.survey-one .end-copy{padding-top:20px}
+@media(max-height:740px){
+  .survey-one .flow-header{height:24px;margin-bottom:6px}
+  .survey-one .flow-nav{margin-bottom:6px}
+  .survey-one .flow-title{font-size:34px;margin-bottom:12px}
+  .survey-one .flow-title.long{font-size:31px}
+  .survey-one .flow-lead{font-size:15px;line-height:1.4;margin-bottom:10px}
+  .survey-one .deal-lead{font-size:22px;line-height:1.2;margin-bottom:8px}
+  .survey-one .deal-block{padding:8px 0}
+  .survey-one .deal-block h2{font-size:23px;margin-bottom:6px}
+  .survey-one .eligibility{display:flex;flex-wrap:wrap;column-gap:16px;margin-top:6px;font-size:14px}
+  .survey-one .eligibility li{gap:7px;margin:3px 0}
+  .survey-one .next{min-height:52px;padding:12px 20px;font-size:17px}
+  .survey-one .secondary{min-height:44px;padding:12px 8px 4px}
+  .survey-one .field{margin:12px 0 16px}
+  .survey-one .field input{padding:8px 0 10px}
+  .survey-one .question-groups{gap:20px}
+  .survey-one .choice-row{padding:10px 0;font-size:21px}
+  .survey-one .choice-description{font-size:14px;line-height:1.4;margin-top:4px}
+}
