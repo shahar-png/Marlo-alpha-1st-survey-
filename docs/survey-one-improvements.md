@@ -2,7 +2,7 @@
 
 ## Behavior
 
-The original hard scroll cap was removed after user feedback about sticking and jumps. The intro now observes native scrolling without intercepting wheel, touch, keyboard, scrollbar or momentum. After a second requested 20% slowdown, story travel and crossfade timings are divided by .64 (two successive factors of .8). A fixed down arrow stays visible through the intro, hides at the bottom, and returns when scrolling up; clicking it advances down the page. Scrolling during the opening reveals its content immediately. Reduced-motion content stays static.
+The original hard scroll cap was removed after user feedback about sticking and jumps. The intro now observes native scrolling without intercepting wheel, touch, keyboard, scrollbar or momentum. After a second requested 20% slowdown, story travel and crossfade timings are divided by .64 (two successive factors of .8). The down arrow is a decorative background hint behind opaque reading surfaces. It hides at the bottom and returns when scrolling up; it cannot cover or intercept text. Scrolling during the opening reveals its content immediately. Reduced-motion content stays static.
 
 Age and Sex labels are now 22 px (previously 14 px).
 
@@ -29,3 +29,9 @@ The production build runs an idempotent schema/view setup using the existing Not
 - Browser: native wheel input moves immediately without a backlog; End travels through intro to Next; next-page navigation works; Age/Sex choices advance; 393 px and 320 px layouts have no horizontal overflow; labels computed at 22 px; no browser console errors.
 - Touch path is implemented but not tested on physical iPhone hardware.
 - No synthetic production application or email was created. Existing Sheet fallback remains; Jenny’s guide describes reconciliation if Notion is unavailable.
+
+## Visible action area
+
+Quiz 1 non-intro screens use a viewport-height flex layout: branding/navigation and action footer do not shrink; main content alone can scroll. Responsive spacing fits The deal, Contact, About and Frequency at 375×667 and 393×852 without content scrolling. Long supplement lists and expanded answers retain readable text and internal scrolling with Continue always visible, including at 320×568. Main is keyboard focusable. The animated opening retains native document scrolling.
+
+QA: all primary question screens, expanded Fit/Other and prescription fields, short-phone footer bounds, no horizontal overflow, exit path and no console errors. No applications submitted in production.

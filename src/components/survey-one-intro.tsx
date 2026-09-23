@@ -92,7 +92,7 @@ export function MarloIntro({ next }: { next: () => void }) {
   }, []);
 
   return <div id="marlo-arrival" className="survey-one" ref={ref}>
-    <button type="button" className="scroll-cue" aria-label="Scroll down" onClick={() => window.scrollBy({top:window.innerHeight * .65,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'})}>↓</button>
+    <div className="scroll-cue" aria-hidden="true">↓</div>
     <article className="survey">
       <header className="hero" aria-label="Marlo introduction">
         <div className="brand-actor" aria-hidden="true"><BrandIcon className="original-icon" /><span className="typing"><span className="dot" /><span className="dot" /><span className="dot" /></span></div>

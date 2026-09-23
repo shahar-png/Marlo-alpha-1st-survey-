@@ -16,7 +16,7 @@ export function Screen({ children, cta, onBack, step, total }: { children: React
       {onBack ? <button className="flow-back" type="button" onClick={onBack} aria-label="Back">← Back</button> : <span />}
       {step && total ? <span>{String(step).padStart(2, "0")} / {String(total).padStart(2, "0")}</span> : null}
     </nav> : null}
-    <main className="flow-content">{children}</main>
+    <main className="flow-content" tabIndex={0} aria-label="Survey content">{children}</main>
     {cta ? <footer className="flow-actions">{cta}</footer> : null}
   </div></div>;
 }
