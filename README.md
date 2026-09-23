@@ -84,3 +84,7 @@ The approved story quiz is live on the same `/deep-dive` route. See [Jenny's lin
 The client preserves the original answer schema and adds ranking/profile context inside `raw_json.context`, without changing Sheet columns or Notion tags. Drafts stay in session storage for the current browser tab and are restored only after participant lookup. No fictional profile data ships. Saved profile context is returned only for a personal link plus its matching email; the email-only entry can collect optional profile details without exposing the saved supplement list.
 
 Validation: `npm test`, `npx tsc --noEmit`, `npm run build`. Safe interactive QA: build, then `npm run qa:serve` (fake Notion and Sheet only; do not use production for test submissions).
+
+## Current guide and agreement design
+
+The approved branded documents remain at `/guide` and `/waiver`; personal waiver links keep their `p` parameter. Coverage is up to $200 per month. New signatures record agreement v2 (23 September 2026) and its text hash, including in the branded PDF. See [document release QA](docs/guide-waiver-qa.md) and [Jenny’s stable links](docs/jenny-survey-links.md).

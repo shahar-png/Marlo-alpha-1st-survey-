@@ -4,7 +4,7 @@
 // The hash of the text (see waiverHash) is written to the card and the PDF so every signature
 // says exactly which wording was signed.
 
-export const WAIVER_VERSION = "v1 · 15 Sep 2026";
+export const WAIVER_VERSION = "v2 · 23 Sep 2026";
 export const COMPANY = "OliHealth Inc.";
 export const SIGNER = { name: "Shahar Cohen", title: "Founder" };
 export const CAP = "$200";
@@ -30,9 +30,9 @@ export const WAIVER: Section[] = [
     n: 2,
     title: "What Marlo covers",
     blocks: [
-      p(`During the Program, we cover the cost of supplements that Marlo orders for you, up to a total of ${CAP}. This is the only benefit of the Program. There is no cash payment, and we don't reimburse anything you buy elsewhere.`),
+      p(`During the Program, we cover the cost of supplements that Marlo orders for you, up to ${CAP} per month. This is the only benefit of the Program. There is no cash payment, and we don't reimburse anything you buy elsewhere.`),
       p("Orders are placed by Marlo, at the brand's or retailer's own price, and shipped to the address you give us. You don't need a credit card."),
-      p(`Once the ${CAP} is used, you can keep using Marlo, but any further orders are at your own cost and only if you approve them.`),
+      p(`Once the ${CAP} monthly limit is reached, you can keep using Marlo, but any further orders that month are at your own cost and only if you approve them.`),
       p("If your participation ends early — by you or by us — we'll cancel any order that hasn't shipped. Anything already shipped is yours to keep."),
     ],
   },

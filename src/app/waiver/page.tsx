@@ -1,5 +1,7 @@
 "use client";
 import React, { Suspense, useEffect, useState } from "react";
+import { WAIVER_VERSION } from "@/lib/waiver";
+import { DocumentShell } from "@/components/documents";
 import { useSearchParams } from "next/navigation";
 import { WIntro, WRead, WSigned, WAlready, WError, type Signature } from "@/components/screens-waiver";
 
@@ -45,7 +47,7 @@ function Waiver() {
       if (!r.ok) { setEmailError("Something on our side — try once more."); return; }
       const d = (await r.json()) as { first_name: string; name: string; signed: boolean };
       setFirstName(d.first_name || "");
-      if (d.name && !name) setName(d.name);
+      setName(d.name || "");
       if (d.signed) { setStep("already"); return; }
       setStep("read");
     } catch { setEmailError("Something on our side — try once more."); } finally { setLoading(false); }
@@ -56,7 +58,8 @@ function Waiver() {
     setSig(s); setBusy(true);
     try {
       const local_time = new Date().toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short" });
-      const res = await fetch("/api/waiver", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ p, email: email.trim().toLowerCase(), name: name.trim(), signature: s.png, typed: s.typed, local_time }) });
+      const res = await fetch("/api/waiver", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ waiver_version: WAIVER_VERSION, p, email: email.trim().toLowerCase(), name: name.trim(), signature: s.png, typed: s.typed, local_time }) });
+      if (res.status === 412) { window.location.reload(); return; }
       if (res.status === 409) { setStep("already"); return; }
       if (res.status === 404) { setStep("intro"); setEmailError(NOT_IN_SYSTEM); return; }
       if (!res.ok) throw new Error(String(res.status));
@@ -79,8 +82,8 @@ function Waiver() {
 
 export default function Page() {
   return (
-    <Suspense fallback={null}>
+    <DocumentShell><Suspense fallback={<p className="intro-copy" role="status">Loading your agreement…</p>}>
       <Waiver />
-    </Suspense>
+    </Suspense></DocumentShell>
   );
 }
