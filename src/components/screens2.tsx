@@ -1,200 +1,454 @@
 "use client";
 import React, { useState } from "react";
-import { Screen, Title, Lead, Button, Chip, Row, Field, TextArea, Ticket } from "./ui";
-import { PARTS, PAINS, PAIN_LEVELS, partComplete, type Answers2, type Part, type Q } from "@/lib/survey2";
+import { Button, Field, TextArea, Wordmark, BrandIcon } from "./survey-one-ui";
+import {
+  PARTS,
+  PAINS,
+  PAIN_LEVELS,
+  partComplete,
+  type Answers2,
+  type Part,
+  type Q,
+} from "@/lib/survey2";
+import "./survey-two.css";
 
 type Set2 = <K extends keyof Answers2>(k: K, v: Answers2[K]) => void;
 
-/* ---------- Question renderers ---------- */
-
+function Screen({
+  children,
+  cta,
+  onBack,
+  step,
+  total,
+}: {
+  children: React.ReactNode;
+  cta?: React.ReactNode;
+  onBack?: () => void;
+  step?: number;
+  total?: number;
+}) {
+  return (
+    <div id="marlo-deep-dive">
+      <article className="survey-shell">
+        <header className="brand-header">
+          <Wordmark className="wordmark" />
+          <BrandIcon className="brand-icon" />
+        </header>
+        <div className="screen-body">
+          {onBack ? (
+            <nav className="screen-nav" aria-label="Survey navigation">
+              <button className="back" type="button" onClick={onBack}>
+                <span className="back-line" aria-hidden="true" />
+                Back
+              </button>
+              {step && total ? (
+                <span>
+                  {String(step).padStart(2, "0")} / {total}
+                </span>
+              ) : null}
+            </nav>
+          ) : null}
+          {children}
+          {cta ? <footer className="footer">{cta}</footer> : null}
+        </div>
+      </article>
+    </div>
+  );
+}
+function Choice({
+  name,
+  value,
+  label,
+  checked,
+  onChange,
+  multiple = false,
+  row = false,
+}: {
+  name: string;
+  value: string;
+  label: string;
+  checked: boolean;
+  onChange: () => void;
+  multiple?: boolean;
+  row?: boolean;
+}) {
+  return (
+    <label className={row ? "choice-row" : "chip"}>
+      <input
+        type={multiple ? "checkbox" : "radio"}
+        name={name}
+        value={value}
+        checked={checked}
+        onChange={onChange}
+      />
+      <span>{label}</span>
+    </label>
+  );
+}
 function Question({ q, a, set }: { q: Q; a: Answers2; set: Set2 }) {
   if ("showIf" in q && q.showIf && !q.showIf(a)) return null;
   const v = a[q.id as keyof Answers2];
   return (
-    <div className="flex flex-col gap-3">
-      <p className="m-0 text-[17px] leading-[1.38] font-semibold text-midnight">{q.text}</p>
-      {q.kind === "scale" ? (
-        <div>
-          <div className="flex gap-2">
-            {Array.from({ length: q.max - q.min + 1 }, (_, i) => q.min + i).map((n) => (
-              <Chip key={n} active={v === n} onClick={() => set(q.id as "confidence", n)}>
-                <span className="w-5 text-center font-mono">{n}</span>
-              </Chip>
+    <fieldset className="question">
+      <legend>{q.text}</legend>
+      <div className="question-options">
+        {q.kind === "scale" ? (
+          <>
+            <div className="scale">
+              {Array.from(
+                { length: q.max - q.min + 1 },
+                (_, i) => q.min + i,
+              ).map((n) => (
+                <Choice
+                  key={n}
+                  name={q.id}
+                  value={String(n)}
+                  label={String(n)}
+                  checked={v === n}
+                  onChange={() => set(q.id as "confidence", n)}
+                />
+              ))}
+            </div>
+            <div className="scale-labels">
+              <span>{q.low}</span>
+              <span>{q.high}</span>
+            </div>
+          </>
+        ) : q.kind === "single" ? (
+          <div className={q.rows ? "row-list" : "choices"}>
+            {q.options.map((op) => (
+              <Choice
+                key={op.id}
+                name={q.id}
+                value={op.id}
+                label={op.label}
+                checked={v === op.id}
+                onChange={() => set(q.id as keyof Answers2, op.id as never)}
+                row={q.rows}
+              />
             ))}
           </div>
-          <div className="flex justify-between mt-2 text-[13px] text-slate"><span>{q.low}</span><span>{q.high}</span></div>
-        </div>
-      ) : q.kind === "single" ? (
-        q.rows ? (
-          <div className="flex flex-col gap-2.5">
-            {q.options.map((op) => <Row key={op.id} active={v === op.id} onClick={() => set(q.id as keyof Answers2, op.id as never)}>{op.label}</Row>)}
-          </div>
         ) : (
-          <div className="flex flex-wrap gap-2">
-            {q.options.map((op) => <Chip key={op.id} active={v === op.id} onClick={() => set(q.id as keyof Answers2, op.id as never)}>{op.label}</Chip>)}
-          </div>
-        )
-      ) : (
-        <MultiQ q={q} a={a} set={set} />
-      )}
-    </div>
+          <MultiQ q={q} a={a} set={set} />
+        )}
+      </div>
+    </fieldset>
   );
 }
-
-function MultiQ({ q, a, set }: { q: Extract<Q, { kind: "multi" }>; a: Answers2; set: Set2 }) {
-  const key = q.id as keyof Answers2;
-  const cur = (a[key] as string[]) || [];
+function MultiQ({
+  q,
+  a,
+  set,
+}: {
+  q: Extract<Q, { kind: "multi" }>;
+  a: Answers2;
+  set: Set2;
+}) {
+  const key = q.id as keyof Answers2,
+    cur = (a[key] as string[]) || [];
   const toggle = (id: string) => {
-    // "none"/"no" style options are exclusive.
     const exclusive = ["none", "no"];
-    let next: string[];
-    if (cur.includes(id)) next = cur.filter((x) => x !== id);
-    else if (exclusive.includes(id)) next = [id];
-    else next = [...cur.filter((x) => !exclusive.includes(x)), id];
+    const next = cur.includes(id)
+      ? cur.filter((x) => x !== id)
+      : exclusive.includes(id)
+        ? [id]
+        : [...cur.filter((x) => !exclusive.includes(x)), id];
     set(key, next as never);
   };
   const otherKey = q.other as keyof Answers2 | undefined;
   return (
-    <div>
-      {q.rows ? (
-        <div className="flex flex-col gap-2.5">{q.options.map((op) => <Row key={op.id} active={cur.includes(op.id)} onClick={() => toggle(op.id)}>{op.label}</Row>)}</div>
-      ) : (
-        <div className="flex flex-wrap gap-2">{q.options.map((op) => <Chip key={op.id} active={cur.includes(op.id)} onClick={() => toggle(op.id)}>{op.label}</Chip>)}</div>
-      )}
-      {otherKey && cur.includes("other") ? <TextArea id={String(otherKey)} placeholder="What happened?" value={String(a[otherKey] || "")} onChange={(v) => set(otherKey, v as never)} /> : null}
-      {q.optional ? <p className="mt-2 mb-0 text-[13px] text-slate">Optional.</p> : null}
-    </div>
+    <>
+      <p className="selection-hint">Select all that apply</p>
+      <div className={q.rows ? "row-list" : "choices"}>
+        {q.options.map((op) => (
+          <Choice
+            key={op.id}
+            name={q.id}
+            value={op.id}
+            label={op.label}
+            checked={cur.includes(op.id)}
+            onChange={() => toggle(op.id)}
+            multiple
+            row={q.rows}
+          />
+        ))}
+      </div>
+      {otherKey && cur.includes("other") ? (
+        <TextArea
+          id={String(otherKey)}
+          placeholder="What happened?"
+          value={String(a[otherKey] || "")}
+          onChange={(v) => set(otherKey, v as never)}
+        />
+      ) : null}
+      {q.optional ? <p className="optional">Optional.</p> : null}
+    </>
   );
 }
-
-/* ---------- Generic part screen ---------- */
-
-export function PartScreen({ part, a, set, next, back, step, total, busy }: { part: Part; a: Answers2; set: Set2; next: () => void; back: () => void; step: number; total: number; busy?: boolean }) {
-  const ok = partComplete(part, a);
-  const last = step === total;
+export function PartScreen({
+  part,
+  a,
+  set,
+  next,
+  back,
+  step,
+  total,
+  busy,
+}: {
+  part: Part;
+  a: Answers2;
+  set: Set2;
+  next: () => void;
+  back: () => void;
+  step: number;
+  total: number;
+  busy?: boolean;
+}) {
   return (
-    <Screen onBack={back} step={step} total={total} cta={<Button onClick={next} disabled={!ok || busy}>{busy ? "Sending…" : last ? "Finish" : "Continue"}</Button>}>
-      <Title className="mb-1.5">{part.title.replace(/\.$/, "")}<span className="text-salmon">.</span></Title>
-      {part.lead ? <Lead className="mb-4 text-[16px]">{part.lead}</Lead> : <div className="mb-4" />}
-      <div className="flex flex-col gap-[26px]">
+    <Screen
+      onBack={back}
+      step={step}
+      total={total}
+      cta={
+        <Button onClick={next} disabled={!partComplete(part, a) || busy}>
+          {busy ? "Sending…" : step === total ? "Finish" : "Continue"}
+        </Button>
+      }
+    >
+      <h1 className={part.title.length > 25 ? "long-title" : undefined}>
+        {part.title}
+      </h1>
+      {part.lead && part.key !== "pains" ? <p>{part.lead}</p> : null}
+      <main>
         {part.key === "pains" ? <PainRating a={a} set={set} /> : null}
         {part.key === "pains2" ? <TopPain a={a} set={set} /> : null}
-        {part.questions.map((q) => <Question key={q.id} q={q} a={a} set={set} />)}
-      </div>
+        {part.questions.map((q) => (
+          <Question key={q.id} q={q} a={a} set={set} />
+        ))}
+      </main>
     </Screen>
   );
 }
-
-/* ---------- Part 6 · pains: one tap per line ---------- */
-
 function PainRating({ a, set }: { a: Answers2; set: Set2 }) {
-  const rate = (id: string, level: string) => set("pains", { ...a.pains, [id]: level });
+  const rate = (id: string, level: string) => {
+    set("pains", { ...a.pains, [id]: level });
+    if (level === "0" && a.top_pain === id) set("top_pain", "");
+  };
   return (
-    <div className="flex flex-col">
-      {PAINS.map((p, i) => {
+    <>
+      <div className="rating-progress">
+        <span>One tap per line.</span>
+        <strong aria-live="polite">
+          {PAINS.filter((p) => a.pains[p.id] !== undefined).length} /{" "}
+          {PAINS.length} rated
+        </strong>
+      </div>
+      {PAINS.map((p) => {
         const [head, rest] = p.label.split(" — ");
         return (
-          <div key={p.id} className={"py-[14px] border-t border-line" + (i === PAINS.length - 1 ? " border-b" : "")}>
-            <p className="m-0 mb-2.5 text-[16px] leading-[1.4]"><span className="font-semibold text-midnight">{head}</span>{rest ? <span className="text-slate"> — {rest}</span> : null}</p>
-            <div className="flex flex-wrap gap-2">
+          <fieldset className="rating-item" key={p.id}>
+            <legend>
+              {head}
+              {rest ? <small>— {rest}</small> : null}
+            </legend>
+            <div className="rating-options">
               {PAIN_LEVELS.map((l) => (
-                <button key={l.id} type="button" onClick={() => rate(p.id, l.id)} aria-pressed={a.pains[p.id] === l.id}
-                  className={"h-9 px-3 rounded-full text-[13.5px] font-semibold whitespace-nowrap transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-salmon " + (a.pains[p.id] === l.id ? (l.id === "2" ? "bg-salmon border border-salmon text-midnight" : l.id === "1" ? "bg-white border-[1.5px] border-midnight text-midnight" : "bg-sage border border-sage text-midnight") : "bg-paper border border-line text-slate hover:border-taupe")}>
-                  {l.label}
-                </button>
+                <Choice
+                  key={l.id}
+                  name={`pain-${p.id}`}
+                  value={l.id}
+                  label={l.label}
+                  checked={a.pains[p.id] === l.id}
+                  onChange={() => rate(p.id, l.id)}
+                />
               ))}
             </div>
-          </div>
+          </fieldset>
         );
       })}
-    </div>
+    </>
   );
 }
-
 function TopPain({ a, set }: { a: Answers2; set: Set2 }) {
-  const candidates = PAINS.filter((p) => a.pains[p.id] && a.pains[p.id] !== "0");
-  if (candidates.length === 0) return <p className="m-0 text-[17px] text-slate">Nothing on the list bothers you — noted.</p>;
+  const candidates = PAINS.filter(
+    (p) => a.pains[p.id] && a.pains[p.id] !== "0",
+  );
+  if (!candidates.length)
+    return <p>Nothing on the list bothers you — noted.</p>;
   return (
-    <div className="flex flex-col gap-3">
-      <p className="m-0 text-[17px] leading-[1.38] font-semibold text-midnight">Which one bothers you most?</p>
-      <div className="flex flex-col gap-2.5">
-        {candidates.map((p) => <Row key={p.id} active={a.top_pain === p.id} onClick={() => set("top_pain", p.id)}>{p.label.split(" — ")[0]}</Row>)}
-      </div>
-    </div>
+    <Question
+      q={{
+        id: "top_pain",
+        kind: "single",
+        rows: true,
+        text: "Which one bothers you most?",
+        options: candidates.map((p) => ({
+          id: p.id,
+          label: p.label.split(" — ")[0],
+        })),
+      }}
+      a={a}
+      set={set}
+    />
   );
 }
-
-/* ---------- Intro ---------- */
-
-export function S2Intro({ email, setEmail, emailError, next, loading }: { email: string; setEmail: (v: string) => void; emailError?: string; next: () => void; loading: boolean }) {
+export function S2Intro({
+  email,
+  setEmail,
+  emailError,
+  next,
+  loading,
+}: {
+  email: string;
+  setEmail: (v: string) => void;
+  emailError?: string;
+  next: () => void;
+  loading: boolean;
+}) {
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
   return (
-    <Screen cta={<Button onClick={next} disabled={loading || !emailOk}>{loading ? "One moment…" : "Let’s go"}</Button>}>
-      <Title className="text-[42px] leading-[1.02] mb-4">Let&rsquo;s get to know you better<span className="text-salmon">.</span></Title>
-      <Lead className="mb-[18px]">
-        You&rsquo;re in. Before your first call, a few questions about how you run your supplements today &mdash; what you buy, how you decide, what gets in the way. There are no right answers; we want the real picture.
-      </Lead>
-      <Ticket eyebrow="Time"><p className="m-0 text-[17px]">About ten minutes. Your answers save when you finish.</p></Ticket>
-      <div className="mt-6">
-        <Field id="s2_email" label="The email you applied with" value={email} onChange={setEmail} type="email" inputMode="email" autoComplete="email" placeholder="you@example.com" error={emailError || undefined} />
-      </div>
+    <Screen
+      cta={
+        <Button onClick={next} disabled={loading || !emailOk}>
+          {loading ? "One moment…" : "Let’s go"}
+        </Button>
+      }
+    >
+      <main>
+        <h1 className="intro-title">
+          Let’s get to
+          <br />
+          know you
+          <br />
+          better.
+        </h1>
+        <p className="intro-copy">
+          You’re in. Before your first call, a few questions about how you run
+          your supplements today — what you buy, how you decide, what gets in
+          the way. There are no right answers; we want the real picture.
+        </p>
+        <section className="time-note">
+          <p className="kicker">Time</p>
+          <p>
+            <mark>About ten minutes.</mark>
+            <br />
+            Your answers save when you finish.
+          </p>
+        </section>
+        <Field
+          id="s2_email"
+          label="The email you applied with"
+          value={email}
+          onChange={setEmail}
+          type="email"
+          inputMode="email"
+          autoComplete="email"
+          placeholder="you@example.com"
+          error={emailError}
+        />
+      </main>
     </Screen>
   );
 }
-
-/* ---------- Close ---------- */
-
-export function S2Close({ firstName, bookingUrl }: { firstName: string; bookingUrl?: string }) {
+export function S2Close({
+  firstName,
+  bookingUrl,
+}: {
+  firstName: string;
+  bookingUrl?: string;
+}) {
   return (
-    <Screen cta={bookingUrl ? <a href={bookingUrl} className="block"><Button>Pick a time</Button></a> : undefined}>
-      <div className="mt-6">
-        <Ticket eyebrow="Profile complete">
-          <div className="text-[32px] leading-[1.05] font-semibold tracking-[-0.01em]">That&rsquo;s it<span className="text-salmon">.</span></div>
-        </Ticket>
-      </div>
-      <div className="flex flex-col gap-3.5 mt-6 text-[18px] leading-[1.5]">
-        <p className="m-0 text-midnight">Thanks, {firstName || "there"}. This is what lets Marlo start already knowing you.</p>
-        <p className="m-0 text-slate">Next: your first call. If you haven&rsquo;t booked it yet, the link is in your &ldquo;You&rsquo;re in&rdquo; email{bookingUrl ? " — or right here" : ""}.</p>
-        <p className="m-0 text-slate">See you there.</p>
-        <p className="m-0 mt-1.5 font-semibold text-midnight">&mdash; The Marlo team</p>
-      </div>
+    <Screen
+      cta={
+        bookingUrl ? (
+          <a className="next" href={bookingUrl}>
+            Pick a time
+            <svg
+              className="button-arrow"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d="M6 18 18 6M6 6h12v12" />
+            </svg>
+          </a>
+        ) : undefined
+      }
+    >
+      <main className="end-copy">
+        <p className="kicker">Profile complete</p>
+        <h1>That’s it.</h1>
+        <p>
+          Thanks, {firstName || "there"}. This is what lets Marlo start already
+          knowing you.
+        </p>
+        <p>
+          Next: your first call. If you haven’t booked it yet, the link is in
+          your “You’re in” email{bookingUrl ? " — or right here" : ""}.
+        </p>
+        <p>See you there.</p>
+        <p className="signature">— The Marlo team</p>
+      </main>
     </Screen>
   );
 }
-
 export function S2Done() {
   return (
     <Screen>
-      <div className="mt-[100px]">
-        <Title className="mb-3.5">You&rsquo;ve already done this one.</Title>
-        <Lead>We have your answers. Something changed? Tell us on your first call.</Lead>
-      </div>
+      <main className="end-copy">
+        <h1>
+          You’ve already
+          <br />
+          done this one.
+        </h1>
+        <p>
+          We have your answers. Something changed? Tell us on your first call.
+        </p>
+      </main>
     </Screen>
   );
 }
-
 export function S2NotFound() {
   return (
     <Screen>
-      <div className="mt-[100px]">
-        <Title className="mb-3.5">We couldn&rsquo;t find you.</Title>
-        <Lead>This link doesn&rsquo;t match an application, or the email isn&rsquo;t the one you applied with. Reply to our email and we&rsquo;ll fix it.</Lead>
-      </div>
+      <main className="end-copy">
+        <h1>
+          We couldn’t
+          <br />
+          find you.
+        </h1>
+        <p>
+          This link doesn’t match an application, or the email isn’t the one you
+          applied with. Reply to our email and we’ll fix it.
+        </p>
+      </main>
     </Screen>
   );
 }
-
 export function S2Error({ retry }: { retry: () => void }) {
   return (
     <Screen cta={<Button onClick={retry}>Try again</Button>}>
-      <div className="mt-[100px]">
-        <Title className="mb-3.5">That didn&rsquo;t go through.</Title>
-        <Lead>Something on our side. Your answers are still here &mdash; try once more.</Lead>
-      </div>
+      <main className="end-copy">
+        <h1>
+          That didn’t
+          <br />
+          go through.
+        </h1>
+        <p>
+          Something on our side. Your answers are still here — try once more.
+        </p>
+      </main>
     </Screen>
   );
 }
-
-/** Convenience for the page: the ordered list of numbered parts. */
 export const NUMBERED_PARTS = PARTS;
-export function useStep2() { return useState(0); }
+export function useStep2() {
+  return useState(0);
+}

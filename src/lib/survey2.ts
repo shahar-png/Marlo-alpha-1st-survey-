@@ -23,7 +23,7 @@ const P3: Q[] = [
   { id: "origin", kind: "single", rows: true, text: "What first put supplements on your radar?", options: o([["self", "I got into it myself — training, research, curiosity"], ["doctor", "A doctor or practitioner told me to take specific things"], ["coach", "A trainer or coach gave me a protocol"], ["event", "Something changed — a diagnosis, a new prescription, pregnancy, a scare, a milestone birthday"], ["friend", "A friend or family member"], ["media", "A podcast, creator, or book"]]) },
   { id: "list_given", kind: "single", rows: true, text: "In the last 12 months, has anyone with authority given you a list of specific supplements to take?", options: o([["doctor", "Yes — a doctor"], ["practitioner", "Yes — a trainer, dietitian, or naturopath"], ["creator", "Yes — a protocol from a podcast or creator"], ["no", "No"]]) },
   { id: "list_done", kind: "single", text: "What happened with that list?", showIf: (a) => !!a.list_given && a.list_given !== "no", options: o([["right_away", "Filled it right away"], ["part", "Filled part of it"], ["not_started", "Still haven’t started"], ["eventually", "Took a while, but done"]]) },
-  { id: "list_stuck", kind: "multi", rows: true, text: "What slowed you down?", showIf: (a) => !!a.list_done && a.list_done !== "right_away", options: o([["brands", "Too many brands to choose from"], ["dose", "Not sure about the dose or form"], ["price", "Price"], ["meds", "Worried about mixing it with medication"], ["didnt", "Just didn’t get to it"]]) },
+  { id: "list_stuck", kind: "multi", rows: true, text: "What slowed you down?", showIf: (a) => !!a.list_given && a.list_given !== "no" && !!a.list_done && a.list_done !== "right_away", options: o([["brands", "Too many brands to choose from"], ["dose", "Not sure about the dose or form"], ["price", "Price"], ["meds", "Worried about mixing it with medication"], ["didnt", "Just didn’t get to it"]]) },
 ];
 
 /* ---------- Part 4 · Your data ---------- */
@@ -150,8 +150,8 @@ LABEL.pains = Object.fromEntries(PAINS.map((p) => [p.id, p.label]));
 export function partComplete(part: Part, a: Answers2): boolean {
   if (part.key === "pains") return PAINS.every((p) => a.pains[p.id] !== undefined);
   if (part.key === "pains2") {
-    const candidates = PAINS.filter((p) => a.pains[p.id] !== "0");
-    if (candidates.length > 0 && !a.top_pain) return false;
+    const candidates = PAINS.filter((p) => a.pains[p.id] && a.pains[p.id] !== "0");
+    if (candidates.length > 0 && !candidates.some((p) => p.id === a.top_pain)) return false;
   }
   return part.questions.every((q) => {
     if ("showIf" in q && q.showIf && !q.showIf(a)) return true;
