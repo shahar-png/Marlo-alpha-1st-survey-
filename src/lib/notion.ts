@@ -1,6 +1,8 @@
 // Writes directly to the participant database (Notion — see notion-build-spec-v1.md).
 // Property names below must match the Participants database exactly.
 
+import { supplementSuggestions } from "./supplement-improvements";
+
 const NOTION_VERSION = "2022-06-28";
 
 type Prop = Record<string, unknown>;
@@ -70,6 +72,7 @@ export type ApplicantRecord = {
 /** Create the participant page: State = Applied, all Survey 1 fields. Returns the page id. */
 export async function notionCreateApplicant(a: ApplicantRecord): Promise<string> {
   const db = process.env.NOTION_PARTICIPANTS_DB!;
+  const suggestions = supplementSuggestions(a.supplements_other);
   const secondary = a.fit.filter((f) => !(a.icp_bucket === "Optimizer" && f === "Performance"));
   const props = compact({
     Name: title(a.full_name),
@@ -89,6 +92,10 @@ export async function notionCreateApplicant(a: ApplicantRecord): Promise<string>
     Frequency: select(a.frequency),
     Supplements: multi(a.supplements),
     "Supplements other": text(a.supplements_other),
+    ...(suggestions.length ? {
+      "Supplement suggestions": text(suggestions.join("; ")),
+      "Supplement review": select("Needs review"),
+    } : {}),
     Rx: checkbox(a.rx),
     "Rx text": text(a.rx_text),
   });

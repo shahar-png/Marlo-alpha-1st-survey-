@@ -114,3 +114,7 @@ body:has(.survey-one){background:#f2e9dd}
 .survey-one .end-copy{padding-top:42px}
 .survey-one .signature{padding-top:18px;color:var(--ink);font:400 16px/1.55 'DM Sans',sans-serif}
 @media(max-width:360px){.survey-one .flow{padding-left:24px;padding-right:24px}.survey-one .flow-title{font-size:38px}.survey-one .flow-title.long{font-size:33px}.survey-one .chip{padding:10px 13px;font-size:14px}}
+
+/* Slower reading pace is limited to the animated first page. */
+#marlo-arrival{touch-action:pan-x pinch-zoom}
+.survey-one .about-groups .flow-label{font-size:22px;line-height:1.35;color:var(--ink);margin-bottom:15px}
