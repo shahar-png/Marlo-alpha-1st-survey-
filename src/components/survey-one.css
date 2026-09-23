@@ -15,8 +15,9 @@
 #marlo-arrival .meet{font:400 49px/1.1 'Manrope',sans-serif;letter-spacing:-2px;display:block;margin-bottom:20px}
 #marlo-arrival .wordmark{display:block;width:100%;aspect-ratio:1055/283;overflow:hidden;position:relative}
 #marlo-arrival .wordmark img{position:absolute;max-width:none;width:116.4%;height:auto;left:-11.66%;top:-48.4%}
-#marlo-arrival .scroll-cue{position:absolute;bottom:27px;left:calc(50% - 24px);width:48px;min-height:48px;border:0;background:transparent;color:var(--slate);font:400 28px/1 'DM Sans',sans-serif;border-radius:50%}
-#marlo-arrival .scroll-cue:hover{background:#19191808}
+#marlo-arrival .scroll-cue{position:fixed;z-index:10;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:calc(50% - 24px);width:48px;min-height:48px;border:0;background:var(--cream);color:var(--slate);font:400 28px/1 'DM Sans',sans-serif;border-radius:50%}
+#marlo-arrival .scroll-cue:hover{background:#e9dfd1}
+#marlo-arrival .scroll-cue[hidden]{display:none}
 #marlo-arrival main{padding:0 27px}
 #marlo-arrival .intro-section{padding:44px 0 26px}
 #marlo-arrival h2{font:400 41px/1.07 'Manrope',sans-serif;letter-spacing:-1.8px;color:var(--ink)}
@@ -37,17 +38,17 @@
 #marlo-arrival footer{padding:27px 27px 36px}
 #marlo-arrival .next{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:62px;border:0;border-radius:34px;background:var(--ink);color:var(--cream);padding:15px 24px;font:500 18px/1.3 'DM Sans',sans-serif}
 #marlo-arrival .next>.button-arrow{color:var(--lime)}
-#marlo-arrival[data-staged="true"] .original-icon,#marlo-arrival[data-staged="true"] .title,#marlo-arrival[data-staged="true"] .scroll-cue,#marlo-arrival[data-staged="true"] .reveal{opacity:0}
+#marlo-arrival[data-staged="true"] .original-icon,#marlo-arrival[data-staged="true"] .title,#marlo-arrival[data-staged="true"] .reveal{opacity:0}
 #marlo-arrival[data-staged="true"] .typing{opacity:1}
 @media(max-width:360px){#marlo-arrival .hero{height:600px}#marlo-arrival .title{top:225px;left:24px;right:24px}#marlo-arrival .meet{font-size:45px}#marlo-arrival h2{font-size:36px}#marlo-arrival .buy{padding-left:89px}#marlo-arrival .working{padding-left:20px}#marlo-arrival .working h2{font-size:32px}#marlo-arrival .discover h2{font-size:28px}#marlo-arrival .closing p{font-size:43px}#marlo-arrival .closing p>span{font-size:31px}}
-@media(prefers-reduced-motion:reduce){#marlo-arrival[data-staged="true"] .original-icon,#marlo-arrival[data-staged="true"] .title,#marlo-arrival[data-staged="true"] .scroll-cue,#marlo-arrival[data-staged="true"] .reveal{opacity:1}#marlo-arrival .typing{display:none}}
+@media(prefers-reduced-motion:reduce){#marlo-arrival[data-staged="true"] .original-icon,#marlo-arrival[data-staged="true"] .title,#marlo-arrival[data-staged="true"] .reveal{opacity:1}#marlo-arrival .typing{display:none}}
 #marlo-arrival .story-panel{padding:54px 0 20px}
 #marlo-arrival .story-panel h2{font-size:43px;line-height:1.08;letter-spacing:-1.9px}
 #marlo-arrival .story-panel h2 em{font-style:normal;position:relative;isolation:isolate;white-space:nowrap}
 #marlo-arrival .story-panel h2 em:after{content:'';position:absolute;left:0;right:-2px;bottom:3px;height:9px;background:var(--lime);z-index:-1}
 #marlo-arrival .story-panel p{color:var(--slate);font-size:17px;line-height:1.5;margin-top:23px;max-width:280px}
-/* 380px stage + (970px original travel / .8): story progresses 20% slower with native scrolling. */
-#marlo-arrival[data-live-scroll="true"] .scroll-story{height:1592.5px;position:relative;margin-top:90px}
+/* Two successive 20% slowdowns: 380px stage + (970px original travel / .64). Native scrolling stays unrestricted. */
+#marlo-arrival[data-live-scroll="true"] .scroll-story{height:1895.625px;position:relative;margin-top:90px}
 #marlo-arrival[data-live-scroll="true"] .story-stage{position:sticky;top:clamp(80px,23vh,190px);height:380px}
 #marlo-arrival[data-live-scroll="true"] .story-panel{position:absolute;inset:0;padding:42px 0 0;opacity:0;pointer-events:none;will-change:opacity,transform}
 #marlo-arrival[data-live-scroll="true"] .story-panel:first-child{opacity:1}

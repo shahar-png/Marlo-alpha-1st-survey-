@@ -27,6 +27,7 @@ export function MarloIntro({ next }: { next: () => void }) {
     }
     function updateStory() {
       frame = 0;
+      cue.hidden = root.getBoundingClientRect().bottom <= window.innerHeight + 2;
       if (reduced.matches) {
         root.dataset.liveScroll = 'false'; storyAnimations.forEach(a => a.cancel()); beat = -1;
         panels.forEach(panel => {panel.removeAttribute('aria-hidden'); panel.style.opacity = ''; panel.style.transform = '';});
@@ -42,8 +43,8 @@ export function MarloIntro({ next }: { next: () => void }) {
       panels.forEach((panel, i) => {panel.style.opacity = i === beat ? '1' : '0'; panel.style.transform = 'none'; panel.setAttribute('aria-hidden', String(i !== beat));});
       if (previous >= 0) {
         const direction = beat > previous ? 1 : -1;
-        storyAnimations.push(panels[previous].animate([{opacity:1,transform:'translateY(0)'},{opacity:0,transform:`translateY(${-18 * direction}px)`}], {duration:200,easing:'ease-out'}));
-        storyAnimations.push(panels[beat].animate([{opacity:0,transform:`translateY(${28 * direction}px)`},{opacity:1,transform:'translateY(0)'}], {duration:537.5,delay:200,fill:'backwards',easing:'cubic-bezier(.2,.8,.2,1)'}));
+        storyAnimations.push(panels[previous].animate([{opacity:1,transform:'translateY(0)'},{opacity:0,transform:`translateY(${-18 * direction}px)`}], {duration:250,easing:'ease-out'}));
+        storyAnimations.push(panels[beat].animate([{opacity:0,transform:`translateY(${28 * direction}px)`},{opacity:1,transform:'translateY(0)'}], {duration:671.875,delay:250,fill:'backwards',easing:'cubic-bezier(.2,.8,.2,1)'}));
       }
     }
     // Observe native scrolling; never intercept gestures or write the scroll position.
@@ -71,7 +72,6 @@ export function MarloIntro({ next }: { next: () => void }) {
       animate(typing, [{opacity:1},{opacity:0}], 220, 1660);
       animate(logo, [{opacity:0,transform:'scale(.97)'},{opacity:1,transform:'scale(1)'}], 280, 1610);
       animate(title, [{opacity:0,transform:'translateY(-95px)',offset:0},{opacity:1,transform:'translateY(7px)',offset:.67},{opacity:1,transform:'translateY(-3px)',offset:.85},{opacity:1,transform:'translateY(0)',offset:1}], 820, 2780, 'linear');
-      animate(cue, [{opacity:0,transform:'translateY(-8px)'},{opacity:1,transform:'translateY(0)'}], 450, 3590);
       const gate = performance.now() + 3540;
       observer = new IntersectionObserver(entries => {
         let stagger = 0;
@@ -92,11 +92,11 @@ export function MarloIntro({ next }: { next: () => void }) {
   }, []);
 
   return <div id="marlo-arrival" className="survey-one" ref={ref}>
+    <button type="button" className="scroll-cue" aria-label="Scroll down" onClick={() => window.scrollBy({top:window.innerHeight * .65,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'})}>↓</button>
     <article className="survey">
       <header className="hero" aria-label="Marlo introduction">
         <div className="brand-actor" aria-hidden="true"><BrandIcon className="original-icon" /><span className="typing"><span className="dot" /><span className="dot" /><span className="dot" /></span></div>
         <h1 className="title" aria-label="Meet Marlo."><span className="meet">Meet</span><Wordmark className="wordmark" /></h1>
-        <button type="button" className="scroll-cue" aria-label="Scroll to learn about Marlo" onClick={() => { const section = ref.current?.querySelector('.intro-section'); section?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'}); }}>↓</button>
       </header>
       <main>
         <section className="intro-section reveal"><h2>I’m a contact<br />in your phone.</h2><p>A supplement expert and your concierge in one, built by leading longevity scientists and backed by science. Talk to me about supplements, health, and what’s right for you.</p><p>I know your labs, your goals, your routine, and I work only for you. And I don’t just advise — I buy, I reorder, I follow up, on your behalf.</p></section>
