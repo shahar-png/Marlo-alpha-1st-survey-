@@ -2,7 +2,7 @@
 
 ## Behavior
 
-The original hard scroll cap was removed after user feedback about sticking and jumps. The intro now observes native scrolling without intercepting wheel, touch, keyboard, scrollbar or momentum. After a second requested 20% slowdown, story travel and crossfade timings are divided by .64 (two successive factors of .8). The down arrow is a borderless decorative hint in a reserved right gutter. It stays visible while scrolling, hides at the bottom, and returns when scrolling up; it cannot cover or intercept text. Explicit cream backgrounds behind blend-mode logo artwork prevent white asset rectangles during animation. Page and browser theme color use the approved #f2e9dd. Scrolling during the opening reveals its content immediately. Reduced-motion content stays static.
+The original hard scroll cap was removed after user feedback about sticking and jumps. The intro now observes native scrolling without intercepting wheel, touch, keyboard, scrollbar or momentum. After a second requested 20% slowdown, story travel and crossfade timings are divided by .64 (two successive factors of .8). The scroll indicator is centered in a dedicated bottom row outside the scrolling content. It stays visible while scrolling, hides at the bottom, and returns when scrolling up; it cannot cover or intercept text. Explicit cream backgrounds behind blend-mode logo artwork prevent white asset rectangles during animation. Page and browser theme color use the approved #f2e9dd. Scrolling during the opening reveals its content immediately. Reduced-motion content stays static.
 
 Age and Sex labels are now 22 px (previously 14 px).
 
@@ -32,7 +32,7 @@ The production build runs an idempotent schema/view setup using the existing Not
 
 ## Visible action area
 
-Quiz 1 non-intro screens use a viewport-height flex layout: branding/navigation and action footer do not shrink; main content alone can scroll. Responsive spacing fits The deal, Contact, About and Frequency at 375×667 and 393×852 without content scrolling. Long supplement lists and expanded answers retain readable text and internal scrolling with Continue always visible, including at 320×568. Main is keyboard focusable. The animated opening retains native document scrolling.
+Quiz 1 non-intro screens use a viewport-height flex layout: branding/navigation and action footer do not shrink; main content alone can scroll. Responsive spacing fits The deal, Contact, About and Frequency at 375×667 and 393×852 without content scrolling. Long supplement lists and expanded answers retain readable text and internal scrolling with Continue always visible, including at 320×568. Main is keyboard focusable. The animated opening retains native scrolling in its own content area.
 
 QA: all primary question screens, expanded Fit/Other and prescription fields, short-phone footer bounds, no horizontal overflow, exit path and no console errors. No applications submitted in production.
 
@@ -41,3 +41,7 @@ QA: all primary question screens, expanded Fit/Other and prescription fields, sh
 After the background-layer regression, restore solid #f2e9dd on the survey/hero and the page/browser chrome. The supplied white-backed brand artwork again multiplies against an actual cream backdrop. Keep a reserved right gutter rather than hiding the arrow beneath text. No border, shadow or background is applied to the arrow.
 
 Checked fresh load (dots), settled icon/wordmark, scrolling immediately during the opening, fast downward movement, reverse scrolling, bottom/return arrow visibility, and Next navigation. At 393px and 320px the arrow starts 25px beyond the text/CTA boundary; no horizontal overflow. Page/hero/body computed colors all match rgb(242,233,221). No browser console errors. Existing action footer remains visible on The deal. Physical iPhone Safari is not directly tested. ESLint reports only the existing root-layout font warning; build, TypeScript and 25 tests pass.
+
+## Centered scroll indicator
+
+Replace the side arrow with a centered scroll icon and “Scroll down” label. A separate 64px bottom row (plus safe area) keeps it outside the text area. The intro uses a native scrolling article with unchanged story travel/timings; its passive listener now observes that article. Restore symmetric content padding. Hide the cue at the end and return it on upward scrolling. Its small wheel animation respects reduced motion. Other survey pages are unchanged.
