@@ -45,3 +45,14 @@ Checked fresh load (dots), settled icon/wordmark, scrolling immediately during t
 ## Centered scroll indicator
 
 Replace the side arrow with a centered scroll icon and “Scroll down” label. A separate 64px bottom row (plus safe area) keeps it outside the text area. The intro uses a native scrolling article with unchanged story travel/timings; its passive listener now observes that article. Restore symmetric content padding. Hide the cue at the end and return it on upward scrolling. Its small wheel animation respects reduced motion. Other survey pages are unchanged.
+
+## Larger questions and queue celebration
+
+Remove horizontal dividers from question choices and deal sections. Enlarge question headings, option labels/descriptions, fields and action text while retaining the viewport action footer. At 393×852, all unexpanded Fit choices fit without scrolling; expanded responses and short screens scroll inside main. Frequency fits at 320×568. No horizontal overflow was found at either width.
+
+The successful application page uses a larger two-line headline, lime highlight, sequential text entrance and a brief brand-color confetti burst. Motion runs once per mount, cleans up on exit, and is skipped or cancelled for reduced-motion preferences. The original queue status and next-step copy remain intact.
+
+QA: completed the entire quiz against `tests/fixtures/mock-quiz-one.cjs`, including Other text and successful submission, without production records or messages. Inspected the entrance and settled success screen, steps 03/04, small-phone layouts and footer visibility. No browser console errors. Production build, TypeScript, targeted ESLint, 25 automated tests and whitespace checks pass. Physical iPhone Safari remains untested.
+
+Local QA command after building:
+`MARLO_LOCAL_QA=1 node --require ./tests/fixtures/mock-quiz-one.cjs node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 8772`

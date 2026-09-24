@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Screen, Title, Lead, Label, Button, Chip, Row, Field, TextArea } from "./survey-one-ui";
 import { MarloIntro } from "./survey-one-intro";
+import { QueueCelebration } from "./queue-celebration";
 import "./survey-one.css";
 import { AGE_BANDS, SEX, FIT, FREQUENCY, SUPPLEMENTS, type Answers, firstName } from "@/lib/copy";
 
@@ -141,12 +142,7 @@ export function S7Stack({ a, set, next, back, step, total, busy }: Common & { bu
 
 /* 8 · Close */
 export function S8Close({ a }: { a: Answers }) {
-  return <Screen><div className="end-copy">
-    <p className="flow-kicker">Application received</p><Title>You&rsquo;re in<br />the queue.</Title>
-    <Lead>Thanks, {firstName(a.full_name) || "there"}. Your application is with the Marlo founders now.</Lead>
-    <Lead>We&rsquo;re reading every one ourselves, and we&rsquo;ll be in touch shortly with the next step.</Lead>
-    <Lead>Really glad you&rsquo;re here.</Lead><p className="signature">&mdash; The Marlo team</p>
-  </div></Screen>;
+  return <Screen><QueueCelebration name={firstName(a.full_name) || "there"} /></Screen>;
 }
 
 /* Exit · Later round — from "I don't fit this round" or Under 18 */

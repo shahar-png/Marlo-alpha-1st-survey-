@@ -163,3 +163,45 @@ html:has(.survey-one),body:has(.survey-one){background:#f2e9dd}
   .survey-one .choice-row{padding:10px 0;font-size:21px}
   .survey-one .choice-description{font-size:14px;line-height:1.4;margin-top:4px}
 }
+
+/* Larger, open typography; choice controls provide grouping without divider rules. */
+.survey-one .flow .choice-list,.survey-one .flow .choice-row,.survey-one .flow .deal-block{border-top:0;border-bottom:0}
+.survey-one .flow .flow-title{font-size:47px}
+.survey-one .flow .flow-title.long{font-size:41px}
+.survey-one .flow .flow-lead{font-size:18px}
+.survey-one .flow .flow-kicker,.survey-one .flow .flow-nav{font-size:15px}
+.survey-one .flow .flow-back{font-size:17px}
+.survey-one .flow .choice-row{font-size:27px;gap:16px;padding:12px 0}
+.survey-one .flow .choice-description{font-size:18px;line-height:1.45}
+.survey-one .flow .choice-indicator{width:27px;height:27px;font-size:16px}
+.survey-one .flow .chip{font-size:17px}
+.survey-one .flow .field>label,.survey-one .flow .field>span,.survey-one .flow .flow-label{font-size:16px}
+.survey-one .flow .about-groups .flow-label{font-size:24px}
+.survey-one .flow .field input,.survey-one .flow .phone-prefix{font-size:21px}
+.survey-one .flow textarea{font-size:18px}
+.survey-one .flow .next{font-size:20px}
+.survey-one .flow .secondary{font-size:17px}
+.survey-one .flow .prescriptions .choice-row{font-size:19px}
+.survey-one .flow .signature{font-size:18px}
+@media(max-height:740px){
+  .survey-one .flow .flow-title{font-size:38px}
+  .survey-one .flow .flow-title.long{font-size:35px}
+  .survey-one .flow .flow-lead{font-size:17px}
+  .survey-one .flow .choice-row{font-size:25px;padding:10px 0}
+  .survey-one .flow .choice-description{font-size:17px}
+  .survey-one .flow .next{font-size:19px}
+}
+@media(max-width:360px){.survey-one .flow .chip{font-size:16px}.survey-one .flow .flow-title.long{font-size:34px}}
+
+/* One brief celebration after a successful application; readable without animation. */
+.survey-one .queue-copy{position:relative;isolation:isolate;padding-top:30px}
+.survey-one .queue-copy .flow-kicker{font-size:16px;margin-bottom:20px}
+.survey-one .flow .queue-title{font-size:clamp(46px,14.5vw,60px);line-height:1.04;letter-spacing:-2.6px;margin-bottom:30px}
+.survey-one .queue-highlight{white-space:nowrap;background:linear-gradient(transparent 73%,var(--lime) 73%,var(--lime) 96%,transparent 96%)}
+.survey-one .queue-copy .flow-lead{font-size:20px;line-height:1.45;margin-bottom:20px}
+.survey-one .queue-copy .signature{font-size:20px;padding-top:16px}
+.survey-one .queue-confetti{position:absolute;inset:0 0 auto;height:330px;overflow:hidden;pointer-events:none;z-index:2}
+.survey-one .queue-confetti i{position:absolute;left:50%;top:105px;width:7px;height:12px;background:var(--lime);border-radius:2px;opacity:0}
+.survey-one .queue-confetti i:nth-child(3n){background:var(--slate);width:5px;height:9px}
+.survey-one .queue-confetti i:nth-child(3n + 1){background:var(--ink);width:6px;height:6px;border-radius:50%}
+@media(prefers-reduced-motion:reduce){.survey-one .queue-confetti{display:none}}
