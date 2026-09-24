@@ -1,3 +1,4 @@
+import { stagingBlocked } from "@/lib/staging";
 import { NextResponse } from "next/server";
 import { bucket, LABELS, type Answers } from "@/lib/copy";
 import { notionEnabled, notionFindParticipant, notionCreateApplicant } from "@/lib/notion";
@@ -17,6 +18,7 @@ function clean(s: unknown, max = 500) {
 }
 
 export async function POST(req: Request) {
+  const staging = stagingBlocked(); if (staging) return staging;
   let a: Answers;
   try {
     a = (await req.json()) as Answers;

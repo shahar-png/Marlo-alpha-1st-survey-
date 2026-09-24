@@ -27,10 +27,11 @@ test("complete expanded quiz covers every original question and finishes only wi
   a.tools_still = ["none"];
   a.wearable = ["garmin"];
   a.pains = Object.fromEntries(PAINS.map((p) => [p.id, "1"]));
-  a.top_pain = "working";
+  a.top_pain = "buying";
   const flow = buildFlow(a);
   assert(ALL_Q.every((q) => flow.some((x) => x.id === q.id)));
-  assert.equal(flow.length, 54);
+  assert.equal(flow.length, 51);
+  assert(!flow.some(x => ["stopped", "stop_why", "allow"].includes(x.id)));
   assert.equal(isComplete(a), false);
   for (let pass = 0; pass < 3; pass++)
     for (const item of buildFlow(a)) {
@@ -59,7 +60,7 @@ test("dependent answers are cleaned; malformed stored answers cannot unlock comp
   a.testing_protocol = "yes";
   a.tools = ["none"];
   a.tools_still = ["ai"];
-  a.top_pain = "working";
+  a.top_pain = "buying";
   a.pains.working = "0";
   const b = cleanAnswers(a);
   assert.equal(b.list_done, "");

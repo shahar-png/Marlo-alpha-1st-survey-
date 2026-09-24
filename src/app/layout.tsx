@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { STAGING } from "@/lib/staging-mode";
 
 export const metadata: Metadata = {
-  title: "Marlo — the alpha",
+  title: STAGING ? "Marlo · Quiz 2 staging" : "Marlo — the alpha",
   description: "Meet Marlo. Three months of your supplements, handled.",
   robots: { index: false, follow: false },
 };

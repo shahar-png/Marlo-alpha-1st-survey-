@@ -20,7 +20,7 @@ test("all ten sections require their visible answers", () => {
   a.stopped = "never";
   assert.equal(partComplete(part("history"), a), true);
   a.stopped = "restarted";
-  assert.equal(partComplete(part("history"), a), false);
+  assert.equal(partComplete(part("history"), a), true);
   a.stop_why = ["life"];
   assert.equal(partComplete(part("history"), a), true);
 });
@@ -43,7 +43,7 @@ test("pain ratings require all lines and a currently eligible top pain", () => {
   a.top_pain = "buying";
   assert.equal(partComplete(part("pains2"), a), true);
   a.pains.buying = "0";
-  a.pains.cost = "1";
+  a.pains.trust = "1";
   assert.equal(partComplete(part("pains2"), a), false);
 });
 test("optional dropped-tools question does not block completion", () => {

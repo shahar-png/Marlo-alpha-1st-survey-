@@ -3,6 +3,7 @@
 import { supplementSuggestions } from "../src/lib/supplement-improvements";
 
 async function setup() {
+  if (process.env.NEXT_PUBLIC_MARLO_STAGING === "1") return;
   const token = process.env.NOTION_TOKEN, dbId = process.env.NOTION_PARTICIPANTS_DB;
   if (process.env.VERCEL_ENV !== "production") return;
   if (!token || !dbId) throw new Error("Supplement review requires the production Notion connection");

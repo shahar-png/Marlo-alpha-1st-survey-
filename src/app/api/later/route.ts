@@ -1,3 +1,4 @@
+import { stagingBlocked } from "@/lib/staging";
 import { NextResponse } from "next/server";
 import { notionEnabled, notionCreateLaterRound } from "@/lib/notion";
 import { sheetEnabled, sheetAppend } from "@/lib/sheet";
@@ -8,6 +9,7 @@ const COLUMNS = ["submitted_at", "email", "reason", "notion_page_id", "email_sen
 
 /** "I'm interested" on the later-round page: email only. */
 export async function POST(req: Request) {
+  const staging = stagingBlocked(); if (staging) return staging;
   let body: { email?: string; reason?: string };
   try {
     body = await req.json();
