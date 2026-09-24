@@ -1,6 +1,6 @@
 # Quiz 2 staging — 24 September 2026
 
-This is an approved-design implementation for QA, not an approved production release.
+The user approved this tested version for production on 24 September 2026. The separate staging project remains available for QA.
 
 ## Release boundary
 
@@ -9,7 +9,7 @@ This is an approved-design implementation for QA, not an approved production rel
 - Dedicated Vercel project: `marlo9/marlo-quiz-2-staging`.
 - Staging has `NEXT_PUBLIC_MARLO_STAGING=1` in all three Vercel environments; no participant database or email credentials were copied.
 - The existing project `marlo-alpha-1st-survey`, Jenny's link guide, public survey-links.json and participant link formulas remain unchanged.
-- Do not merge, deploy to the participant project, or replace Jenny's links until the user explicitly approves production.
+- Production approval received. Deploy to the existing participant project with staging mode disabled; keep Jenny's existing production URLs unchanged.
 
 ## How reviewers test
 
@@ -61,3 +61,8 @@ Final hosted QA: deployment `dpl_77MLe5KtuXPccuijdQQD3ksTkjeH` at the same stagi
 - Verified opening at 393x714, 375x667, and 393x852: 32px text/form gap, 48px button, 20px bottom gap, zero opening overflow. Required-email validation and refresh reset pass.
 - Audited every insight theme and all five wearable variants at the iPhone Pro usable size: text is inset at least 24px and default cards do not vertically overflow. Complete simulated quiz run and reset pass without console warnings/errors. All 29 automated tests, TypeScript and targeted lint pass.
 - User's term “Pindem” is awaiting clarification; no external design-system synchronization is claimed.
+
+
+## Production release
+
+User approved the current staging version for production. Production uses the existing Notion and Apps Script integrations; `NEXT_PUBLIC_MARLO_STAGING` is absent from the production project and is explicitly set to `0` during this deployment. Real identity lookup, draft persistence and final submission remain enabled. The canonical Quiz 2 link remains https://marlo-alpha-1st-survey.vercel.app/deep-dive. The independent staging project retains fictional profiles and refresh reset.
