@@ -8,6 +8,7 @@ export function MarloIntro({ next }: { next: () => void }) {
     const root = ref.current!;
     const el = (selector: string) => root.querySelector<HTMLElement>(selector)!;
     const hero = el('.hero'), actor = el('.brand-actor'), typing = el('.typing'), logo = el('.original-icon'), title = el('.title'), cue = el('.scroll-cue');
+    const viewport = el('.survey');
     const story = el('.scroll-story'), stage = el('.story-stage');
     const panels = Array.from(root.querySelectorAll<HTMLElement>('.story-panel'));
     const sections = Array.from(root.querySelectorAll<HTMLElement>('.reveal'));
@@ -27,7 +28,7 @@ export function MarloIntro({ next }: { next: () => void }) {
     }
     function updateStory() {
       frame = 0;
-      cue.hidden = root.getBoundingClientRect().bottom <= window.innerHeight + 2;
+      cue.hidden = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight <= 2;
       if (reduced.matches) {
         root.dataset.liveScroll = 'false'; storyAnimations.forEach(a => a.cancel()); beat = -1;
         panels.forEach(panel => {panel.removeAttribute('aria-hidden'); panel.style.opacity = ''; panel.style.transform = '';});
@@ -49,11 +50,11 @@ export function MarloIntro({ next }: { next: () => void }) {
     }
     // Observe native scrolling; never intercept gestures or write the scroll position.
     const queueScroll = () => {
-      if (window.scrollY > 0 && !openingSkipped) showAll();
+      if (viewport.scrollTop > 0 && !openingSkipped) showAll();
       if (!frame) frame = requestAnimationFrame(updateStory);
     };
     const motionChange = () => {if (reduced.matches) showAll(); updateStory();};
-    window.addEventListener('scroll', queueScroll, {passive:true});
+    viewport.addEventListener('scroll', queueScroll, {passive:true});
     window.addEventListener('resize', queueScroll);
     reduced.addEventListener('change', motionChange);
     updateStory();
@@ -87,13 +88,12 @@ export function MarloIntro({ next }: { next: () => void }) {
     start().catch(() => {if (!disposed) showAll();});
     return () => {
       disposed = true; showAll(); storyAnimations.forEach(a => a.cancel()); cancelAnimationFrame(frame);
-      window.removeEventListener('scroll', queueScroll); window.removeEventListener('resize', queueScroll); reduced.removeEventListener('change', motionChange);
+      viewport.removeEventListener('scroll', queueScroll); window.removeEventListener('resize', queueScroll); reduced.removeEventListener('change', motionChange);
     };
   }, []);
 
   return <div id="marlo-arrival" className="survey-one" ref={ref}>
-    <div className="scroll-cue" aria-hidden="true">↓</div>
-    <article className="survey">
+    <article className="survey" tabIndex={0} aria-label="About Marlo">
       <header className="hero" aria-label="Marlo introduction">
         <div className="brand-actor" aria-hidden="true"><BrandIcon className="original-icon" /><span className="typing"><span className="dot" /><span className="dot" /><span className="dot" /></span></div>
         <h1 className="title" aria-label="Meet Marlo."><span className="meet">Meet</span><Wordmark className="wordmark" /></h1>
@@ -110,5 +110,13 @@ export function MarloIntro({ next }: { next: () => void }) {
       </main>
       <footer className="reveal"><Button onClick={next}>Next</Button></footer>
     </article>
+    <div className="scroll-cue" aria-hidden="true">
+      <svg width="24" height="28" viewBox="0 0 24 28" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+        <rect x="5" y="1" width="14" height="22" rx="7" />
+        <path className="scroll-wheel" d="M12 6v4" />
+        <path d="m9 25 3 2 3-2" />
+      </svg>
+      <span>Scroll down</span>
+    </div>
   </div>;
 }
