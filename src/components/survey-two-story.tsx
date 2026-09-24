@@ -737,7 +737,7 @@ export default function SurveyTwoStory({
       data-presentation={isInsight ? "insight" : "quiz"}
       data-insight={isInsight ? page : ""}
     >
-      {STAGING && <span className="stage-tag" title="Fictional profile · Refresh to reset · Nothing is saved">STAGING</span>}
+      {STAGING && <span className="stage-tag" style={look ? { color: look.text } : undefined} title="Fictional profile · Refresh to reset · Nothing is saved">STAGING</span>}
       <div className="recap-app">
         {page !== "intro" && (
           <div

@@ -112,3 +112,25 @@
 #marlo-recap[data-screen=review] h2{margin-bottom:0}
 /* Leave room for the device selector when several trackers are selected. */
 #marlo-recap[data-insight=insight-data]:has(.wearable-picker) .insight-photo img{height:clamp(110px,19dvh,160px)}
+/* Opening spacing follows document flow, so the form cannot collide with animated copy. */
+#marlo-recap[data-opening=true] .opening{min-height:100%;height:100%;overflow:visible}
+#marlo-recap[data-opening=true] .opening-stage{height:auto;min-height:0;padding-top:clamp(185px,29dvh,225px);display:flex;flex-direction:column;flex:none}
+#marlo-recap[data-opening=true] .opening-name{top:clamp(75px,12dvh,100px)}
+#marlo-recap[data-opening=true] .opening-copy{position:relative;inset:auto;flex:none}
+#marlo-recap[data-opening=true] .opening-copy h2{font-size:48px;line-height:1.04;margin:0 0 16px;letter-spacing:-2px}
+#marlo-recap[data-opening=true] .opening-copy p{margin:0;max-width:none}
+#marlo-recap[data-opening=true] .opening-form{display:flex;flex:1;flex-direction:column;margin:0;padding-top:32px}
+#marlo-recap[data-opening=true] .opening-form .recap-actions{margin-top:auto;padding-top:20px!important;flex:none}
+#marlo-recap[data-opening=true] .opening-form .recap-main{height:48px;min-height:48px!important;padding:12px 18px!important;font-size:16px!important}
+#marlo-recap[data-opening=true] .opening-replay{position:absolute;top:16px;left:0;min-height:32px;margin:0;font-size:11px;padding:4px 0}
+/* One shared inset for every insight; photos alone extend to the card edges. */
+#marlo-recap[data-presentation=insight]{--card-inset:24px}
+#marlo-recap[data-presentation=insight] .recap-brand{padding-inline:var(--card-inset)!important}
+#marlo-recap[data-presentation=insight] .page-body{padding-inline:var(--card-inset);margin-inline:0}
+#marlo-recap[data-presentation=insight] .page-body>*{margin-inline:0!important}
+#marlo-recap[data-presentation=insight] .page-action-area{padding-inline:var(--card-inset)}
+#marlo-recap[data-presentation=insight] .page-body .insight-photo{margin-inline:calc(-1 * var(--card-inset))!important;width:calc(100% + 2 * var(--card-inset))}
+#marlo-recap[data-presentation=insight] .insight-side-stat{grid-template-columns:140px minmax(0,1fr);gap:16px;padding-top:0}
+#marlo-recap[data-insight=insight-history] .insight-history-stat{gap:12px}
+#marlo-recap[data-insight=insight-history] .insight-history-stat .insight-number{font-size:88px!important}
+#marlo-recap[data-presentation=insight] .insight-halves{margin-inline:0}

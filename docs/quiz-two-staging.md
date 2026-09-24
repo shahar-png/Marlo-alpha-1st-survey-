@@ -53,3 +53,11 @@ Approved mobile HTML design and four latest feedback comments implemented:
 Validation: 29 tests passed, TypeScript, targeted ESLint, optimized build and whitespace checks passed. Browser QA covered a complete fictional run, all 12 pain ranks, last-to-first drag, label drag leaving order unchanged, keyboard End, summary editing returning directly, simulated completion and reset on refresh. Mobile browser emulation is not a substitute for the user's physical iPhone QA. Production and Jenny's link remain unchanged.
 
 Final hosted QA: deployment `dpl_77MLe5KtuXPccuijdQQD3ksTkjeH` at the same staging hostname. Checked larger 186px ring, 18px history/watch statistical text, full-bleed images, all 12 ranking choices, all eight sources choices, and zero overflow on Apple Watch/Garmin cards with multiple devices selected. A complete hosted run reached “QA run complete”; refresh returned an empty email form. No console warnings/errors. Commits 06425d6 and 46eefe5 were pushed to origin/staging/quiz-two-review. No production merge or participant-link update.
+
+## Opening and card spacing follow-up
+
+- Opening copy now participates in normal layout flow, with a fixed 32px separation above the email form. Continue is 48px high like other quiz buttons and sits 20px above the viewport bottom. Replay moved to the top so it no longer pushes Continue upward.
+- Insight titles, copy, source notes, brand header, and actions share a 24px horizontal inset. Photos retain full-card width. The smartwatch statistic has its own 140px column plus a 16px gap to prevent the percentage touching the text.
+- Verified opening at 393x714, 375x667, and 393x852: 32px text/form gap, 48px button, 20px bottom gap, zero opening overflow. Required-email validation and refresh reset pass.
+- Audited every insight theme and all five wearable variants at the iPhone Pro usable size: text is inset at least 24px and default cards do not vertically overflow. Complete simulated quiz run and reset pass without console warnings/errors. All 29 automated tests, TypeScript and targeted lint pass.
+- User's term “Pindem” is awaiting clarification; no external design-system synchronization is claimed.
