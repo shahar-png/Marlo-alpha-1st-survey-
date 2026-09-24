@@ -1,9 +1,9 @@
 
 #marlo-arrival{--cream:#f2e9dd;--ink:#191918;--slate:#3e5159;--lime:#e6ffb3;font-family:'DM Sans',sans-serif;color:var(--ink);width:100%;color-scheme:light;overflow-anchor:none;isolation:isolate}
 #marlo-arrival *{box-sizing:border-box}
-#marlo-arrival .survey{max-width:393px;width:100%;margin:0 auto;background:transparent;overflow:clip;isolation:isolate;position:relative;z-index:1}
+#marlo-arrival .survey{max-width:393px;width:100%;margin:0 auto;background:var(--cream);overflow:clip;isolation:isolate;position:relative;z-index:1}
 #marlo-arrival h1,#marlo-arrival h2,#marlo-arrival p{margin:0}
-#marlo-arrival .hero{height:640px;position:relative;background:transparent;isolation:isolate}
+#marlo-arrival .hero{height:640px;position:relative;background:var(--cream);isolation:isolate}
 #marlo-arrival .brand-actor{width:92px;height:46px;position:absolute;left:calc(100% - 92.4px);top:28px;transform:scale(.7);transform-origin:0 0;mix-blend-mode:multiply;z-index:2}
 #marlo-arrival .original-icon{display:block;width:92px;aspect-ratio:229/102;overflow:hidden;position:relative}
 #marlo-arrival .original-icon img{position:absolute;max-width:none;width:130.568%;height:auto;left:-12.23%;top:-45.1%}
@@ -11,13 +11,13 @@
 #marlo-arrival .dot{position:absolute;top:17px;left:15px;width:12px;height:12px;border-radius:50%;background:#000;transform-origin:center}
 #marlo-arrival .dot:nth-child(2){left:40px}
 #marlo-arrival .dot:nth-child(3){left:65px}
-#marlo-arrival .title{position:absolute;top:240px;left:27px;right:27px;text-align:center;mix-blend-mode:multiply}
+#marlo-arrival .title{position:absolute;top:240px;left:27px;right:52px;text-align:center;mix-blend-mode:multiply}
 #marlo-arrival .meet{font:400 49px/1.1 'Manrope',sans-serif;letter-spacing:-2px;display:block;margin-bottom:20px}
 #marlo-arrival .wordmark{display:block;width:100%;aspect-ratio:1055/283;overflow:hidden;position:relative}
 #marlo-arrival .wordmark img{position:absolute;max-width:none;width:116.4%;height:auto;left:-11.66%;top:-48.4%}
-#marlo-arrival .scroll-cue{position:fixed;z-index:0;pointer-events:none;opacity:.25;text-align:center;display:grid;place-items:center;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:calc(50% - 24px);width:48px;min-height:48px;border:0;background:transparent;color:var(--slate);font:400 28px/1 'DM Sans',sans-serif;border-radius:50%}
+#marlo-arrival .scroll-cue{position:fixed;z-index:3;pointer-events:none;opacity:.75;text-align:center;display:grid;place-items:center;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:calc(50% + min(50vw,196.5px) - 27px);width:20px;min-height:40px;border:0;outline:0;box-shadow:none;background:transparent;color:var(--slate);font:400 28px/1 'DM Sans',sans-serif;border-radius:0}
 #marlo-arrival .scroll-cue[hidden]{display:none}
-#marlo-arrival main{padding:0 27px}
+#marlo-arrival main{padding:0 52px 0 27px}
 #marlo-arrival .intro-section{padding:44px 0 26px}
 #marlo-arrival h2{font:400 41px/1.07 'Manrope',sans-serif;letter-spacing:-1.8px;color:var(--ink)}
 #marlo-arrival .intro-section h2{margin:0 0 26px}
@@ -34,12 +34,12 @@
 #marlo-arrival .closing{padding-top:71px;padding-bottom:13px}
 #marlo-arrival .closing p{font:400 46px/1.04 'Manrope',sans-serif;letter-spacing:-2.2px}
 #marlo-arrival .closing p>span{display:block;margin-top:13px;color:var(--slate);font-size:35px;letter-spacing:-1.6px}
-#marlo-arrival footer{padding:27px 27px 36px}
+#marlo-arrival footer{padding:27px 52px 36px 27px}
 #marlo-arrival .next{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:62px;border:0;border-radius:34px;background:var(--ink);color:var(--cream);padding:15px 24px;font:500 18px/1.3 'DM Sans',sans-serif}
 #marlo-arrival .next>.button-arrow{color:var(--lime)}
 #marlo-arrival[data-staged="true"] .original-icon,#marlo-arrival[data-staged="true"] .title,#marlo-arrival[data-staged="true"] .reveal{opacity:0}
 #marlo-arrival[data-staged="true"] .typing{opacity:1}
-@media(max-width:360px){#marlo-arrival .hero{height:600px}#marlo-arrival .title{top:225px;left:24px;right:24px}#marlo-arrival .meet{font-size:45px}#marlo-arrival h2{font-size:36px}#marlo-arrival .buy{padding-left:89px}#marlo-arrival .working{padding-left:20px}#marlo-arrival .working h2{font-size:32px}#marlo-arrival .discover h2{font-size:28px}#marlo-arrival .closing p{font-size:43px}#marlo-arrival .closing p>span{font-size:31px}}
+@media(max-width:360px){#marlo-arrival .hero{height:600px}#marlo-arrival .title{top:225px;left:24px;right:52px}#marlo-arrival .meet{font-size:45px}#marlo-arrival h2{font-size:36px}#marlo-arrival .buy{padding-left:89px}#marlo-arrival .working{padding-left:20px}#marlo-arrival .working h2{font-size:32px}#marlo-arrival .discover h2{font-size:28px}#marlo-arrival .closing p{font-size:43px}#marlo-arrival .closing p>span{font-size:31px}}
 @media(prefers-reduced-motion:reduce){#marlo-arrival[data-staged="true"] .original-icon,#marlo-arrival[data-staged="true"] .title,#marlo-arrival[data-staged="true"] .reveal{opacity:1}#marlo-arrival .typing{display:none}}
 #marlo-arrival .story-panel{padding:54px 0 20px}
 #marlo-arrival .story-panel h2{font-size:43px;line-height:1.08;letter-spacing:-1.9px}
@@ -56,7 +56,7 @@
 
 
 /* Approved Survey 1 identity. Other public routes retain their current UI. */
-body:has(.survey-one){background:#f2e9dd}
+html:has(.survey-one),body:has(.survey-one){background:#f2e9dd}
 .survey-one{--cream:#f2e9dd;--ink:#191918;--slate:#3e5159;--lime:#e6ffb3;background:var(--cream);color:var(--ink);font-family:'DM Sans',sans-serif;overflow-anchor:none;color-scheme:light}
 .survey-one *{box-sizing:border-box}
 .survey-one button{cursor:pointer}
@@ -118,8 +118,8 @@ body:has(.survey-one){background:#f2e9dd}
 
 .survey-one .about-groups .flow-label{font-size:22px;line-height:1.35;color:var(--ink);margin-bottom:15px}
 
-/* Keep the scroll hint behind opaque reading surfaces, never over text. */
-#marlo-arrival :is(.intro-section,.benefit,.story-panel,.closing,footer){background:var(--cream)}
+/* Opaque cream behind blend-mode artwork prevents white rectangles during compositing.
+   The borderless scroll hint has its own right gutter, outside every reading surface. */
 
 /* The action area stays in the viewport; longer answers scroll within main. */
 .survey-one .flow{height:100svh;height:100dvh;min-height:0;padding-top:max(14px,env(safe-area-inset-top,0px));padding-bottom:max(12px,env(safe-area-inset-bottom,0px))}
