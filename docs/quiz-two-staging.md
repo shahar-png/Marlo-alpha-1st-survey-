@@ -51,3 +51,5 @@ Approved mobile HTML design and four latest feedback comments implemented:
 - Small non-layout STAGING label replaces black fixed footer.
 
 Validation: 29 tests passed, TypeScript, targeted ESLint, optimized build and whitespace checks passed. Browser QA covered a complete fictional run, all 12 pain ranks, last-to-first drag, label drag leaving order unchanged, keyboard End, summary editing returning directly, simulated completion and reset on refresh. Mobile browser emulation is not a substitute for the user's physical iPhone QA. Production and Jenny's link remain unchanged.
+
+Final hosted QA: deployment `dpl_77MLe5KtuXPccuijdQQD3ksTkjeH` at the same staging hostname. Checked larger 186px ring, 18px history/watch statistical text, full-bleed images, all 12 ranking choices, all eight sources choices, and zero overflow on Apple Watch/Garmin cards with multiple devices selected. A complete hosted run reached “QA run complete”; refresh returned an empty email form. No console warnings/errors. Commits 06425d6 and 46eefe5 were pushed to origin/staging/quiz-two-review. No production merge or participant-link update.
