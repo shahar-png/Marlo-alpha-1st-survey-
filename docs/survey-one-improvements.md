@@ -16,7 +16,7 @@ Open [Supplement improvements](https://app.notion.com/p/b5b62c6c31004a64b1bd88b9
 - Flag proposed additions for the product team. This list does not automatically change quiz choices or recommend supplements.
 - If a submission is present only in the raw answers Sheet because Notion was unavailable, include its **supplements_other** value when reconciling the missing participant card and review fields.
 
-The public Quiz 1 address stays https://marlo-alpha-1st-survey.vercel.app/.
+The public Quiz 1 address stays https://alpha.marlo.me/.
 
 ## Implementation and verification
 

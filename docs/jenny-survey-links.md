@@ -2,17 +2,17 @@
 
 The approved interactive Survey 2 is served at the existing production route:
 
-**https://marlo-alpha-1st-survey.vercel.app/deep-dive**
+**https://alpha.marlo.me/deep-dive**
 
 For Email 2, pull the **Survey 2 link** property from the participant's current Notion Participants card. It has this form:
 
-`https://marlo-alpha-1st-survey.vercel.app/deep-dive?p=<participant page id>`
+`https://alpha.marlo.me/deep-dive?p=<participant page id>`
 
 Keep the `p` parameter. The link pre-fills the email; after the participant confirms it, the matching personal link can show the saved Survey 1 profile. Generic links still accept the application email, with optional self-entered profile details. Old personal links become invalid if their participant cards are deleted and recreated; always pull from the current card.
 
 A stable machine-readable link directory is published at:
 
-**https://marlo-alpha-1st-survey.vercel.app/survey-links.json**
+**https://alpha.marlo.me/survey-links.json**
 
 Read `survey_2` for the generic route and `survey_2_personalized_template` for the shape of personal links. No Notion formula change or Apps Script redeployment is required. Never send a localhost design preview or a Vercel branch preview.
 
@@ -30,8 +30,8 @@ Priority order and participant edits to profile context are in the existing Surv
 
 The approved Marlo document design is published at the same permanent links:
 
-- Program guide: **https://marlo-alpha-1st-survey.vercel.app/guide**
-- Agreement: **https://marlo-alpha-1st-survey.vercel.app/waiver**
+- Program guide: **https://alpha.marlo.me/guide**
+- Agreement: **https://alpha.marlo.me/waiver**
 - Personal agreement: use the current participant card's **Waiver link**, preserving `?p=<participant page id>`.
 
 The link directory now also provides `program_guide`, `participant_agreement`, and `participant_agreement_personalized_template`. Fetch these stable URLs to retrieve the latest pages; do not send the HTML design preview. The coverage is **up to $200 per month** during the program. Newly signed agreements use **v2 · 23 Sep 2026**, and the signed PDF records that version and its text hash. Previously signed records and PDFs are not rewritten.

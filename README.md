@@ -21,13 +21,15 @@ applicant ──▶ survey (Vercel) ──▶ POST /api/apply
 
 - **Notion is the database.** The survey creates the participant page directly, with the property names from `notion-build-spec-v1.md`. Jenny's pipeline starts from that page (State = Applied → she runs the gates).
 - **The Sheet is the raw log and Email 1 goes out in the same call.** `/api/apply` POSTs to the Apps Script web app deployed from the sheet (runs as Jenny, guarded by a shared secret). The script appends the row, sends Email 1 from Jenny's inbox, and stamps `email1_sent_at` — instantly, no trigger. No Google Cloud service account is involved (the org policy blocks key creation anyway).
-- **Duplicates**: same email or phone already in Notion (or the sheet, if Notion is off) → the survey shows "You've already applied" and writes nothing. Email 0 Apply link can use `https://marlo-alpha-1st-survey.vercel.app/?reset=1` for retests.
+- **Duplicates**: same email or phone already in Notion (or the sheet, if Notion is off) → the survey shows "You've already applied" and writes nothing. Email 0 Apply link can use `https://alpha.marlo.me/?reset=1` for retests.
 - **Either destination can be off.** With only `NOTION_*` set, the sheet is skipped; with only the `APPS_SCRIPT_*` vars set, Notion is skipped (Jenny then creates the page from the row). Both set is the intended setup.
 - **iPhone / US** are self-declared by tapping "I'm in" on the deal screen and written as Device = iPhone, Country = US. **Under 18** is the one hard stop (no submission; routed to the later-round page).
 
+**Public host (24 Sep 2026):** `https://alpha.marlo.me` — the custom domain on the Vercel project. `marlo-alpha-1st-survey.vercel.app` still resolves to the same deployment; every link Jenny sends uses alpha.marlo.me.
+
 ## Survey 2 · the deep dive (`/deep-dive`)
 
-Linked from Email 2 as `https://marlo-alpha-1st-survey.vercel.app/deep-dive?p=<Participants page id>` — the Participants database has a **Survey 2 link** formula that builds it per person. No `?p=` → the intro asks for the email they applied with.
+Linked from Email 2 as `https://alpha.marlo.me/deep-dive?p=<Participants page id>` — the Participants database has a **Survey 2 link** formula that builds it per person. No `?p=` → the intro asks for the email they applied with.
 
 ```
 participant ──▶ /deep-dive?p=… ──▶ GET /api/participant  (first name, already done?)
@@ -40,7 +42,7 @@ Tags written: Baseline confidence / hours / feel · Spend tier · Tech comfort �
 
 ## Waiver · the participant agreement (`/waiver`)
 
-The e-sign version of `02_Acceptance/alpha-participant-agreement-v1.md`. Linked from Email 2 as `https://marlo-alpha-1st-survey.vercel.app/waiver?p=<Participants page id>` — the Participants database has a **Waiver link** formula that builds it per person. No `?p=` → the intro asks for the email they applied with; an email that isn't in the database is refused ("This email is not in our system…").
+The e-sign version of `02_Acceptance/alpha-participant-agreement-v1.md`. Linked from Email 2 as `https://alpha.marlo.me/waiver?p=<Participants page id>` — the Participants database has a **Waiver link** formula that builds it per person. No `?p=` → the intro asks for the email they applied with; an email that isn't in the database is refused ("This email is not in our system…").
 
 ```
 participant ──▶ /waiver?p=… ──▶ GET /api/participant  (name, email, already signed?)
@@ -55,7 +57,7 @@ The Notion write happens first and is the record; Drive/email/log are best effor
 
 ## Program guide (`/guide`)
 
-The participant-facing program guide, rendered from `02_Acceptance/program-guide-v1.md` (copy verbatim — change the .md first, then the page). Linked from Email 2 as `https://marlo-alpha-1st-survey.vercel.app/guide`.
+The participant-facing program guide, rendered from `02_Acceptance/program-guide-v1.md` (copy verbatim — change the .md first, then the page). Linked from Email 2 as `https://alpha.marlo.me/guide`.
 
 ## Setup
 
@@ -79,7 +81,7 @@ Performance checked → Optimizer; else Longevity → Longevity; else Something 
 
 ## Current Survey 2 experience
 
-The approved story quiz is live on the same `/deep-dive` route. See [Jenny's link guide](docs/jenny-survey-links.md) and the [machine-readable production links](https://marlo-alpha-1st-survey.vercel.app/survey-links.json). Personal `?p=` links remain compatible.
+The approved story quiz is live on the same `/deep-dive` route. See [Jenny's link guide](docs/jenny-survey-links.md) and the [machine-readable production links](https://alpha.marlo.me/survey-links.json). Personal `?p=` links remain compatible.
 
 The client preserves the original answer schema and adds ranking/profile context inside `raw_json.context`, without changing Sheet columns or Notion tags. Drafts stay in session storage for the current browser tab and are restored only after participant lookup. No fictional profile data ships. Saved profile context is returned only for a personal link plus its matching email; the email-only entry can collect optional profile details without exposing the saved supplement list.
 

@@ -65,4 +65,4 @@ Final hosted QA: deployment `dpl_77MLe5KtuXPccuijdQQD3ksTkjeH` at the same stagi
 
 ## Production release
 
-User approved the current staging version for production. Production uses the existing Notion and Apps Script integrations; `NEXT_PUBLIC_MARLO_STAGING` is absent from the production project and is explicitly set to `0` during this deployment. Real identity lookup, draft persistence and final submission remain enabled. The canonical Quiz 2 link remains https://marlo-alpha-1st-survey.vercel.app/deep-dive. The independent staging project retains fictional profiles and refresh reset.
+User approved the current staging version for production. Production uses the existing Notion and Apps Script integrations; `NEXT_PUBLIC_MARLO_STAGING` is absent from the production project and is explicitly set to `0` during this deployment. Real identity lookup, draft persistence and final submission remain enabled. The canonical Quiz 2 link remains https://alpha.marlo.me/deep-dive. The independent staging project retains fictional profiles and refresh reset.
