@@ -1,0 +1,172 @@
+/* Approved Quiz 2 review: viewport-sized pages and persistent actions. */
+#marlo-recap{height:100svh;height:100dvh;background:var(--recap-paper)}
+#marlo-recap .recap-app{height:100%;max-width:460px;padding:12px 16px 38px!important;display:flex;flex-direction:column;overflow:hidden}
+#marlo-recap .recap-progress{flex:none;margin:0 6px 12px!important}
+#marlo-recap .recap-stage{flex:1;min-height:0;margin-right:6px}
+#marlo-recap .recap-card{height:100%;display:flex;flex-direction:column}
+#marlo-recap .recap-brand{height:42px!important;padding:10px 20px 0!important;flex:none}
+#marlo-recap .recap-footer{flex:none;min-height:36px!important;margin:6px 20px 0!important;padding:0!important}
+#marlo-recap .recap-note{display:none}
+#marlo-recap .recap-page{min-height:0!important;flex:1;overflow:hidden;padding:16px 20px 14px!important;gap:0}
+#marlo-recap .page-body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;scrollbar-width:thin;padding:0 2px 4px;margin:0 -2px;touch-action:pan-y}
+#marlo-recap .recap-actions{flex:none;padding-top:12px!important;margin-top:auto}
+#marlo-recap .recap-main{min-height:52px!important;padding:13px 20px!important;font-size:16px!important}
+#marlo-recap .recap-secondary{font-size:13px;min-height:36px;padding:7px}
+#marlo-recap[data-presentation=quiz] h1,#marlo-recap[data-presentation=quiz] h2{margin-bottom:18px}
+#marlo-recap[data-presentation=quiz] .quiz-page h2.quiz-form-title{font-size:clamp(27px,7.6cqw,34px);margin-bottom:18px}
+#marlo-recap[data-presentation=quiz] .quiz-options .recap-option{min-height:49px;padding:12px 0;font-size:16px}
+#marlo-recap[data-presentation=quiz] .recap-facts li{padding:14px 0}
+#marlo-recap .quiz-pain{padding:12px 0}
+#marlo-recap .quiz-pain-options label{min-height:58px;padding:6px 4px}
+#marlo-recap .quiz-pain legend{margin-bottom:9px}
+/* Only this 44px grip handles the drag. The text and rest of each box scroll normally. */
+#marlo-recap[data-presentation=quiz] .rank-list{border:0;gap:10px;padding:3px}
+#marlo-recap[data-presentation=quiz] .rank-item{display:grid;grid-template-columns:28px minmax(0,1fr) 44px;gap:10px;align-items:center;min-height:82px;padding:10px 8px 10px 12px;border:1px solid #3e515942;border-radius:16px;background:#f8f2e9;touch-action:pan-y}
+#marlo-recap[data-presentation=quiz] .rank-item:first-child{border-color:#19191877;background:var(--recap-lime)}
+#marlo-recap[data-presentation=quiz] .rank-item:first-child .rank-number{background:var(--recap-ink);color:var(--recap-lime)}
+#marlo-recap[data-presentation=quiz] .rank-number{width:27px;height:27px;font-size:12px}
+#marlo-recap[data-presentation=quiz] .rank-label{font-size:17px;line-height:1.3}
+#marlo-recap[data-presentation=quiz] .rank-grip{display:flex;align-items:center;justify-content:center;min-height:48px;width:44px;padding:0;touch-action:none;border-radius:9px;cursor:grab}
+#marlo-recap .rank-grip svg{width:21px;height:25px;opacity:.65;pointer-events:none}
+#marlo-recap .rank-item.dragging{z-index:5;box-shadow:0 12px 28px #1919182b;border-color:var(--recap-ink);background:var(--recap-lime)}
+#marlo-recap .rank-instructions{font-size:12px;margin:12px 0}
+#marlo-recap .review-edit-bar{flex:none;display:flex;justify-content:space-between;align-items:center;margin:7px 20px 0;color:#3e5159;font-size:12px;gap:10px}
+#marlo-recap .review-edit-bar button{border:0;background:transparent;text-decoration:underline;min-height:36px;color:inherit;padding:5px 0}
+#marlo-recap .quiz-recap li{padding:12px 0}
+#marlo-recap .quiz-review-links{grid-template-columns:1fr 1fr;gap:0 16px}
+#marlo-recap .quiz-review-links button{font-size:13px;flex-wrap:wrap;gap:4px;align-content:center}
+#marlo-recap .quiz-review-links button svg{display:none}
+#marlo-recap .quiz-review-links small{font-size:10px}
+/* Compact editorial insights: all content and the action fit on one phone screen. */
+#marlo-recap[data-presentation=insight] .recap-page{padding-top:14px!important}
+#marlo-recap[data-presentation=insight] .recap-footer{margin:6px 4px 0!important;min-height:36px!important}
+#marlo-recap[data-presentation=insight] .recap-nav{width:34px;height:34px}
+#marlo-recap[data-presentation=insight] .page-body{display:flex;flex-direction:column;overflow:visible}
+#marlo-recap[data-presentation=insight] .insight-kicker{margin-bottom:12px;font-size:11px}
+#marlo-recap[data-presentation=insight] h2.insight-title{font-size:clamp(28px,8.5cqw,36px);letter-spacing:-1.3px;margin-bottom:14px;flex:none}
+#marlo-recap[data-presentation=insight] .insight-number{font-size:clamp(68px,21cqw,88px)!important;letter-spacing:-4px!important;margin:0 0 10px!important}
+#marlo-recap[data-insight=insight-history] .insight-history-stat{padding:0}
+#marlo-recap[data-insight=insight-history] .insight-history-stat .insight-number{font-size:clamp(80px,25cqw,108px)!important;margin-bottom:10px!important}
+#marlo-recap[data-presentation=insight] p.insight-stat{font-size:16px!important;line-height:1.3;margin:0 0 12px}
+#marlo-recap[data-presentation=insight] p.insight-you{font-size:14px;line-height:1.4;margin:12px 0}
+#marlo-recap[data-presentation=insight] .insight-photo{margin:0 -20px;flex-shrink:1;min-height:65px}
+#marlo-recap[data-presentation=insight] .insight-photo img{height:clamp(80px,17dvh,155px);aspect-ratio:auto;object-fit:cover}
+#marlo-recap .insight-orbit{margin:0 0 12px;display:flex;justify-content:center}
+#marlo-recap .insight-dial{width:clamp(110px,22dvh,180px);height:clamp(110px,22dvh,180px);flex:none}
+#marlo-recap .insight-dial .insight-number{font-size:60px!important;margin:0!important}
+#marlo-recap .insight-halves{min-height:100px;margin:0 -20px 14px}
+#marlo-recap .insight-half-label{font-size:32px}
+#marlo-recap .insight-side-stat{margin:14px 0 0;gap:12px}
+#marlo-recap .insight-trust-ticket{padding:12px 14px 0;margin:2px 0 10px}
+#marlo-recap .insight-budget{gap:5px;padding:12px 0;margin:3px 0 0}
+#marlo-recap .insight-budget>strong{font-size:28px}
+#marlo-recap .wearable-picker{flex-wrap:nowrap;overflow-x:auto;gap:6px;margin-bottom:10px;flex:none}
+#marlo-recap .wearable-picker button{white-space:nowrap;min-height:34px;padding:6px 10px;font-size:12px}
+#marlo-recap[data-insight=insight-data] .wearable-image-note{font-size:11px;line-height:1.3;margin-bottom:8px}
+#marlo-recap[data-presentation=insight] .insight-source{margin-top:auto;flex:none}
+#marlo-recap[data-presentation=insight] .insight-source summary{padding:8px 0;min-height:32px}
+#marlo-recap[data-presentation=insight] .insight-source[open]{position:absolute;inset:15px;z-index:10;border-radius:14px;padding:16px;background:var(--surface);color:var(--text);overflow:auto;box-shadow:0 0 0 300px #19191855}
+#marlo-recap[data-presentation=insight] .insight-source[open] summary:after{content:' · Close';font-weight:500}
+#marlo-recap[data-opening=true] .recap-page{padding-top:0!important}
+#marlo-recap .opening{min-height:100%;height:100%}
+#marlo-recap .opening-stage{height:clamp(260px,48dvh,430px)}
+@media(max-height:720px){
+ #marlo-recap .recap-app{padding-top:8px!important}
+ #marlo-recap .recap-progress{margin-bottom:6px!important}
+ #marlo-recap .recap-brand{height:35px!important}
+ #marlo-recap .recap-page{padding-top:10px!important}
+ #marlo-recap[data-presentation=quiz] h2{font-size:32px;margin-bottom:12px}
+ #marlo-recap[data-presentation=quiz] .rank-item{min-height:70px;padding-block:5px}
+ #marlo-recap[data-presentation=quiz] .rank-list{gap:8px}
+ #marlo-recap .rank-intro{margin-bottom:8px;font-size:13px}
+ #marlo-recap [data-page=priority] .recap-caption{display:none}
+ #marlo-recap[data-presentation=insight] h2.insight-title{font-size:27px;margin-bottom:10px}
+ #marlo-recap[data-presentation=insight] .insight-kicker{font-size:10px;margin-bottom:8px}
+ #marlo-recap[data-presentation=insight] .insight-number{font-size:66px!important;margin-bottom:8px!important}
+ #marlo-recap[data-insight=insight-history] .insight-history-stat .insight-number{font-size:78px!important}
+ #marlo-recap[data-presentation=insight] p.insight-stat{font-size:14px!important;margin-bottom:8px}
+ #marlo-recap[data-presentation=insight] p.insight-you{font-size:13px;margin:8px 0}
+ #marlo-recap[data-presentation=insight] .insight-photo img{height:90px}
+ #marlo-recap .insight-dial{width:110px;height:110px}
+ #marlo-recap .insight-dial .insight-number{font-size:47px!important}
+ #marlo-recap .insight-trust-ticket{padding-top:8px}
+ #marlo-recap .insight-halves{min-height:80px;margin-bottom:8px}
+ #marlo-recap .insight-half-label{font-size:26px}
+ #marlo-recap .insight-side-stat{margin-top:8px}
+ #marlo-recap .insight-source{font-size:10px!important}
+}
+#marlo-recap .insight-halves>div{min-height:0;padding:6px}
+@media(max-height:600px){
+ #marlo-recap[data-presentation=insight] h2.insight-title{font-size:24px;margin-bottom:8px}
+ #marlo-recap[data-presentation=insight] p.insight-stat{font-size:13px!important}
+ #marlo-recap[data-presentation=insight] p.insight-you{font-size:12px;line-height:1.35;margin:6px 0}
+ #marlo-recap .insight-half-label{font-size:22px}
+ #marlo-recap .insight-dial{width:94px;height:94px}
+ #marlo-recap[data-presentation=insight] .insight-photo img{height:76px}
+ #marlo-recap .insight-trust-ticket .insight-number{font-size:54px!important}
+ #marlo-recap .insight-side-stat .insight-number{font-size:58px!important}
+ #marlo-recap .insight-kicker{margin-bottom:6px!important}
+}
+@media(max-height:600px){
+ #marlo-recap .insight-sideword{display:none}
+ #marlo-recap .insight-budget{padding:7px 0;gap:3px}
+ #marlo-recap .insight-budget>strong{font-size:24px}
+ #marlo-recap .insight-proportion{flex:none;height:12px}
+ #marlo-recap[data-insight=insight-data] .insight-side-stat{margin-top:6px}
+ #marlo-recap[data-insight=insight-data]:has(.wearable-picker) .insight-kicker{display:none}
+ #marlo-recap[data-insight=insight-data]:has(.wearable-picker) .insight-photo img{height:64px}
+ #marlo-recap[data-insight=insight-data]:has(.wearable-picker) .insight-side-stat .insight-number{font-size:50px!important}
+ #marlo-recap[data-insight=insight-data]:has(.wearable-picker) .insight-stat{font-size:12px!important}
+}
+/* Round two: relaxed typography and larger answer targets. */
+#marlo-recap[data-presentation=quiz] h1,
+#marlo-recap[data-presentation=quiz] h2,
+#marlo-recap[data-presentation=quiz] .quiz-page h2.quiz-form-title,
+#marlo-recap[data-presentation=quiz] .quiz-page h2.quiz-form-title[data-long=true]{font-family:'Manrope',sans-serif;font-size:36px;line-height:1.25;letter-spacing:-.65px;margin:0 0 26px;overflow-wrap:normal}
+#marlo-recap[data-presentation=quiz] .quiz-options{gap:12px;border-top:0}
+#marlo-recap[data-presentation=quiz] .quiz-options .recap-option{font-size:19px;line-height:1.45;padding:15px 0;min-height:66px;gap:16px}
+#marlo-recap[data-presentation=quiz] .quiz-options[data-layout=boxes] .recap-option{border:1px solid #3e51594d;border-radius:14px;padding:16px;min-height:72px;background:#f8f2e9}
+#marlo-recap[data-presentation=quiz] .quiz-options[data-layout=boxes] .recap-option:has(input:checked){background:var(--recap-lime);border-color:var(--recap-ink)}
+#marlo-recap[data-presentation=quiz] .quiz-options .recap-option input{width:26px;height:26px}
+#marlo-recap .question-note{font-size:18px;line-height:1.5;color:#3e5159;margin:-12px 0 25px}
+#marlo-recap .opening-form .quiz-field{font-size:17px}
+#marlo-recap .opening-form input{border:1px solid #3e515974;border-radius:12px;background:#f8f2e9;padding:15px 16px;min-height:60px;font-size:20px}
+#marlo-recap .recap-edit label{font-size:19px;line-height:1.45;margin-bottom:22px}
+#marlo-recap .recap-edit input{font-size:21px;line-height:1.45;padding:13px 0}
+#marlo-recap[data-presentation=quiz] .recap-facts li{font-size:23px;line-height:1.4;padding:18px 0}
+#marlo-recap[data-presentation=quiz] .recap-facts small{font-size:17px;margin-bottom:7px}
+#marlo-recap .recap-greeting{font-size:21px;margin-bottom:12px}
+#marlo-recap .recap-caption,#marlo-recap .rank-intro{font-size:17px;line-height:1.5}
+#marlo-recap[data-presentation=quiz] .rank-label{font-size:19px;line-height:1.4}
+#marlo-recap[data-insight=insight] p.insight-stat{font-size:20px!important;line-height:1.45}
+#marlo-recap[data-insight=insight] p.insight-you{font-size:18px;line-height:1.45}
+#marlo-recap[data-insight=insight-money] h2.insight-title{font-size:34px;line-height:1.2;letter-spacing:-.5px}
+#marlo-recap[data-insight=insight-money] p.insight-stat{font-size:19px!important;line-height:1.45}
+#marlo-recap[data-insight=insight-money] p.insight-you{font-size:17px;line-height:1.45}
+#marlo-recap[data-presentation=quiz] .quiz-page:has([data-action=review]) p{font-size:19px;line-height:1.55}
+#marlo-recap .pain-rank-list .rank-item{min-height:66px!important;padding-block:7px!important}
+#marlo-recap .pain-rank-list .rank-label{font-size:18px!important}
+#marlo-recap .quiz-scale{gap:9px}
+#marlo-recap .quiz-scale label{min-height:82px}
+#marlo-recap .quiz-scale-ends{font-size:15px;line-height:1.4}
+@media(max-width:360px){
+ #marlo-recap[data-presentation=quiz] h1,#marlo-recap[data-presentation=quiz] h2,#marlo-recap[data-presentation=quiz] .quiz-page h2.quiz-form-title,#marlo-recap[data-presentation=quiz] .quiz-page h2.quiz-form-title[data-long=true]{font-size:32px;line-height:1.25}
+}
+@media(max-height:720px){
+ #marlo-recap[data-insight=insight] .insight-dial{width:90px;height:90px}
+ #marlo-recap[data-insight=insight] p.insight-stat{font-size:17px!important}
+ #marlo-recap[data-insight=insight] p.insight-you{font-size:16px}
+ #marlo-recap[data-insight=insight-money] h2.insight-title{font-size:29px;line-height:1.2}
+ #marlo-recap[data-insight=insight-money] p.insight-stat{font-size:16px!important}
+ #marlo-recap[data-insight=insight-money] p.insight-you{font-size:15px}
+}
+#marlo-recap .pain-rank-list{gap:8px!important}
+#marlo-recap .pain-rank-list .rank-item{min-height:62px!important;padding-block:5px!important}
+#marlo-recap .pain-rank-list~.rank-instructions{display:none}
+#marlo-recap .recap-page{display:flex;flex-direction:column}
+#marlo-recap .recap-page > form{display:flex;flex-direction:column;min-height:0;flex:1}
+#marlo-recap .recap-page > .opening{overflow-y:auto}
+#marlo-recap .rank-list{position:relative}
+#marlo-recap .rank-item{position:relative}
+#marlo-recap .rank-grip{border:0;background:transparent;color:inherit}
+#marlo-recap .quiz-complete p{font-size:19px;line-height:1.55}

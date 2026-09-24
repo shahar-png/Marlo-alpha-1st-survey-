@@ -5,6 +5,7 @@ import {
   EMPTY2,
   LABEL,
   PAINS,
+  TOP_PAINS,
   PAIN_LEVELS,
   PARTS,
   type Answers2,
@@ -25,8 +26,12 @@ import {
   type Wearable,
 } from "@/lib/survey2-flow";
 import { cleanContext } from "@/lib/survey2-context";
-import Insight, { Action, Arrow, LOOKS } from "./survey-two-insights";
+import Insight, { Action, Arrow, LOOKS, PageLayout } from "./survey-two-insights";
+import SurveyRanking from "./survey-ranking";
+import { STAGING } from "@/lib/staging-mode";
 import "./survey-two-story.css";
+import "./survey-two-refinements.css";
+import "./survey-two-mobile.css";
 
 type Run = {
   page: string;
@@ -49,7 +54,8 @@ function Question({ q, a, set }: { q: Q; a: Answers2; set: SetAnswer }) {
       <h2 className="quiz-form-title" data-long={q.text.length > 100}>
         {q.text}
       </h2>
-      <fieldset className="recap-options quiz-options">
+      {q.note && <p className="question-note">{q.note}</p>}
+      <fieldset className="recap-options quiz-options" data-layout={["years", "count_now", "count_peak", "testing", "spend"].includes(q.id) ? "boxes" : "rows"}>
         <legend className="rank-live">{q.text}</legend>
         {q.kind === "multi" && (
           <p className="quiz-instruction">
@@ -149,7 +155,7 @@ function Pain({
       <h2>
         {
           [
-            "The daily juggle.",
+            "Your daily routine.",
             "The guesswork.",
             "The big questions.",
             "The real-life bits.",
@@ -184,83 +190,15 @@ function Pain({
     </>
   );
 }
-function Priorities({
-  order,
-  set,
-}: {
-  order: Priority[];
-  set: (order: Priority[]) => void;
-}) {
-  const dragging = useRef<Priority | null>(null),
-    [announcement, announce] = useState("");
-  const move = (key: Priority, to: number) => {
-    const next = order.filter((x) => x !== key);
-    next.splice(Math.max(0, Math.min(3, to)), 0, key);
-    set(next);
-    announce(PRIORITIES[key] + ", priority " + (next.indexOf(key) + 1));
-  };
-  return (
-    <>
-      <p>Your next chapter starts here.</p>
-      <h2>What matters most?</h2>
-      <p>Put your highest priority at the top.</p>
-      <ol className="rank-list" aria-label="Your priorities, highest first">
-        {order.map((key, i) => (
-          <li className="rank-item" key={key} data-rank-key={key}>
-            <button
-              className="rank-grip"
-              type="button"
-              aria-label={`Reorder ${PRIORITIES[key]}. Priority ${i + 1} of 4. Use Up and Down arrow keys.`}
-              onKeyDown={(e) => {
-                if (["ArrowUp", "ArrowDown"].includes(e.key)) {
-                  e.preventDefault();
-                  move(key, i + (e.key === "ArrowUp" ? -1 : 1));
-                }
-              }}
-              onPointerDown={(e) => {
-                dragging.current = key;
-                e.currentTarget.setPointerCapture(e.pointerId);
-              }}
-              onPointerMove={(e) => {
-                if (dragging.current !== key) return;
-                const hit = document
-                  .elementFromPoint(e.clientX, e.clientY)
-                  ?.closest<HTMLElement>("[data-rank-key]");
-                const at = order.indexOf(hit?.dataset.rankKey as Priority);
-                if (at >= 0 && at !== i) move(key, at);
-              }}
-              onPointerUp={() => {
-                dragging.current = null;
-              }}
-              onPointerCancel={() => {
-                dragging.current = null;
-              }}
-            >
-              <span className="rank-number">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <span className="rank-label">{PRIORITIES[key]}</span>
-              <span aria-hidden="true">⠿</span>
-            </button>
-            <button
-              className="rank-top"
-              onClick={() => move(key, 0)}
-              disabled={i === 0}
-              aria-label={"Move " + PRIORITIES[key] + " to the top"}
-            >
-              <span aria-hidden="true">↑</span>
-            </button>
-          </li>
-        ))}
-      </ol>
-      <p className="rank-hint">
-        Drag to reorder. Tap an arrow to move to the top.
-      </p>
-      <p className="rank-live" role="status">
-        {announcement}
-      </p>
-    </>
-  );
+function Priorities({ order, set }: { order: Priority[]; set: (order: Priority[]) => void }) {
+  return <>
+    <p className="recap-caption">Your next chapter starts here.</p>
+    <h2>What matters most?</h2>
+    <p className="rank-intro">Put your highest priority at the top.</p>
+    <SurveyRanking order={order} options={Object.entries(PRIORITIES).map(([id,label]) => ({id,label}))}
+      onChange={order => set(order as Priority[])} label="Your priorities, highest first" />
+    <p className="rank-instructions">Hold the six dots, then drag. Highest priority first.</p>
+  </>;
 }
 export default function SurveyTwoStory({
   participantId,
@@ -271,7 +209,8 @@ export default function SurveyTwoStory({
     [email, setEmail] = useState(""),
     [identity, setIdentity] = useState(""),
     [firstName, setFirstName] = useState("");
-  const [loading, setLoading] = useState(Boolean(participantId)),
+  const [editingReview, setEditingReview] = useState(false);
+  const [loading, setLoading] = useState(Boolean(participantId) && !STAGING),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [replay, setReplay] = useState(0),
@@ -287,7 +226,7 @@ export default function SurveyTwoStory({
     isInsight = item?.type === "insight",
     look = isInsight ? LOOKS[page] : null;
   useEffect(() => {
-    if (!participantId) return;
+    if (!participantId || STAGING) return;
     const controller = new AbortController();
     fetch("/api/participant?p=" + encodeURIComponent(participantId), {
       signal: controller.signal,
@@ -306,10 +245,11 @@ export default function SurveyTwoStory({
   }, [participantId]);
   useEffect(() => {
     window.scrollTo({ top: 0 });
+    stageRef.current?.querySelector(".page-body")?.scrollTo(0, 0);
     stageRef.current?.focus({ preventScroll: true });
   }, [page]);
   useEffect(() => {
-    if (!identity || ["intro", "done", "close"].includes(page)) return;
+    if (STAGING || !identity || ["intro", "done", "close"].includes(page)) return;
     try {
       sessionStorage.setItem(draftKey(identity), JSON.stringify(run));
     } catch {}
@@ -323,7 +263,10 @@ export default function SurveyTwoStory({
       ...prev,
       answers: cleanAnswers({ ...prev.answers, [key]: value }),
     }));
+  const returnToSummary = () => { setEditingReview(false); go("review"); };
+  const editFromSummary = (id: string) => { setEditingReview(true); go(id); };
   const next = () => {
+    if (editingReview && item && validItem(item, a)) { returnToSummary(); return; }
     if (item && validItem(item, a) && flow[index + 1]) go(flow[index + 1].id);
   };
   const back = () => {
@@ -366,7 +309,7 @@ export default function SurveyTwoStory({
         profile: { ...EMPTY_PROFILE, ...data.profile },
       };
       try {
-        const raw = sessionStorage.getItem(draftKey(normalized));
+        const raw = STAGING ? null : sessionStorage.getItem(draftKey(normalized));
         if (raw) {
           const saved = JSON.parse(raw),
             context = cleanContext(saved);
@@ -470,6 +413,8 @@ export default function SurveyTwoStory({
       </span>
     </nav>
   );
+  const nextInSection = editingReview && item?.chapter !== undefined
+    ? flow.slice(index + 1).find(x => x.chapter === item.chapter && x.type !== "insight") : undefined;
   const terminal = ["done", "close"].includes(page);
   let content: React.ReactNode;
   if (page === "intro")
@@ -525,7 +470,7 @@ export default function SurveyTwoStory({
             />
           </label>
           <p id="opening-email-help" className="opening-help">
-            Use the email from your first survey.
+            {STAGING ? "QA preview: use any valid email. You’ll see a fictional profile." : "Use the email from your first survey."}
           </p>
           {error && (
             <p role="alert" className="quiz-error">
@@ -548,11 +493,11 @@ export default function SurveyTwoStory({
   else if (page === "profile")
     content = (
       <>
-        <p>Hey{firstName ? ", " + firstName : ""}.</p>
+        <p className="recap-greeting">Hey{firstName ? ", " + firstName : ""}.</p>
         <h1>
-          Your stack.
+          What we know
           <br />
-          Your story.
+          about you.
         </h1>
         <ul className="recap-facts">
           {[
@@ -580,13 +525,13 @@ export default function SurveyTwoStory({
     );
   else if (page === "edit")
     content = (
-      <form
+      <form className="recap-edit"
         onSubmit={(e) => {
           e.preventDefault();
           go("profile");
         }}
       >
-        <h2>Your details.</h2>
+        <PageLayout><h2>Anything to update?</h2>
         <p>Update anything that has changed. All fields are optional.</p>
         {(
           [
@@ -614,7 +559,7 @@ export default function SurveyTwoStory({
             />
           </label>
         ))}
-        <Action type="submit">Save details</Action>
+        <Action type="submit">Save details</Action></PageLayout>
       </form>
     );
   else if (page === "priority")
@@ -624,7 +569,7 @@ export default function SurveyTwoStory({
           order={priorityOrder}
           set={(order) => setRun((prev) => ({ ...prev, priorityOrder: order }))}
         />
-        <Action onClick={next}>This is my order</Action>
+        <Action onClick={next}>{editingReview ? "Save & return to summary" : "This is my order"}</Action>
       </>
     );
   else if (isInsight)
@@ -641,31 +586,28 @@ export default function SurveyTwoStory({
       />
     );
   else if (item?.q || item?.type === "top" || item?.type === "pain") {
-    const q =
-      item.q ||
-      (item.type === "top"
-        ? {
-            id: "top_pain",
-            kind: "single" as const,
-            text: "If you could fix just one of these, which would you pick?",
-            options: PAINS.filter((p) => ["1", "2"].includes(a.pains[p.id])),
-          }
-        : undefined);
+    const q = item.q;
     content = (
       <>
-        {q ? (
+        {item.type === "top" ? <>
+          <h2>What gets in your way most?</h2>
+          <p className="rank-intro">Hold the dots to rank. Biggest frustration first.</p>
+          <SurveyRanking compact order={a.pain_priority} options={TOP_PAINS} label="Your frustrations, biggest first"
+            onChange={order => set("pain_priority", order)} />
+        </> : q ? (
           <Question q={q} a={a} set={set} />
         ) : (
           <Pain group={item.group!} a={a} set={set} />
         )}
         <Action onClick={next} disabled={!validItem(item, a)}>
-          {q &&
+          {editingReview ? "Save & return to summary" : item.type === "top" ? "Save my order" : q &&
           "optional" in q &&
           q.optional &&
           !(a[q.id as keyof Answers2] as string[]).length
             ? "Skip for now"
             : "Continue"}
         </Action>
+        {nextInSection && <button className="recap-secondary" type="button" disabled={!validItem(item, a)} onClick={() => go(nextInSection.id)}>Next question in this section</button>}
       </>
     );
   } else if (page === "review")
@@ -682,8 +624,8 @@ export default function SurveyTwoStory({
             ["Your first priority", PRIORITIES[priorityOrder[0]], "priority"],
             [
               "Your main friction",
-              LABEL.pains[a.top_pain] || "No listed friction",
-              "pain-0",
+              TOP_PAINS.find(p => p.id === a.top_pain)?.label || "No listed friction",
+              flow.some(x => x.id === "top_pain") ? "top_pain" : "pain-0",
             ],
             [
               "Your monthly spend",
@@ -701,7 +643,7 @@ export default function SurveyTwoStory({
                 <small>{label}</small>
                 <strong>{value}</strong>
               </div>
-              <button onClick={() => go(target)} aria-label={"Edit " + label}>
+              <button onClick={() => editFromSummary(target)} aria-label={"Edit " + label}>
                 Edit
               </button>
             </li>
@@ -711,7 +653,7 @@ export default function SurveyTwoStory({
           {PARTS.map((p, i) => (
             <button
               key={p.key}
-              onClick={() => go(flow.find((x) => x.chapter === i)!.id)}
+              onClick={() => editFromSummary(flow.find((x) => x.chapter === i)!.id)}
             >
               <span>{CHAPTER_NAMES[i]}</span>
               <small>
@@ -734,7 +676,7 @@ export default function SurveyTwoStory({
           onClick={() =>
             isComplete(a)
               ? void submit()
-              : go(flow.find((x) => !validItem(x, a))!.id)
+              : editFromSummary(flow.find((x) => !validItem(x, a))!.id)
           }
           disabled={busy}
         >
@@ -761,20 +703,19 @@ export default function SurveyTwoStory({
         </>
       ) : (
         <>
-          <h2>That’s so you.</h2>
+          <h2>{STAGING ? "QA run complete." : "That’s so you."}</h2>
           <p>
-            Thanks{firstName ? ", " + firstName : ""}. This is what lets Marlo
-            start already knowing you.
+            {STAGING ? "You’ve reached the end. No answers were saved or sent. Refresh to start a new test." : <>Thanks{firstName ? ", " + firstName : ""}. This is what lets Marlo start already knowing you.</>}
           </p>
-          <p>
+          {!STAGING && <p>
             Next: your first call. If you haven’t booked it yet, the link is in
             your “You’re in” email.
-          </p>
+          </p>}
           <p>
             See you there.
             <br />— The Marlo team
           </p>
-          {process.env.NEXT_PUBLIC_BOOKING_URL && (
+          {!STAGING && process.env.NEXT_PUBLIC_BOOKING_URL && (
             <a
               className="recap-main"
               href={process.env.NEXT_PUBLIC_BOOKING_URL}
@@ -788,12 +729,15 @@ export default function SurveyTwoStory({
   return (
     <div
       id="marlo-recap"
+      data-staging={STAGING}
+      data-screen={page}
       data-palette="electric"
       data-opening={page === "intro"}
       data-motion="true"
       data-presentation={isInsight ? "insight" : "quiz"}
       data-insight={isInsight ? page : ""}
     >
+      {STAGING && <span className="stage-tag" style={look ? { color: look.text } : undefined} title="Fictional profile · Refresh to reset · Nothing is saved">STAGING</span>}
       <div className="recap-app">
         {page !== "intro" && (
           <div
@@ -869,7 +813,10 @@ export default function SurveyTwoStory({
               <BrandIcon className="recap-symbol" />
             </header>
             {!isInsight && page !== "intro" && !terminal && nav}
-            <main className="recap-page quiz-page">{content}</main>
+            {editingReview && <div className="review-edit-bar"><span>Editing your answers</span><button type="button" onClick={returnToSummary}>Back to summary</button></div>}
+            <main data-density={item?.q && "options" in item.q && item.q.options.length >= 6 ? "dense" : "normal"} className={`recap-page quiz-page${terminal ? " quiz-complete" : ""}`}>
+              {page === "intro" || page === "edit" || isInsight ? content : <PageLayout>{content}</PageLayout>}
+            </main>
           </article>
         </div>
         {isInsight && nav}

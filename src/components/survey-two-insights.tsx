@@ -149,7 +149,7 @@ function Title({ text }: { text: string }) {
     </h2>
   );
 }
-export default function Insight({
+function InsightContent({
   id,
   a,
   profile,
@@ -198,10 +198,10 @@ export default function Insight({
           </div>
         </div>
         <p className="insight-stat">
-          say it’s important that health information is easy to understand.
+          say health information should be easy to understand.
         </p>
         <p className="insight-you">
-          Your top priority: {PRIORITIES[priority]}. Let’s start there.
+          Your priority: {PRIORITIES[priority]}.
         </p>
         <Source id="simple" />
         <Action onClick={next}>Let’s explore your story</Action>
@@ -397,4 +397,19 @@ export default function Insight({
       {end("cost")}
     </>
   );
+}
+
+/** Keep the action visible while long question content scrolls independently. */
+export function PageLayout({ children }: { children: React.ReactNode }) {
+  const flatten = (nodes: React.ReactNode): React.ReactNode[] => React.Children.toArray(nodes).flatMap(node =>
+    React.isValidElement<{children?: React.ReactNode}>(node) && node.type === React.Fragment ? flatten(node.props.children) : [node]);
+  const body: React.ReactNode[] = [], actions: React.ReactNode[] = [];
+  flatten(children).forEach(node => {
+    if (React.isValidElement<{className?: string}>(node) && (node.type === Action || node.props.className === "recap-secondary")) actions.push(node);
+    else body.push(node);
+  });
+  return <><div className="page-body">{body}</div>{actions.length > 0 && <div className="page-action-area">{actions}</div>}</>;
+}
+export default function Insight(props: Parameters<typeof InsightContent>[0]) {
+  return <PageLayout>{InsightContent(props)}</PageLayout>;
 }

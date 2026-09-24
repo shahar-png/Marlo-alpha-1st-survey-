@@ -1,3 +1,4 @@
+import { stagingBlocked } from "@/lib/staging";
 import { NextResponse } from "next/server";
 import { createHash } from "crypto";
 import { notionEnabled, notionGetParticipant, notionFindByEmail, notionUploadFile, notionWriteWaiver } from "@/lib/notion";
@@ -18,6 +19,7 @@ function clean(s: unknown, max = 300) {
  * attaches it to the Notion card (Signed waiver + Waiver signed + Waiver version), then files/emails it via Apps Script.
  */
 export async function POST(req: Request) {
+  const staging = stagingBlocked(); if (staging) return staging;
   let body: { waiver_version?: string; p?: string; email?: string; name?: string; signature?: string; typed?: boolean; local_time?: string };
   try { body = await req.json(); } catch { return NextResponse.json({ error: "bad_json" }, { status: 400 }); }
   if (!notionEnabled()) return NextResponse.json({ error: "no_database" }, { status: 500 });

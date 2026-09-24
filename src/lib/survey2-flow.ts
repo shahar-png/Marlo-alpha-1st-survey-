@@ -1,7 +1,7 @@
-import { ALL_Q, EMPTY2, PAINS, PARTS, type Answers2, type Q } from "./survey2";
+import { ALL_Q, EMPTY2, PAINS, TOP_PAINS, PARTS, type Answers2, type Q } from "./survey2";
 export const PRIORITIES = {
   clarity: "Know what’s actually working",
-  effort: "Keep up with less effort",
+  effort: "Make my routine easier",
   spending: "Feel better about what I spend",
   routine: "Build a routine that fits my life",
 };
@@ -61,7 +61,11 @@ export function cleanAnswers(input: Answers2): Answers2 {
     if (a.tools.every((x) => a.tools_still.includes(x)))
       a.tools_dropped_why = [];
   }
-  if (!a.pains[a.top_pain] || a.pains[a.top_pain] === "0") a.top_pain = "";
+  const eligible = TOP_PAINS.filter(p => ["1", "2"].includes(a.pains[p.id])).map(p => p.id);
+  const previous = Array.isArray(a.pain_priority) ? a.pain_priority : [];
+  a.pain_priority = [...new Set(previous.filter(id => eligible.includes(id))),
+    ...eligible.filter(id => !previous.includes(id)).sort((x,y) => Number(a.pains[y])-Number(a.pains[x]))];
+  a.top_pain = a.pain_priority[0] || "";
   return a;
 }
 export function buildFlow(a: Answers2): FlowItem[] {
@@ -77,7 +81,7 @@ export function buildFlow(a: Answers2): FlowItem[] {
         f.push({ id: "pain-" + group, type: "pain", group, chapter });
     if (
       part.key === "pains2" &&
-      PAINS.some((p) => a.pains[p.id] && a.pains[p.id] !== "0")
+      TOP_PAINS.some((p) => a.pains[p.id] && a.pains[p.id] !== "0")
     )
       f.push({ id: "top_pain", type: "top", chapter });
     part.questions
@@ -119,7 +123,7 @@ export function validItem(item: FlowItem, a: Answers2) {
       ["0", "1", "2"].includes(a.pains[p.id]),
     );
   if (item.type === "top")
-    return PAINS.some(
+    return TOP_PAINS.some(
       (p) => p.id === a.top_pain && ["1", "2"].includes(a.pains[p.id]),
     );
   return true;
@@ -155,6 +159,7 @@ export function restoreAnswers(input: unknown): Answers2 {
       if (typeof x === "string" && ["0", "1", "2"].includes(x))
         a.pains[p.id] = x;
     }
+  if (Array.isArray(v.pain_priority)) a.pain_priority = v.pain_priority.filter((id): id is string => typeof id === "string" && TOP_PAINS.some(p => p.id === id));
   if (typeof v.top_pain === "string") a.top_pain = v.top_pain;
   if (typeof v.stop_why_other === "string")
     a.stop_why_other = v.stop_why_other.slice(0, 500);

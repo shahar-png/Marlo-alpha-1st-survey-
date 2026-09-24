@@ -1,3 +1,4 @@
+import { stagingSubmission } from "@/lib/staging";
 import { NextResponse } from "next/server";
 import { EMPTY2, SHEET2_COLUMNS, flatten, tagsFrom, type Answers2 } from "@/lib/survey2";
 import { notionEnabled, notionGetParticipant, notionFindByEmail, notionWriteSurvey2 } from "@/lib/notion";
@@ -20,6 +21,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "bad_json" }, { status: 400 });
   }
   if (!body || typeof body !== "object" || Array.isArray(body)) return NextResponse.json({ error: "bad_json" }, { status: 400 });
+  const staging = stagingSubmission(body); if (staging) return staging;
   if (!notionEnabled()) return NextResponse.json({ error: "no_database" }, { status: 500 });
 
   // Sanitize: only known keys, only strings / string arrays / the one number.

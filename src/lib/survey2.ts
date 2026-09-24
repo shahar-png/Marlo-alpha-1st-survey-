@@ -3,44 +3,42 @@
 
 export type Opt = { id: string; label: string };
 export type Q =
-  | { id: string; kind: "single"; text: string; options: Opt[]; rows?: boolean; showIf?: (a: Answers2) => boolean; optional?: boolean }
-  | { id: string; kind: "multi"; text: string; options: Opt[]; rows?: boolean; showIf?: (a: Answers2) => boolean; optional?: boolean; other?: string }
-  | { id: string; kind: "scale"; text: string; min: number; max: number; low: string; high: string };
+  | { id: string; kind: "single"; text: string; note?: string; options: Opt[]; rows?: boolean; showIf?: (a: Answers2) => boolean; optional?: boolean }
+  | { id: string; kind: "multi"; text: string; note?: string; options: Opt[]; rows?: boolean; showIf?: (a: Answers2) => boolean; optional?: boolean; other?: string }
+  | { id: string; kind: "scale"; text: string; note?: string; min: number; max: number; low: string; high: string };
 
 const o = (pairs: [string, string][]): Opt[] => pairs.map(([id, label]) => ({ id, label }));
 
 /* ---------- Part 2 · Your history ---------- */
 const P2: Q[] = [
-  { id: "years", kind: "single", text: "How long have you been taking supplements regularly?", options: o([["lt6m", "Less than 6 months"], ["6m_2y", "6 months to 2 years"], ["2_5y", "2–5 years"], ["gt5y", "More than 5 years"]]) },
-  { id: "count_now", kind: "single", text: "How many different supplements do you take a day right now?", options: o([["0", "None"], ["1_3", "1–3"], ["4_6", "4–6"], ["7_10", "7–10"], ["10p", "More than 10"]]) },
-  { id: "count_peak", kind: "single", text: "At your peak, how many did you take a day?", options: o([["same", "Same as now"], ["1_3", "1–3"], ["4_6", "4–6"], ["7_10", "7–10"], ["10p", "More than 10"]]) },
-  { id: "stopped", kind: "single", rows: true, text: "Have you ever stopped for three months or more, then come back — or not come back?", options: o([["never", "Never stopped"], ["restarted", "Stopped and restarted"], ["not_restarted", "Stopped and haven’t restarted"], ["getting_back", "Stopped and just getting back into it"]]) },
-  { id: "stop_why", kind: "multi", rows: true, text: "What happened?", showIf: (a) => !!a.stopped && a.stopped !== "never", other: "stop_why_other", options: o([["life", "Life got in the way (move, job, baby, travel)"], ["effort", "The effort got old"], ["unsure", "Couldn’t tell if it was working"], ["cost", "Cost"], ["other", "Something else"]]) },
+    { id: "years", kind: "single", text: "How long have you taken supplements regularly?", options: o([["lt6m", "Less than 6 months"], ["6m_2y", "6 months to 2 years"], ["2_5y", "2–5 years"], ["gt5y", "More than 5 years"]]) },
+    { id: "count_now", kind: "single", text: "How many supplements do you take each day?", options: o([["0", "None"], ["1_3", "1–3"], ["4_6", "4–6"], ["7_10", "7–10"], ["10p", "More than 10"]]) },
+    { id: "count_peak", kind: "single", text: "What’s the most you’ve taken in a day?", options: o([["same", "Same as now"], ["1_3", "1–3"], ["4_6", "4–6"], ["7_10", "7–10"], ["10p", "More than 10"]]) },
 ];
 
 /* ---------- Part 3 · How it started ---------- */
 const P3: Q[] = [
-  { id: "origin", kind: "single", rows: true, text: "What first put supplements on your radar?", options: o([["self", "I got into it myself — training, research, curiosity"], ["doctor", "A doctor or practitioner told me to take specific things"], ["coach", "A trainer or coach gave me a protocol"], ["event", "Something changed — a diagnosis, a new prescription, pregnancy, a scare, a milestone birthday"], ["friend", "A friend or family member"], ["media", "A podcast, creator, or book"]]) },
-  { id: "list_given", kind: "single", rows: true, text: "In the last 12 months, has anyone with authority given you a list of specific supplements to take?", options: o([["doctor", "Yes — a doctor"], ["practitioner", "Yes — a trainer, dietitian, or naturopath"], ["creator", "Yes — a protocol from a podcast or creator"], ["no", "No"]]) },
-  { id: "list_done", kind: "single", text: "What happened with that list?", showIf: (a) => !!a.list_given && a.list_given !== "no", options: o([["right_away", "Filled it right away"], ["part", "Filled part of it"], ["not_started", "Still haven’t started"], ["eventually", "Took a while, but done"]]) },
-  { id: "list_stuck", kind: "multi", rows: true, text: "What slowed you down?", showIf: (a) => !!a.list_given && a.list_given !== "no" && !!a.list_done && a.list_done !== "right_away", options: o([["brands", "Too many brands to choose from"], ["dose", "Not sure about the dose or form"], ["price", "Price"], ["meds", "Worried about mixing it with medication"], ["didnt", "Just didn’t get to it"]]) },
+    { id: "origin", kind: "single", rows: true, text: "What first put supplements on your radar?", options: o([["self", "I got into it myself — training, research, curiosity"], ["doctor", "A doctor or practitioner told me to take specific things"], ["coach", "A trainer or coach gave me a protocol"], ["event", "Something changed — a diagnosis, a new prescription, pregnancy, a scare, a milestone birthday"], ["friend", "A friend or family member"], ["media", "A podcast, creator, or book"]]) },
+    { id: "list_given", kind: "single", rows: true, text: "Has anyone recommended a supplement list in the past year?", options: o([["doctor", "A doctor"], ["practitioner", "A trainer, dietitian, or naturopath"], ["creator", "A podcast or creator"], ["no", "No"]]) },
+    { id: "list_done", kind: "single", text: "What happened with that list?", showIf: (a) => !!a.list_given && a.list_given !== "no", options: o([["right_away", "Filled it right away"], ["part", "Filled part of it"], ["not_started", "Still haven’t started"], ["eventually", "Took a while, but done"]]) },
+    { id: "list_stuck", kind: "multi", rows: true, text: "What slowed you down?", showIf: (a) => !!a.list_given && a.list_given !== "no" && !!a.list_done && a.list_done !== "right_away", options: o([["brands", "Too many brands to choose from"], ["dose", "Not sure about the dose or form"], ["price", "Price"], ["meds", "Worried about mixing it with medication"], ["didnt", "Just didn’t get to it"]]) },
 ];
 
 /* ---------- Part 4 · Your data ---------- */
 const P4: Q[] = [
-  { id: "testing", kind: "single", text: "Do you pay for a testing or longevity service? Function, Superpower, InsideTracker, a longevity clinic, or similar.", options: o([["yes", "Yes, currently"], ["past", "I have in the past"], ["no", "No"]]) },
-  { id: "testing_protocol", kind: "single", rows: true, text: "Did they give you a supplement protocol, and how closely do you follow it?", showIf: (a) => a.testing === "yes" || a.testing === "past", options: o([["most", "Yes, I follow most of it"], ["some", "Yes, I follow some of it"], ["mostly_not", "Yes, but I mostly don’t"], ["none", "No protocol"]]) },
-  { id: "bloodwork", kind: "single", rows: true, text: "How often do you get blood work done?", options: o([["2y", "Twice a year or more"], ["1y", "About once a year"], ["doctor", "Only when a doctor orders it"], ["rarely", "Rarely or never"]]) },
-  { id: "wearable", kind: "multi", text: "Do you wear a health tracker?", options: o([["apple_watch", "Apple Watch"], ["oura", "Oura"], ["whoop", "Whoop"], ["garmin", "Garmin"], ["other", "Something else"], ["no", "No"]]) },
-  { id: "doctor_involved", kind: "single", text: "Is a doctor or practitioner involved in your supplement decisions?", options: o([["closely", "Yes, closely"], ["occasionally", "Occasionally"], ["no", "Not at all"]]) },
+    { id: "testing", kind: "single", note: "For example, Function or a longevity clinic.", text: "Do you pay for a testing or longevity service?", options: o([["yes", "Yes, currently"], ["past", "I have in the past"], ["no", "No"]]) },
+    { id: "testing_protocol", kind: "single", rows: true, text: "Did they give you a supplement protocol, and how closely do you follow it?", showIf: (a) => a.testing === "yes" || a.testing === "past", options: o([["most", "Yes, I follow most of it"], ["some", "Yes, I follow some of it"], ["mostly_not", "Yes, but I mostly don’t"], ["none", "No protocol"]]) },
+    { id: "bloodwork", kind: "single", rows: true, text: "How often do you get blood work done?", options: o([["2y", "Twice a year or more"], ["1y", "About once a year"], ["doctor", "Only when a doctor orders it"], ["rarely", "Rarely or never"]]) },
+    { id: "wearable", kind: "multi", text: "Do you wear a health tracker?", options: o([["apple_watch", "Apple Watch"], ["oura", "Oura"], ["whoop", "Whoop"], ["garmin", "Garmin"], ["other", "Something else"], ["no", "No"]]) },
+    { id: "doctor_involved", kind: "single", text: "Is a doctor or practitioner involved in your supplement decisions?", options: o([["closely", "Yes, closely"], ["occasionally", "Occasionally"], ["no", "Not at all"]]) },
 ];
 
 /* ---------- Part 5 · How you decide ---------- */
 const P5: Q[] = [
-  { id: "decide", kind: "single", rows: true, text: "When you’re deciding whether to take something new, what do you actually do?", options: o([["research", "I research it myself — studies, Reddit, long reviews — until I’m sure"], ["authority", "I go with what a doctor, trainer, or practitioner says"], ["media", "I follow a podcast, creator, or book I trust"], ["friends", "I ask friends or people I train with"], ["feel", "I try it and see how I feel"], ["unsure", "Honestly, I’m not sure how I decide"]]) },
-  { id: "ai", kind: "single", text: "Have you asked ChatGPT or another AI about your supplements?", options: o([["regularly", "Yes, regularly"], ["once", "Once or twice"], ["never", "Never"]]) },
-  { id: "sources", kind: "multi", text: "Where do you get your supplement information?", options: o([["podcasts", "Health or fitness podcasts"], ["youtube", "YouTube"], ["reddit", "Reddit or forums"], ["social", "Instagram or TikTok"], ["doctor", "A doctor or practitioner"], ["friends", "Friends"], ["amazon", "Amazon reviews"], ["studies", "Studies and research papers"]]) },
-  { id: "whose_interest", kind: "single", text: "When a brand or store recommends a supplement, whose interest do you assume they’re serving?", options: o([["mine", "Mine"], ["theirs", "Theirs"], ["depends", "Depends on the brand"]]) },
+    { id: "decide", kind: "single", rows: true, text: "How do you decide to try a new supplement?", options: o([["research", "I research it myself — studies, Reddit, long reviews — until I’m sure"], ["authority", "I go with what a doctor, trainer, or practitioner says"], ["media", "I follow a podcast, creator, or book I trust"], ["friends", "I ask friends or people I train with"], ["feel", "I try it and see how I feel"], ["unsure", "Honestly, I’m not sure how I decide"]]) },
+    { id: "ai", kind: "single", text: "Have you asked ChatGPT or another AI about your supplements?", options: o([["regularly", "Yes, regularly"], ["once", "Once or twice"], ["never", "Never"]]) },
+    { id: "sources", kind: "multi", text: "Where do you get your supplement information?", options: o([["podcasts", "Health or fitness podcasts"], ["youtube", "YouTube"], ["reddit", "Reddit or forums"], ["social", "Instagram or TikTok"], ["doctor", "A doctor or practitioner"], ["friends", "Friends"], ["amazon", "Amazon reviews"], ["studies", "Studies and research papers"]]) },
+    { id: "whose_interest", kind: "single", text: "When a brand or store recommends a supplement, whose interest do you assume they’re serving?", options: o([["mine", "Mine"], ["theirs", "Theirs"], ["depends", "Depends on the brand"]]) },
 ];
 
 /* ---------- Part 6 · What bothers you most ---------- */
@@ -58,47 +56,54 @@ export const PAINS: Opt[] = o([
   ["pills", "The pills themselves — size, count, taste"],
   ["travel", "Travel — packing it, keeping the routine going"],
 ]);
+export const TOP_PAINS = o([
+ ["buying", "Buying and reordering"], ["remembering", "Remembering to take them"],
+ ["sorting", "Sorting and organizing"], ["tracking", "Managing my inventory"],
+ ["working", "Knowing what works"], ["choosing", "Choosing brands and doses"],
+ ["trust", "Trusting advice"], ["cost", "Monthly cost"],
+ ["interactions", "Mixing with medication"], ["gap", "Support between tests"],
+ ["pills", "Pill size, count and taste"], ["travel", "Keeping up while traveling"]
+]);
 export const PAIN_LEVELS: Opt[] = o([["0", "Not an issue"], ["1", "Annoying"], ["2", "A real problem"]]);
 
 const P6B: Q[] = [
-  { id: "sure", kind: "single", rows: true, text: "Of everything you take, how sure are you that each one does something for you?", options: o([["all", "Sure about all of them"], ["most", "Sure about most"], ["half", "Sure about half"], ["few", "Not sure about most"], ["faith", "I take them on faith"]]) },
-  { id: "proof", kind: "single", rows: true, text: "Have you ever tried to figure out whether something you take is working?", options: o([["blood", "Yes — with blood work"], ["wearable", "Yes — with a wearable or tracking"], ["feel", "Yes — by paying attention to how I feel"], ["no", "No"]]) },
+    { id: "sure", kind: "single", rows: true, text: "How sure are you that your supplements help?", options: o([["all", "Sure about all of them"], ["most", "Sure about most"], ["half", "Sure about half"], ["few", "Not sure about most"], ["faith", "I take them on faith"]]) },
+    { id: "proof", kind: "single", rows: true, text: "Have you ever tried to figure out whether something you take is working?", options: o([["blood", "Yes — with blood work"], ["wearable", "Yes — with a wearable or tracking"], ["feel", "Yes — by paying attention to how I feel"], ["no", "No"]]) },
 ];
 
 /* ---------- Part 7 · Handing it over ---------- */
 const P7: Q[] = [
-  { id: "allow", kind: "multi", rows: true, text: "If someone you trusted ran your supplements for you, what would you let them do without asking you first?", options: o([["reorder", "Reorder the same thing when I’m running low"], ["reminder", "Move a reminder when I travel or train"], ["switch", "Switch to an equivalent brand if mine is out of stock or overpriced"], ["dose", "Change a dose"], ["add_drop", "Add or drop something"], ["none", "None of these — ask me every time"]]) },
-  { id: "never", kind: "single", text: "Which decision would you never hand off?", options: o([["brand", "Which brand"], ["what", "What I take"], ["dose", "The dose"], ["spend", "How much I spend"], ["nothing", "Nothing — I’d hand it all off"]]) },
-  { id: "handover", kind: "single", rows: true, text: "How do you feel about handing this over?", options: o([["cant_wait", "Can’t wait — take the whole job"], ["keep_calls", "Happy to, as long as I keep the calls that matter"], ["cautious", "Cautious — I’d need to see it work first"], ["myself", "I like running it myself"]]) },
-  { id: "quit", kind: "single", rows: true, text: "What would make you quit a service like this? Pick the one that would end it fastest.", options: o([["wrong_order", "A wrong order"], ["generic", "Generic reminders that don’t know me"], ["selling", "Feeling like it’s trying to sell me something"], ["questions", "It asks too many questions"], ["another_app", "It feels like another app to manage"], ["no_answer", "Three months in and still no answer to “is it working?”"]]) },
+    { id: "never", kind: "single", text: "Which decision would you never hand off?", options: o([["brand", "Which brand"], ["what", "What I take"], ["dose", "The dose"], ["spend", "How much I spend"], ["nothing", "Nothing — I’d hand it all off"]]) },
+    { id: "handover", kind: "single", rows: true, text: "How do you feel about handing this over?", options: o([["cant_wait", "Can’t wait — take the whole job"], ["keep_calls", "Happy to, as long as I keep the calls that matter"], ["cautious", "Cautious — I’d need to see it work first"], ["myself", "I like running it myself"]]) },
+    { id: "quit", kind: "single", rows: true, text: "What would make you stop using a service like Marlo?", options: o([["wrong_order", "A wrong order"], ["generic", "Generic reminders that don’t know me"], ["selling", "Feeling like it’s trying to sell me something"], ["questions", "It asks too many questions"], ["another_app", "It feels like another app to manage"], ["no_answer", "Three months in and still no answer to “is it working?”"]]) },
 ];
 
 /* ---------- Part 8 · What you've tried ---------- */
 const TOOLS = o([["organizer", "A pill organizer or weekly tray"], ["reminder_app", "A reminder or habit app"], ["tracking_app", "A supplement tracking app"], ["subscriptions", "Subscriptions or auto-ship"], ["notes", "A notes app or spreadsheet"], ["ai", "ChatGPT or another AI"], ["packs", "A pre-packed daily pack service"], ["none", "None of these"]]);
 const TOOLS_SHORT = o([["organizer", "Organizer"], ["reminder_app", "Reminder app"], ["tracking_app", "Tracking app"], ["subscriptions", "Subscriptions"], ["notes", "Notes or spreadsheet"], ["ai", "AI"], ["packs", "Daily packs"], ["none", "None"]]);
 const P8: Q[] = [
-  { id: "tools", kind: "multi", rows: true, text: "Have you used any of these to make your routine easier?", options: TOOLS },
-  { id: "tools_still", kind: "multi", text: "Which of them are you still using?", showIf: (a) => a.tools.length > 0 && !a.tools.includes("none"), options: TOOLS_SHORT },
-  { id: "tools_dropped_why", kind: "multi", rows: true, text: "For the ones you dropped — why?", optional: true, showIf: (a) => a.tools.length > 0 && !a.tools.includes("none") && a.tools.some((t) => !a.tools_still.includes(t)), options: o([["steps", "Added steps instead of removing them"], ["forgot", "Forgot about it"], ["routine", "Didn’t fit my routine"], ["useless", "Didn’t tell me anything useful"], ["cost", "Cost"]]) },
-  { id: "tech", kind: "single", rows: true, text: "How comfortable are you with new tech?", options: o([["first", "I’m usually first — I try everything"], ["comfortable", "Comfortable — I’ll use it if it’s good"], ["simple", "I’d rather keep things simple"]]) },
+    { id: "tools", kind: "multi", rows: true, text: "Have you used any of these to make your routine easier?", options: TOOLS },
+    { id: "tools_still", kind: "multi", text: "Which of them are you still using?", showIf: (a) => a.tools.length > 0 && !a.tools.includes("none"), options: TOOLS_SHORT },
+    { id: "tools_dropped_why", kind: "multi", rows: true, text: "For the ones you dropped — why?", optional: true, showIf: (a) => a.tools.length > 0 && !a.tools.includes("none") && a.tools.some((t) => !a.tools_still.includes(t)), options: o([["steps", "Added steps instead of removing them"], ["forgot", "Forgot about it"], ["routine", "Didn’t fit my routine"], ["useless", "Didn’t tell me anything useful"], ["cost", "Cost"]]) },
+    { id: "tech", kind: "single", rows: true, text: "How comfortable are you with new tech?", options: o([["first", "I’m usually first — I try everything"], ["comfortable", "Comfortable — I’ll use it if it’s good"], ["simple", "I’d rather keep things simple"]]) },
 ];
 
 /* ---------- Part 9 · Money ---------- */
 const P9: Q[] = [
-  { id: "spend", kind: "single", text: "Roughly what do you spend on supplements a month?", options: o([["lt50", "Under $50"], ["50_100", "$50–100"], ["100_200", "$100–200"], ["200_350", "$200–350"], ["gt350", "Over $350"]]) },
-  { id: "spend_feel", kind: "single", text: "How do you feel about that number?", options: o([["worth", "Worth it"], ["more", "More than I’d like"], ["no_idea", "Honestly, no idea if it’s worth it"]]) },
-  { id: "where", kind: "multi", text: "Where do you usually buy?", options: o([["amazon", "Amazon"], ["brand", "Brand websites"], ["store", "A store (pharmacy, Whole Foods, GNC…)"], ["clinic", "Through a doctor, clinic, or testing service"], ["else", "Somewhere else"]]) },
-  { id: "sellers", kind: "single", text: "How many different places did you buy from in the last three months?", options: o([["1", "One"], ["2_3", "Two or three"], ["4p", "Four or more"]]) },
-  { id: "subs", kind: "single", text: "Any subscriptions or auto-ship?", options: o([["most", "Most of it"], ["some", "Some"], ["none", "None"]]) },
-  { id: "loyalty", kind: "single", rows: true, text: "Brands — loyal or switcher?", options: o([["loyal", "I stick with my brands"], ["switch", "I’ll switch for better quality or price"], ["ignore", "I don’t pay attention to brand"]]) },
-  { id: "waste", kind: "single", text: "Is there anything in your cabinet you bought and stopped taking?", options: o([["few", "Yes, a few things"], ["one_two", "One or two"], ["no", "No"]]) },
+    { id: "spend", kind: "single", text: "Roughly what do you spend on supplements a month?", options: o([["lt50", "Under $50"], ["50_100", "$50–100"], ["100_200", "$100–200"], ["200_350", "$200–350"], ["gt350", "Over $350"]]) },
+    { id: "spend_feel", kind: "single", text: "How do you feel about that number?", options: o([["worth", "Worth it"], ["more", "More than I’d like"], ["no_idea", "Honestly, no idea if it’s worth it"]]) },
+    { id: "where", kind: "multi", text: "Where do you usually buy?", options: o([["amazon", "Amazon"], ["brand", "Brand websites"], ["store", "A store (pharmacy, Whole Foods, GNC…)"], ["clinic", "Through a doctor, clinic, or testing service"], ["else", "Somewhere else"]]) },
+    { id: "sellers", kind: "single", text: "How many different places did you buy from in the last three months?", options: o([["1", "One"], ["2_3", "Two or three"], ["4p", "Four or more"]]) },
+    { id: "subs", kind: "single", text: "Any subscriptions or auto-ship?", options: o([["most", "Most of it"], ["some", "Some"], ["none", "None"]]) },
+    { id: "loyalty", kind: "single", rows: true, text: "Brands — loyal or switcher?", options: o([["loyal", "I stick with my brands"], ["switch", "I’ll switch for better quality or price"], ["ignore", "I don’t pay attention to brand"]]) },
+    { id: "waste", kind: "single", text: "Is there anything in your cabinet you bought and stopped taking?", options: o([["few", "Yes, a few things"], ["one_two", "One or two"], ["no", "No"]]) },
 ];
 
 /* ---------- Part 10 · Baseline ---------- */
 const P10: Q[] = [
-  { id: "confidence", kind: "scale", text: "How confident are you that your current stack is the right one for you?", min: 1, max: 5, low: "Not at all", high: "Completely" },
-  { id: "hours", kind: "single", text: "How much time do you spend on your supplements in a typical month — researching, buying, sorting, remembering?", options: o([["lt1", "Under an hour"], ["1_2", "1–2 hours"], ["3_5", "3–5 hours"], ["5p", "More than 5 hours"]]) },
-  { id: "feel", kind: "single", text: "How would you describe running your supplements right now?", options: o([["easy", "Easy, it just happens"], ["fine", "Fine, a bit of work"], ["chore", "A chore"], ["second_job", "A second job"]]) },
+    { id: "confidence", kind: "scale", text: "How confident are you that your current stack is the right one for you?", min: 1, max: 5, low: "Not at all", high: "Completely" },
+    { id: "hours", kind: "single", note: "Include researching, buying, sorting, and remembering.", text: "How much time do you spend managing supplements each month?", options: o([["lt1", "Under an hour"], ["1_2", "1–2 hours"], ["3_5", "3–5 hours"], ["5p", "More than 5 hours"]]) },
+    { id: "feel", kind: "single", text: "How would you describe running your supplements right now?", options: o([["easy", "Easy, it just happens"], ["fine", "Fine, a bit of work"], ["chore", "A chore"], ["second_job", "A second job"]]) },
 ];
 
 export type Part = { key: string; title: string; lead?: string; questions: Q[] };
@@ -120,7 +125,7 @@ export type Answers2 = {
   origin: string; list_given: string; list_done: string; list_stuck: string[];
   testing: string; testing_protocol: string; bloodwork: string; wearable: string[]; doctor_involved: string;
   decide: string; ai: string; sources: string[]; whose_interest: string;
-  pains: Record<string, string>; top_pain: string; sure: string; proof: string;
+  pains: Record<string, string>; top_pain: string; pain_priority: string[]; sure: string; proof: string;
   allow: string[]; never: string; handover: string; quit: string;
   tools: string[]; tools_still: string[]; tools_dropped_why: string[]; tech: string;
   spend: string; spend_feel: string; where: string[]; sellers: string; subs: string; loyalty: string; waste: string;
@@ -132,7 +137,7 @@ export const EMPTY2: Answers2 = {
   origin: "", list_given: "", list_done: "", list_stuck: [],
   testing: "", testing_protocol: "", bloodwork: "", wearable: [], doctor_involved: "",
   decide: "", ai: "", sources: [], whose_interest: "",
-  pains: {}, top_pain: "", sure: "", proof: "",
+  pains: {}, top_pain: "", pain_priority: [], sure: "", proof: "",
   allow: [], never: "", handover: "", quit: "",
   tools: [], tools_still: [], tools_dropped_why: [], tech: "",
   spend: "", spend_feel: "", where: [], sellers: "", subs: "", loyalty: "", waste: "",
@@ -150,7 +155,7 @@ LABEL.pains = Object.fromEntries(PAINS.map((p) => [p.id, p.label]));
 export function partComplete(part: Part, a: Answers2): boolean {
   if (part.key === "pains") return PAINS.every((p) => a.pains[p.id] !== undefined);
   if (part.key === "pains2") {
-    const candidates = PAINS.filter((p) => a.pains[p.id] && a.pains[p.id] !== "0");
+    const candidates = TOP_PAINS.filter((p) => a.pains[p.id] && a.pains[p.id] !== "0");
     if (candidates.length > 0 && !candidates.some((p) => p.id === a.top_pain)) return false;
   }
   return part.questions.every((q) => {
@@ -227,7 +232,7 @@ export function flatten(a: Answers2): Record<string, string> {
 
 export const SHEET2_COLUMNS = [
   "submitted_at", "notion_page_id", "email", "first_name",
-  ...ALL_Q.map((q) => q.id).flatMap((id) => (id === "stop_why" ? ["stop_why", "stop_why_other"] : [id])),
+  ...["years", "count_now", "count_peak", "stopped", "stop_why", "origin", "list_given", "list_done", "list_stuck", "testing", "testing_protocol", "bloodwork", "wearable", "doctor_involved", "decide", "ai", "sources", "whose_interest", "sure", "proof", "allow", "never", "handover", "quit", "tools", "tools_still", "tools_dropped_why", "tech", "spend", "spend_feel", "where", "sellers", "subs", "loyalty", "waste", "confidence", "hours", "feel"].flatMap((id) => (id === "stop_why" ? ["stop_why", "stop_why_other"] : [id])),
   "pains", "top_pain",
   "tag_lead_pain", "tag_research_style", "tag_skeptic", "tag_delegation", "tag_proof_standard", "tag_data_vs_feel", "tag_tech_comfort", "tag_spend_tier",
   "tag_baseline_confidence", "tag_baseline_hours", "tag_baseline_feel", "raw_json", "user_agent",
