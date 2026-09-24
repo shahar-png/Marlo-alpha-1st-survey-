@@ -110,3 +110,5 @@
 #marlo-recap[data-insight=insight-history] h2.insight-title,#marlo-recap[data-insight=insight-history] p.insight-you{margin-left:14px;margin-right:14px}
 #marlo-recap[data-insight=insight-history] p.insight-stat,#marlo-recap[data-insight=insight-data] p.insight-stat{font-size:18px!important;line-height:1.35}
 #marlo-recap[data-screen=review] h2{margin-bottom:0}
+/* Leave room for the device selector when several trackers are selected. */
+#marlo-recap[data-insight=insight-data]:has(.wearable-picker) .insight-photo img{height:clamp(110px,19dvh,160px)}
