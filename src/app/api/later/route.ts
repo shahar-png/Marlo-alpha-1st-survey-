@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   let pageId = "";
   if (notionEnabled()) {
     try {
-      pageId = await notionCreateLaterRound(email, submitted_at);
+      pageId = await notionCreateLaterRound(email, submitted_at, reason);
     } catch (e) {
       console.error("notion_failed", e);
     }

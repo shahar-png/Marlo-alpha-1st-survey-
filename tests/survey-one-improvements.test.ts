@@ -16,7 +16,7 @@ test("unlisted supplements and review status are saved atomically with the appli
   t.after(() => { if (old.token === undefined) delete process.env.NOTION_TOKEN; else process.env.NOTION_TOKEN = old.token; if (old.db === undefined) delete process.env.NOTION_PARTICIPANTS_DB; else process.env.NOTION_PARTICIPANTS_DB = old.db; });
   const payloads: { properties: Record<string, unknown> }[] = [];
   t.mock.method(globalThis, "fetch", async (_input: unknown, init?: RequestInit) => { payloads.push(JSON.parse(String(init?.body))); return Response.json({ id: "qa-participant" }); });
-  const a: ApplicantRecord = { full_name: "Alex Example", first_name: "Alex", email: "alex@example.com", phone_e164: "+15555550123", age_band: "35–44", sex: "Female", fit: ["Longevity"], fit_text: "", icp_bucket: "Longevity", frequency: "Every day", supplements: ["Other"], supplements_other: "Taurine; vitamin D", rx: false, rx_text: "", submitted_at: "2026-09-23T12:00:00Z" };
+  const a: ApplicantRecord = { full_name: "Alex Example", first_name: "Alex", email: "alex@example.com", phone_e164: "+15555550123", age_band: "35–44", sex: "Female", fit: ["Longevity"], fit_text: "", icp_bucket: "Longevity", frequency: "Every day", supplements: ["Other"], supplements_other: "Taurine; vitamin D", rx: false, rx_text: "", device: "iPhone", country: "US", supplement_count: "3–5", attribution: "", submitted_at: "2026-09-23T12:00:00Z" };
   await notionCreateApplicant(a);
   assert.equal(payloads.length, 1);
   assert.deepEqual(payloads[0].properties["Supplement suggestions"], { rich_text: [{ text: { content: "Taurine" } }] });
@@ -38,7 +38,7 @@ test("application queues active Other answers but never stale hidden text; loggi
     assert.equal(url, "https://qa.invalid"); rows.push(JSON.parse(String(init.body))); return Response.json({ ok: true });
   });
   for (const active of [true, false]) {
-    const res = await POST(new Request("http://localhost/api/apply", { method: "POST", body: JSON.stringify({ full_name: "Alex Example", phone: "2025550199", email: "alex@example.com", fit: [], supplements: active ? ["other"] : [], supplements_other: "Taurine\nVitamin D" }) }));
+    const res = await POST(new Request("http://localhost/api/apply", { method: "POST", body: JSON.stringify({ full_name: "Alex Example", phone: "2025550199", email: "alex@example.com", fit: [], supplements: active ? ["other"] : [], supplements_other: "Taurine\nVitamin D", device: "iPhone", country: "US", supplement_count: "1–2", utm_source: "facebook", fbclid: "click-1", referrer: "https://facebook.com/" }) }));
     assert.equal(res.status, 200);
   }
   assert.deepEqual(writes[0].properties["Supplement suggestions"], { rich_text: [{ text: { content: "Taurine" } }] });
@@ -46,4 +46,14 @@ test("application queues active Other answers but never stale hidden text; loggi
   assert.equal(rows[0].row.supplements_other, "Taurine\nVitamin D");
   assert.equal(rows[1].row.supplements_other, "");
   assert.equal(rows[0].row.notion_page_id, "qa-created");
+  assert.equal(rows[0].row.device, "iPhone");
+  assert.equal(rows[0].row.country, "US");
+  assert.equal(rows[0].row.supplement_count, "1–2");
+  assert.equal(rows[0].row.utm_source, "facebook");
+  assert.equal(rows[0].row.fbclid, "click-1");
+  assert.equal(rows[0].row.referrer, "https://facebook.com/");
+  assert.deepEqual(writes[0].properties.Device, { select: { name: "iPhone" } });
+  assert.deepEqual(writes[0].properties.Country, { select: { name: "US" } });
+  assert.deepEqual(writes[0].properties["Supplement count"], { select: { name: "1–2" } });
+  assert.deepEqual(writes[0].properties.Attribution, { rich_text: [{ text: { content: "utm_source=facebook; fbclid=click-1; referrer=https://facebook.com/" } }] });
 });
