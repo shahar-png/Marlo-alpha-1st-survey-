@@ -1,6 +1,7 @@
 // Hard gates for this alpha round. Failures use the later-round page and never POST /api/apply.
 // Notion select names: Device = iPhone | Android | Other, Country = US | Outside US.
 // Supplement count is separate from Frequency (how often), which is not a gate.
+// Only 6+ passes. 0, 1–2, and 3–5 are under 6 and use the later-round page.
 
 export const COUNTRY_OPTIONS = [
   { id: "US", label: "Yes", pass: true },
@@ -15,8 +16,8 @@ export const DEVICE_OPTIONS = [
 
 export const SUPPLEMENT_COUNT_OPTIONS = [
   { id: "0", label: "0", pass: false },
-  { id: "1–2", label: "1–2", pass: true },
-  { id: "3–5", label: "3–5", pass: true },
+  { id: "1–2", label: "1–2", pass: false },
+  { id: "3–5", label: "3–5", pass: false },
   { id: "6+", label: "6+", pass: true },
 ] as const;
 
@@ -55,7 +56,7 @@ export function laterGateReason(reason: string): string {
     case "not_iphone":
       return "Phone is not an iPhone";
     case "no_supplements":
-      return "Takes 0 different supplements on a typical day";
+      return "Takes fewer than 6 different supplements on a typical day";
     default:
       return "Self-selected: doesn't fit this round (iPhone / US / 18+)";
   }

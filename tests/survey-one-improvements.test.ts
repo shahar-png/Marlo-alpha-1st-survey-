@@ -38,7 +38,7 @@ test("application queues active Other answers but never stale hidden text; loggi
     assert.equal(url, "https://qa.invalid"); rows.push(JSON.parse(String(init.body))); return Response.json({ ok: true });
   });
   for (const active of [true, false]) {
-    const res = await POST(new Request("http://localhost/api/apply", { method: "POST", body: JSON.stringify({ full_name: "Alex Example", phone: "2025550199", email: "alex@example.com", fit: [], supplements: active ? ["other"] : [], supplements_other: "Taurine\nVitamin D", device: "iPhone", country: "US", supplement_count: "1–2", utm_source: "facebook", fbclid: "click-1", referrer: "https://facebook.com/" }) }));
+    const res = await POST(new Request("http://localhost/api/apply", { method: "POST", body: JSON.stringify({ full_name: "Alex Example", phone: "2025550199", email: "alex@example.com", fit: [], supplements: active ? ["other"] : [], supplements_other: "Taurine\nVitamin D", device: "iPhone", country: "US", supplement_count: "6+", utm_source: "facebook", fbclid: "click-1", referrer: "https://facebook.com/" }) }));
     assert.equal(res.status, 200);
   }
   assert.deepEqual(writes[0].properties["Supplement suggestions"], { rich_text: [{ text: { content: "Taurine" } }] });
@@ -48,12 +48,12 @@ test("application queues active Other answers but never stale hidden text; loggi
   assert.equal(rows[0].row.notion_page_id, "qa-created");
   assert.equal(rows[0].row.device, "iPhone");
   assert.equal(rows[0].row.country, "US");
-  assert.equal(rows[0].row.supplement_count, "1–2");
+  assert.equal(rows[0].row.supplement_count, "6+");
   assert.equal(rows[0].row.utm_source, "facebook");
   assert.equal(rows[0].row.fbclid, "click-1");
   assert.equal(rows[0].row.referrer, "https://facebook.com/");
   assert.deepEqual(writes[0].properties.Device, { select: { name: "iPhone" } });
   assert.deepEqual(writes[0].properties.Country, { select: { name: "US" } });
-  assert.deepEqual(writes[0].properties["Supplement count"], { select: { name: "1–2" } });
+  assert.deepEqual(writes[0].properties["Supplement count"], { select: { name: "6+" } });
   assert.deepEqual(writes[0].properties.Attribution, { rich_text: [{ text: { content: "utm_source=facebook; fbclid=click-1; referrer=https://facebook.com/" } }] });
 });

@@ -10,25 +10,31 @@ import { S7Stack, SChoice, SReview } from "../src/components/screens";
 import { COUNTRY_OPTIONS, DEVICE_OPTIONS } from "../src/lib/qualify";
 import { POST } from "../src/app/api/apply/route";
 
-const pass = { country: "US", device: "iPhone", supplement_count: "1–2" };
+const pass = { country: "US", device: "iPhone", supplement_count: "6+" };
 
-test("qualification passes US + iPhone + a positive supplement count, and fails the rest", () => {
+test("qualification passes US + iPhone + 6+ supplements, and fails the rest", () => {
   assert.equal(applicationQualifies(pass), true);
-  assert.equal(applicationQualifies({ ...pass, supplement_count: "3–5" }), true);
-  assert.equal(applicationQualifies({ ...pass, supplement_count: "6+" }), true);
   assert.equal(applicationQualifies({ ...pass, country: "Outside US" }), false);
   assert.equal(applicationQualifies({ ...pass, device: "Android" }), false);
   assert.equal(applicationQualifies({ ...pass, device: "Other" }), false);
   assert.equal(applicationQualifies({ ...pass, supplement_count: "0" }), false);
+  assert.equal(applicationQualifies({ ...pass, supplement_count: "1–2" }), false);
+  assert.equal(applicationQualifies({ ...pass, supplement_count: "3–5" }), false);
   assert.equal(applicationQualifies({ ...pass, supplement_count: "" }), false);
   assert.equal(gateExit("country", "US"), null);
   assert.equal(gateExit("country", "Outside US"), "not_us");
+  assert.equal(gateExit("device", "iPhone"), null);
   assert.equal(gateExit("device", "Android"), "not_iphone");
   assert.equal(gateExit("device", "Other"), "not_iphone");
   assert.equal(gateExit("supplement_count", "0"), "no_supplements");
+  assert.equal(gateExit("supplement_count", "1–2"), "no_supplements");
+  assert.equal(gateExit("supplement_count", "3–5"), "no_supplements");
+  assert.equal(gateExit("supplement_count", "6+"), null);
   assert.equal(laterGateReason("not_us"), "Does not live in the US");
+  assert.equal(laterGateReason("not_iphone"), "Phone is not an iPhone");
+  assert.equal(laterGateReason("no_supplements"), "Takes fewer than 6 different supplements on a typical day");
   assert.equal(laterGateReason("doesnt_fit"), "Self-selected: doesn't fit this round (iPhone / US / 18+)");
-  assert.deepEqual(SUPPLEMENT_COUNT_OPTIONS.map((option) => option.id), ["0", "1–2", "3–5", "6+"]);
+  assert.deepEqual(SUPPLEMENT_COUNT_OPTIONS.map((option) => [option.id, option.pass]), [["0", false], ["1–2", false], ["3–5", false], ["6+", true]]);
 });
 
 test("attribution is captured on first load and kept across a later load without params", () => {
@@ -99,7 +105,7 @@ test("failed gates do not write Notion or the sheet", async (t) => {
   let calls = 0;
   t.mock.method(globalThis, "fetch", async () => { calls += 1; return Response.json({ ok: true }); });
   const base = { full_name: "Alex Example", phone: "2025550199", email: "alex@example.com", ...pass };
-  for (const patch of [{ country: "Outside US" }, { device: "Android" }, { device: "Other" }, { supplement_count: "0" }]) {
+  for (const patch of [{ country: "Outside US" }, { device: "Android" }, { device: "Other" }, { supplement_count: "0" }, { supplement_count: "1–2" }, { supplement_count: "3–5" }]) {
     const res = await POST(new Request("http://localhost/api/apply", { method: "POST", body: JSON.stringify({ ...base, ...patch }) }));
     assert.equal(res.status, 400);
     assert.equal((await res.json()).error, "not_qualified");
