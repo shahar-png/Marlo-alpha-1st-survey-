@@ -55,7 +55,16 @@ function doPost(e) {
     var sh = ss.getSheetByName(p.tab) || ss.insertSheet(p.tab);
     var values = sh.getDataRange().getValues();
     if (values.length === 0 || !values[0][0]) { sh.getRange(1, 1, 1, p.columns.length).setValues([p.columns]); values = [p.columns]; }
-    var header = values[0];
+    var header = values[0].map(function (h) { return String(h); });
+    // Append columns this deployment sends that the sheet does not have yet. Never reorder existing ones.
+    var missing = [];
+    for (var c = 0; c < p.columns.length; c++) {
+      if (header.indexOf(String(p.columns[c])) < 0) missing.push(String(p.columns[c]));
+    }
+    if (missing.length) {
+      header = header.concat(missing);
+      sh.getRange(1, 1, 1, header.length).setValues([header]);
+    }
 
     // Duplicate guard (email / phone) for callers that have no database of their own.
     var dupCols = p.dupCols || [];
@@ -116,7 +125,8 @@ function notifyNew_(tab, r, rowIndex) {
       "Frequency: " + (r.frequency || "") + "\n" +
       "Supplements: " + (r.supplements || "") + (r.supplements_other ? " \u00b7 other: " + r.supplements_other : "") + "\n" +
       "Rx: " + (r.rx || "no") + (r.rx_text ? " \u2014 " + r.rx_text : "") + "\n" +
-      "Self-declared on the deal screen: iPhone \u00b7 US \u00b7 18+\n\n" +
+      "Device: " + (r.device || "") + " \u00b7 Country: " + (r.country || "") + " \u00b7 Supplement count: " + (r.supplement_count || "") + "\n" +
+      "Attribution: " + [["utm_source", r.utm_source], ["utm_medium", r.utm_medium], ["utm_campaign", r.utm_campaign], ["utm_term", r.utm_term], ["utm_content", r.utm_content], ["fbclid", r.fbclid], ["referrer", r.referrer]].filter(function (p) { return p[1]; }).map(function (p) { return p[0] + "=" + p[1]; }).join("; ") + "\n\n" +
       "Card: " + (notionUrl_(r.notion_page_id) || "(no Notion page \u2014 the write failed; create it from the sheet row)") + "\n" +
       "Sheet row: https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/edit#range=A" + rowIndex + "\n\n" +
       "Check for an Invited card with the same name or phone and merge before you decide.";

@@ -1,5 +1,6 @@
 // Idempotent production migration. Uses the existing Notion connection in Vercel;
 // never downloads credentials, creates participant records, or sends email.
+import { SUPPLEMENT_COUNT_OPTIONS } from "../src/lib/qualify";
 import { supplementSuggestions } from "../src/lib/supplement-improvements";
 
 async function setup() {
@@ -28,6 +29,11 @@ async function setup() {
       { name: "Added to quiz", color: "green" }, { name: "Not needed", color: "gray" },
     ] } },
     "Supplement review notes": { rich_text: {} },
+    "Supplement count": { select: { options: SUPPLEMENT_COUNT_OPTIONS.map((option, index) => ({
+      name: option.id,
+      color: (["gray", "blue", "green", "purple"] as const)[index] || "default",
+    })) } },
+    Attribution: { rich_text: {} },
   };
   const missing = Object.fromEntries(Object.entries(required).filter(([name, definition]) => {
     const existing = schema.properties[name];

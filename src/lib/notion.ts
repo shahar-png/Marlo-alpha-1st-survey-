@@ -1,6 +1,7 @@
 // Writes directly to the participant database (Notion — see notion-build-spec-v1.md).
 // Property names below must match the Participants database exactly.
 
+import { laterGateReason } from "./qualify";
 import { supplementSuggestions } from "./supplement-improvements";
 
 const NOTION_VERSION = "2022-06-28";
@@ -66,6 +67,10 @@ export type ApplicantRecord = {
   supplements_other: string;
   rx: boolean;
   rx_text: string;
+  device: string;
+  country: string;
+  supplement_count: string;
+  attribution: string;
   submitted_at: string;
 };
 
@@ -81,8 +86,10 @@ export async function notionCreateApplicant(a: ApplicantRecord): Promise<string>
     Phone: { phone_number: a.phone_e164 },
     "Age band": select(a.age_band),
     Sex: select(a.sex),
-    Device: select("iPhone"), // self-declared by "I'm in" on the deal screen
-    Country: select("US"),   // self-declared by "I'm in" on the deal screen
+    Device: select(a.device),
+    Country: select(a.country),
+    "Supplement count": select(a.supplement_count),
+    Attribution: a.attribution ? text(a.attribution) : undefined,
     State: select("Applied"),
     "State changed": date(a.submitted_at),
     Applied: date(a.submitted_at),
@@ -104,7 +111,7 @@ export async function notionCreateApplicant(a: ApplicantRecord): Promise<string>
 }
 
 /** Later-round list: someone who didn't fit this round but wants to hear about the next. */
-export async function notionCreateLaterRound(email: string, submitted_at: string): Promise<string> {
+export async function notionCreateLaterRound(email: string, submitted_at: string, reason = "doesnt_fit"): Promise<string> {
   const db = process.env.NOTION_PARTICIPANTS_DB!;
   const props = compact({
     Name: title(email),
@@ -112,7 +119,7 @@ export async function notionCreateLaterRound(email: string, submitted_at: string
     State: select("Waitlisted"),
     "State changed": date(submitted_at),
     "Waitlist tag": select("Later program"),
-    "Gate reason": text("Self-selected: doesn't fit this round (iPhone / US / 18+)"),
+    "Gate reason": text(laterGateReason(reason)),
   });
   const r = (await notionFetch("pages", { parent: { database_id: db }, properties: props })) as { id: string };
   return r.id;

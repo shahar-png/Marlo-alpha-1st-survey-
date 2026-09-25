@@ -23,7 +23,9 @@ applicant ──▶ survey (Vercel) ──▶ POST /api/apply
 - **The Sheet is the raw log and Email 1 goes out in the same call.** `/api/apply` POSTs to the Apps Script web app deployed from the sheet (runs as Jenny, guarded by a shared secret). The script appends the row, sends Email 1 from Jenny's inbox, and stamps `email1_sent_at` — instantly, no trigger. No Google Cloud service account is involved (the org policy blocks key creation anyway).
 - **Duplicates**: same email or phone already in Notion (or the sheet, if Notion is off) → the survey shows "You've already applied" and writes nothing. Email 0 Apply link can use `https://alpha.marlo.me/?reset=1` for retests.
 - **Either destination can be off.** With only `NOTION_*` set, the sheet is skipped; with only the `APPS_SCRIPT_*` vars set, Notion is skipped (Jenny then creates the page from the row). Both set is the intended setup.
-- **iPhone / US** are self-declared by tapping "I'm in" on the deal screen and written as Device = iPhone, Country = US. **Under 18** is the one hard stop (no submission; routed to the later-round page).
+- **Hard gates** sit after The deal and before contact. Pass: lives in the US (`country` `US`), uses an iPhone (`device` `iPhone`), and takes `6+` different supplements on a typical day (`supplement_count`, not frequency). Fail — No (`Outside US`), Android, Other, or under 6 (`0`, `1–2`, `3–5`) — opens the existing later-round page and does not POST `/api/apply`. **Under 18** is still a hard stop on the age question. "I don't fit this round" on the deal screen still opens that same later-round page. Passing answers are written as Notion Device = iPhone and Country = US.
+- **Meta Pixel.** Set `NEXT_PUBLIC_META_PIXEL_ID` (digits only) on the Vercel project. The base code loads on Survey 1 and tracks PageView. `Lead` fires only after `POST /api/apply` returns HTTP 200. If the variable is missing or not digits, the pixel does not load and Lead is a no-op. Do not put an ID in source.
+- **Attribution.** The first load stores `utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, `utm_content`, `fbclid`, and `document.referrer` (external only) in `sessionStorage` so they survive the SPA steps and a refresh in the same tab. They are included on the apply JSON, as Sheet columns, and as Notion **Attribution**. A URL value replaces a stored one; the first external referrer is kept.
 
 **Public host (24 Sep 2026):** `https://alpha.marlo.me` — the custom domain on the Vercel project. `marlo-alpha-1st-survey.vercel.app` still resolves to the same deployment; every link Jenny sends uses alpha.marlo.me.
 
@@ -64,15 +66,16 @@ The participant-facing program guide, rendered from `02_Acceptance/program-guide
 1. Copy `.env.example` → `.env.local`, fill it (instructions inside).
 2. `npm install` · `npm run dev` → http://localhost:3000
 3. Vercel: import this repo, add the same env vars, deploy. Point the chosen domain at it.
-4. As jenny@saymarlo.com: install `scripts/apps-script-email1.gs` in the sheet `survey-1-answers`, set the `SECRET` script property, deploy as a web app (steps in the file header). Put the URL and secret in Vercel.
+4. As jenny@saymarlo.com: install `scripts/apps-script-email1.gs` in the sheet `survey-1-answers`, set the `SECRET` script property, deploy as a web app (steps in the file header). Put the URL and secret in Vercel. After this file changes, redeploy that web app (Manage deployments → edit → new version) so new Sheet columns are appended. The URL stays the same.
+5. Vercel env `NEXT_PUBLIC_META_PIXEL_ID`: the Meta Pixel ID for Survey 1. Leave it unset until the pixel exists; the survey still works.
 
 ## Notion properties written (must exist exactly as named)
 
-Name · First name · Email · Phone · Age band · Sex · Device · Country · State · State changed · Applied · ICP bucket · Secondary tags · Fit text · Frequency · Supplements · Supplements other · Rx · Rx text — and for the later-round list: Name · Email · State · State changed · Waitlist tag · Gate reason.
+Name · First name · Email · Phone · Age band · Sex · Device · Country · Supplement count · Attribution · State · State changed · Applied · ICP bucket · Secondary tags · Fit text · Frequency · Supplements · Supplements other · Rx · Rx text — and for the later-round list: Name · Email · State · State changed · Waitlist tag · Gate reason.
 
 ## Sheet columns
 
-Survey 1: submitted_at · full_name · first_name · phone · email · age_band · sex · fit · fit_text · icp_bucket · frequency · supplements · supplements_other · rx · rx_text · notion_page_id · email1_sent_at · user_agent
+Survey 1: submitted_at · full_name · first_name · phone · email · age_band · sex · fit · fit_text · icp_bucket · frequency · supplements · supplements_other · rx · rx_text · notion_page_id · email1_sent_at · user_agent · device · country · supplement_count · utm_source · utm_medium · utm_campaign · utm_term · utm_content · fbclid · referrer
 Later round: submitted_at · email · reason · notion_page_id · email_sent_at
 
 ## Bucketing (server-side)

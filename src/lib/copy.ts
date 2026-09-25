@@ -67,6 +67,19 @@ export type Answers = {
   supplements_other: string;
   rx: boolean;
   rx_text: string;
+  /** Jenny / Notion Device: iPhone | Android | Other */
+  device: string;
+  /** Jenny / Notion Country: US | Outside US */
+  country: string;
+  /** Different supplements on a typical day: 0 | 1–2 | 3–5 | 6+. Not frequency. */
+  supplement_count: string;
+  utm_source: string;
+  utm_medium: string;
+  utm_campaign: string;
+  utm_term: string;
+  utm_content: string;
+  fbclid: string;
+  referrer: string;
 };
 
 export const EMPTY: Answers = {
@@ -83,6 +96,16 @@ export const EMPTY: Answers = {
   supplements_other: "",
   rx: false,
   rx_text: "",
+  device: "",
+  country: "",
+  supplement_count: "",
+  utm_source: "",
+  utm_medium: "",
+  utm_campaign: "",
+  utm_term: "",
+  utm_content: "",
+  fbclid: "",
+  referrer: "",
 };
 
 /** Bucketing rule (Survey 1 spec): Performance → Optimizer; else first checked. */

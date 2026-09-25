@@ -3,8 +3,7 @@ import React, { useState } from "react";
 import { Screen, Title, Lead, Label, Button, Chip, Row, Field, TextArea } from "./survey-one-ui";
 import { MarloIntro } from "./survey-one-intro";
 import { QueueCelebration } from "./queue-celebration";
-import "./survey-one.css";
-import { AGE_BANDS, SEX, FIT, FREQUENCY, SUPPLEMENTS, type Answers, firstName } from "@/lib/copy";
+import { AGE_BANDS, SEX, FIT, FREQUENCY, SUPPLEMENTS, LABELS, type Answers, firstName } from "@/lib/copy";
 
 type Common = {
   a: Answers;
@@ -118,11 +117,11 @@ export function S6Frequency({ a, set, next, back, step, total }: Common) {
 }
 
 /* 7 · What you take */
-export function S7Stack({ a, set, next, back, step, total, busy }: Common & { busy: boolean }) {
+export function S7Stack({ a, set, next, back, step, total }: Common) {
   const toggle = (id: string) => set("supplements", a.supplements.includes(id) ? a.supplements.filter((x) => x !== id) : [...a.supplements, id]);
   const otherOn = a.supplements.includes("other");
   return (
-    <Screen onBack={back} step={step} total={total} cta={<Button onClick={next} disabled={busy || !(a.supplements.length > 0 || a.rx)}>{busy ? "Sending…" : "Continue"}</Button>}>
+    <Screen onBack={back} step={step} total={total} cta={<Button onClick={next} disabled={!(a.supplements.length > 0 || a.rx)}>Continue</Button>}>
       <Title>What do<br />you take?</Title>
       <Lead>Pick everything that&rsquo;s part of your routine.</Lead>
       <Label>Supplements</Label>
@@ -136,6 +135,64 @@ export function S7Stack({ a, set, next, back, step, total, busy }: Common & { bu
         <Row active={a.rx} onClick={() => set("rx", !a.rx)}>I take prescription medication alongside</Row>
         {a.rx ? <TextArea id="rx_text" placeholder="Which ones? (optional)" value={a.rx_text} onChange={(v) => set("rx_text", v)} /> : null}
       </div>
+    </Screen>
+  );
+}
+
+/* Single-choice gate or question. Continue stays disabled until an answer is chosen. */
+export function SChoice({ title, options, value, onSelect, next, back, step, total, long }: {
+  title: React.ReactNode;
+  options: readonly { id: string; label: string }[];
+  value: string;
+  onSelect: (id: string) => void;
+  next: () => void;
+  back: () => void;
+  step: number;
+  total: number;
+  long?: boolean;
+}) {
+  return (
+    <Screen onBack={back} step={step} total={total} cta={<Button onClick={next} disabled={!value}>Continue</Button>}>
+      <Title className={long ? "long" : ""}>{title}</Title>
+      <div className="choice-list">
+        {options.map((option) => <Row key={option.id} active={value === option.id} onClick={() => onSelect(option.id)}>{option.label}</Row>)}
+      </div>
+    </Screen>
+  );
+}
+
+function reviewRows(a: Answers): { label: string; value: string }[] {
+  const digits = a.phone.replace(/\D/g, "");
+  const phone = digits.length === 10 ? `+1 ${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}` : a.phone;
+  const fit = a.fit.map((id) => LABELS.fit[id]).filter(Boolean).join(", ");
+  const fitExtra = [a.fit_specific_text, a.fit_other_text].map((s) => s.trim()).filter(Boolean).join(" · ");
+  const supplements = a.supplements.map((id) => (id === "other" ? "Other" : LABELS.supplements[id])).filter(Boolean).join(", ");
+  const other = a.supplements.includes("other") ? a.supplements_other.trim() : "";
+  return [
+    { label: "Lives in the US", value: a.country === "US" ? "Yes" : a.country === "Outside US" ? "No" : a.country },
+    { label: "Phone", value: a.device },
+    { label: "Different supplements a day", value: a.supplement_count },
+    { label: "Name", value: a.full_name.trim() },
+    { label: "Mobile", value: phone },
+    { label: "Email", value: a.email.trim() },
+    { label: "Age", value: LABELS.age[a.age_band] || a.age_band },
+    { label: "Sex", value: LABELS.sex[a.sex] || a.sex },
+    { label: "Fit", value: [fit, fitExtra].filter(Boolean).join(" — ") },
+    { label: "How often", value: LABELS.frequency[a.frequency] || a.frequency },
+    { label: "What you take", value: [supplements, other].filter(Boolean).join(" · ") },
+    { label: "Prescriptions", value: a.rx ? (a.rx_text.trim() ? `Yes — ${a.rx_text.trim()}` : "Yes") : "No" },
+  ];
+}
+
+/* After the last question. Submit is the only control that POSTs /api/apply. */
+export function SReview({ a, next, back, step, total, busy }: Common & { busy: boolean }) {
+  return (
+    <Screen onBack={back} step={step} total={total} cta={<Button onClick={next} disabled={busy}>{busy ? "Sending…" : "Submit application"}</Button>}>
+      <Title>Look it over.</Title>
+      <Lead>This is what we&rsquo;ll receive.</Lead>
+      <dl className="review-list">
+        {reviewRows(a).map((row) => <div key={row.label}><dt>{row.label}</dt><dd>{row.value}</dd></div>)}
+      </dl>
     </Screen>
   );
 }
